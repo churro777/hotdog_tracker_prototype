@@ -1,5 +1,37 @@
 # React + TypeScript + Vite
 
+## How to Run
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) (version 16 or higher)
+- [Git](https://git-scm.com/downloads)
+
+**For Mac/Linux users (Terminal):**
+```bash
+git clone https://github.com/churro777/hotdog_tracker_prototype.git
+cd hotdog_tracker_prototype
+npm install
+npm run dev
+```
+
+**For Windows users (Command Prompt, PowerShell, or Git Bash):**
+```bash
+git clone https://github.com/churro777/hotdog_tracker_prototype.git
+cd hotdog_tracker_prototype
+npm install
+npm run dev
+```
+
+**Open your browser** and go to the URL shown in the terminal (typically `http://localhost:5173`)
+
+### Additional Commands
+
+- **Build for production**: `npm run build`
+- **Preview production build**: `npm run preview`
+- **Run linter**: `npm run lint`
+
+---
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
