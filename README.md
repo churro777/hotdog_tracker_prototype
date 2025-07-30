@@ -3,10 +3,12 @@
 ## How to Run
 
 ### Prerequisites
+
 - [Node.js](https://nodejs.org/) (version 16 or higher)
 - [Git](https://git-scm.com/downloads)
 
 **For Mac/Linux users (Terminal):**
+
 ```bash
 git clone https://github.com/churro777/hotdog_tracker_prototype.git
 cd hotdog_tracker_prototype
@@ -15,6 +17,7 @@ npm run dev
 ```
 
 **For Windows users (Command Prompt, PowerShell, or Git Bash):**
+
 ```bash
 git clone https://github.com/churro777/hotdog_tracker_prototype.git
 cd hotdog_tracker_prototype
