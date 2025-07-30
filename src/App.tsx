@@ -43,6 +43,49 @@ type ContestUser = {
   totalCount: number
 }
 
+const defaultUsers: User[] = [
+  { id: '1', name: 'You' },
+  { id: '2', name: 'Joey Chestnut' },
+  { id: '3', name: 'Takeru Kobayashi' },
+  { id: '4', name: 'Matt Stonie' },
+  { id: '5', name: 'Your Friend' }
+]
+
+const defaultContests: Contest[] = [
+  {
+    id: 'contest-1',
+    name: 'Hot Dog Contest July 2025',
+    description: 'Annual hot dog eating contest',
+    type: 'Hot Dog Eating',
+    hostId: '1',
+    hostName: 'You',
+    participants: ['1', '2', '3', '4', '5'],
+    createdAt: new Date(),
+    isActive: true,
+    emoji: '🌭'
+  }
+]
+
+const defaultContestUsers: ContestUser[] = [
+  { id: 'cu-1', contestId: 'contest-1', userId: '2', userName: 'Joey Chestnut', totalCount: 23 },
+  { id: 'cu-2', contestId: 'contest-1', userId: '3', userName: 'Takeru Kobayashi', totalCount: 18 },
+  { id: 'cu-3', contestId: 'contest-1', userId: '4', userName: 'Matt Stonie', totalCount: 15 },
+  { id: 'cu-4', contestId: 'contest-1', userId: '1', userName: 'You', totalCount: 3 },
+  { id: 'cu-5', contestId: 'contest-1', userId: '5', userName: 'Your Friend', totalCount: 7 }
+]
+
+const defaultContestPosts: ContestPost[] = [
+  {
+    id: '1',
+    contestId: 'contest-1', 
+    userId: '2', 
+    userName: 'Joey Chestnut', 
+    count: 5, 
+    timestamp: new Date(), 
+    description: 'Just crushed 5 more! 🌭'
+  }
+]
+
 function App() {
   const [currentView, setCurrentView] = useState<View>('home')
   const [activeTab, setActiveTab] = useState<Tab>('leaderboard')
@@ -53,58 +96,16 @@ function App() {
   const [contestPosts, setContestPosts] = useState<ContestPost[]>([])
   const [contestUsers, setContestUsers] = useState<ContestUser[]>([])
   const [darkMode, setDarkMode] = useState<boolean>(false)
+  const [showCreateModal, setShowCreateModal] = useState<boolean>(false)
   
   const currentUserId = '1' // This would come from auth in a real app
-
-  const defaultUsers: User[] = [
-    { id: '1', name: 'You' },
-    { id: '2', name: 'Joey Chestnut' },
-    { id: '3', name: 'Takeru Kobayashi' },
-    { id: '4', name: 'Matt Stonie' },
-    { id: '5', name: 'Your Friend' }
-  ]
-
-  const defaultContests: Contest[] = [
-    {
-      id: 'contest-1',
-      name: 'Hot Dog Contest July 2025',
-      description: 'Annual hot dog eating contest',
-      type: 'Hot Dog Eating',
-      hostId: '1',
-      hostName: 'You',
-      participants: ['1', '2', '3', '4', '5'],
-      createdAt: new Date(),
-      isActive: true,
-      emoji: '🌭'
-    }
-  ]
-
-  const defaultContestUsers: ContestUser[] = [
-    { id: 'cu-1', contestId: 'contest-1', userId: '2', userName: 'Joey Chestnut', totalCount: 23 },
-    { id: 'cu-2', contestId: 'contest-1', userId: '3', userName: 'Takeru Kobayashi', totalCount: 18 },
-    { id: 'cu-3', contestId: 'contest-1', userId: '4', userName: 'Matt Stonie', totalCount: 15 },
-    { id: 'cu-4', contestId: 'contest-1', userId: '1', userName: 'You', totalCount: 3 },
-    { id: 'cu-5', contestId: 'contest-1', userId: '5', userName: 'Your Friend', totalCount: 7 }
-  ]
-
-  const defaultContestPosts: ContestPost[] = [
-    {
-      id: '1',
-      contestId: 'contest-1', 
-      userId: '2', 
-      userName: 'Joey Chestnut', 
-      count: 5, 
-      timestamp: new Date(), 
-      description: 'Just crushed 5 more! 🌭'
-    }
-  ]
 
   useEffect(() => {
     // Load contests
     const savedContests = localStorage.getItem('contest-platform-contests')
     if (savedContests) {
       try {
-        const parsedContests = JSON.parse(savedContests).map((contest: any) => ({
+        const parsedContests = JSON.parse(savedContests).map((contest: Contest & { createdAt: string, endDate?: string }) => ({
           ...contest,
           createdAt: new Date(contest.createdAt),
           endDate: contest.endDate ? new Date(contest.endDate) : undefined
@@ -135,7 +136,7 @@ function App() {
     const savedPosts = localStorage.getItem('contest-platform-posts')
     if (savedPosts) {
       try {
-        const parsedPosts = JSON.parse(savedPosts).map((post: any) => ({
+        const parsedPosts = JSON.parse(savedPosts).map((post: ContestPost & { timestamp: string }) => ({
           ...post,
           timestamp: new Date(post.timestamp)
         }))
@@ -259,6 +260,45 @@ function App() {
     setCurrentContestId(null)
   }
 
+  const handleCreateContest = (contestData: {
+    name: string,
+    type: string,
+    description?: string,
+    emoji: string,
+    endDate?: Date
+  }) => {
+    const newContest: Contest = {
+      id: `contest-${Date.now()}`,
+      name: contestData.name,
+      description: contestData.description,
+      type: contestData.type,
+      hostId: currentUserId,
+      hostName: 'You',
+      participants: [currentUserId],
+      createdAt: new Date(),
+      endDate: contestData.endDate,
+      isActive: true,
+      emoji: contestData.emoji
+    }
+
+    // Add the new contest
+    setContests(prev => [newContest, ...prev])
+
+    // Create contest user entry for the host
+    const newContestUser: ContestUser = {
+      id: `cu-${Date.now()}`,
+      contestId: newContest.id,
+      userId: currentUserId,
+      userName: 'You',
+      totalCount: 0
+    }
+    setContestUsers(prev => [newContestUser, ...prev])
+
+    // Close modal and navigate to the new contest
+    setShowCreateModal(false)
+    handleContestSelect(newContest.id)
+  }
+
   const renderTabContent = () => {
     if (!currentContestId) return <div>Select a contest</div>
     
@@ -274,13 +314,11 @@ function App() {
       case 'log':
         return <LogTab 
           contestId={currentContestId}
-          contestPosts={contestPosts}
           setContestPosts={setContestPosts} 
           contestUsers={contestUsers}
           setContestUsers={setContestUsers}
           currentUserId={currentUserId}
           setActiveTab={setActiveTab}
-          contest={currentContest}
         />
       case 'journal':
         return <JournalTab 
@@ -299,7 +337,7 @@ function App() {
         contests={contests}
         currentUserId={currentUserId}
         onContestSelect={handleContestSelect}
-        onCreateContest={() => {/* TODO: implement */}}
+        onCreateContest={() => setShowCreateModal(true)}
       />
     }
     
@@ -378,6 +416,13 @@ function App() {
       </header>
       
       {renderContent()}
+      
+      {showCreateModal && (
+        <CreateContestModal 
+          onClose={() => setShowCreateModal(false)}
+          onCreateContest={handleCreateContest}
+        />
+      )}
     </div>
   )
 }
@@ -509,22 +554,18 @@ function LeaderboardTab({ contestUsers, contest }: {
 
 function LogTab({ 
   contestId, 
-  contestPosts, 
   setContestPosts, 
   contestUsers, 
   setContestUsers, 
   currentUserId, 
-  setActiveTab,
-  contest
+  setActiveTab
 }: { 
   contestId: string,
-  contestPosts: ContestPost[],
   setContestPosts: React.Dispatch<React.SetStateAction<ContestPost[]>>,
   contestUsers: ContestUser[],
   setContestUsers: React.Dispatch<React.SetStateAction<ContestUser[]>>,
   currentUserId: string,
-  setActiveTab: React.Dispatch<React.SetStateAction<Tab>>,
-  contest: Contest | undefined
+  setActiveTab: React.Dispatch<React.SetStateAction<Tab>>
 }) {
   const [newPostCount, setNewPostCount] = useState<string>('1')
   const [newPostDescription, setNewPostDescription] = useState<string>('')
@@ -940,105 +981,183 @@ function JournalTab({ posts, currentUserId, onEditPost }: {
   )
 }
 
-function SettingsTab({ darkMode, setDarkMode, onClearData }: { 
-  darkMode: boolean,
-  setDarkMode: React.Dispatch<React.SetStateAction<boolean>>,
-  onClearData: () => void 
-}) {
-  const [userName, setUserName] = useState('You')
-  const [notifications, setNotifications] = useState(true)
 
-  const handleSaveSettings = () => {
-    alert('Settings saved! (This is just a prototype)')
+function CreateContestModal({ onClose, onCreateContest }: {
+  onClose: () => void,
+  onCreateContest: (contestData: {
+    name: string,
+    type: string,
+    description?: string,
+    emoji: string,
+    endDate?: Date
+  }) => void
+}) {
+  const [formData, setFormData] = useState({
+    name: '',
+    type: '',
+    description: '',
+    emoji: '🏆',
+    endDate: ''
+  })
+  const [errors, setErrors] = useState<{[key: string]: string}>({})
+
+  const contestTypes = [
+    { value: 'Hot Dog Eating', emoji: '🌭' },
+    { value: 'Pizza Eating', emoji: '🍕' },
+    { value: 'Burger Eating', emoji: '🍔' },
+    { value: 'Ice Cream Eating', emoji: '🍦' },
+    { value: 'Taco Eating', emoji: '🌮' },
+    { value: 'Donut Eating', emoji: '🍩' },
+    { value: 'Cookie Eating', emoji: '🍪' },
+    { value: 'Pie Eating', emoji: '🥧' },
+    { value: 'Custom Contest', emoji: '🏆' }
+  ]
+
+  const handleTypeChange = (type: string) => {
+    const selectedType = contestTypes.find(t => t.value === type)
+    setFormData(prev => ({
+      ...prev,
+      type,
+      emoji: selectedType?.emoji || '🏆'
+    }))
   }
 
-  const handleClearData = () => {
-    if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
-      onClearData()
-      alert('All data has been cleared and reset to defaults!')
+  const validateForm = () => {
+    const newErrors: {[key: string]: string} = {}
+    
+    if (!formData.name.trim()) {
+      newErrors.name = 'Contest name is required'
+    }
+    if (!formData.type.trim()) {
+      newErrors.type = 'Contest type is required'
+    }
+    if (formData.endDate && new Date(formData.endDate) <= new Date()) {
+      newErrors.endDate = 'End date must be in the future'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!validateForm()) return
+
+    onCreateContest({
+      name: formData.name.trim(),
+      type: formData.type,
+      description: formData.description.trim() || undefined,
+      emoji: formData.emoji,
+      endDate: formData.endDate ? new Date(formData.endDate) : undefined
+    })
+  }
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose()
     }
   }
 
   return (
-    <div className="tab-panel">
-      <h2>⚙️ Settings</h2>
-      
-      <div className="settings-header">
-        <button className="settings-button primary" onClick={handleSaveSettings}>
-          💾 Save Settings
-        </button>
-      </div>
-      
-      <div className="settings-sections">
-        <div className="settings-section">
-          <h3>Profile</h3>
-          <div className="setting-item">
-            <label htmlFor="username">Display Name</label>
-            <input
-              id="username"
-              type="text"
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
-              className="settings-input"
-              placeholder="Enter your name"
-            />
-          </div>
+    <div className="modal-backdrop" onClick={handleBackdropClick}>
+      <div className="modal-content">
+        <div className="modal-header">
+          <h2>Create New Contest</h2>
+          <button className="modal-close-btn" onClick={onClose}>
+            ✕
+          </button>
         </div>
-
-        <div className="settings-section">
-          <h3>Preferences</h3>
-          <div className="setting-item">
-            <label className="checkbox-label">
+        
+        <form onSubmit={handleSubmit} className="contest-form">
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="contest-name">Contest Name *</label>
               <input
-                type="checkbox"
-                checked={notifications}
-                onChange={(e) => setNotifications(e.target.checked)}
+                id="contest-name"
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="e.g., Summer Hot Dog Challenge 2025"
+                className={`form-input ${errors.name ? 'error' : ''}`}
+                maxLength={100}
               />
-              <span className="checkmark"></span>
-              Enable notifications for new posts
-            </label>
-          </div>
-          
-          <div className="setting-item">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={darkMode}
-                onChange={(e) => setDarkMode(e.target.checked)}
-              />
-              <span className="checkmark"></span>
-              Dark mode
-            </label>
-          </div>
-        </div>
-
-        <div className="settings-section">
-          <h3>Data</h3>
-          <div className="setting-item">
-            <p className="setting-description">
-              Export your contest data or clear all stored information.
-            </p>
-            <div className="setting-buttons">
-              <button className="settings-button secondary" onClick={() => alert('Export feature coming soon!')}>
-                📥 Export Data
-              </button>
-              <button className="settings-button danger" onClick={handleClearData}>
-                🗑️ Clear All Data
-              </button>
+              {errors.name && <span className="error-message">{errors.name}</span>}
             </div>
           </div>
-        </div>
 
-        <div className="settings-section">
-          <h3>About</h3>
-          <div className="setting-item">
-            <p className="setting-description">
-              Contest Platform v1.0.0<br/>
-              Built with React and TypeScript<br/>
-              Made for friendly eating competitions
-            </p>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="contest-type">Contest Type *</label>
+              <select
+                id="contest-type"
+                value={formData.type}
+                onChange={(e) => handleTypeChange(e.target.value)}
+                className={`form-select ${errors.type ? 'error' : ''}`}
+              >
+                <option value="">Select contest type...</option>
+                {contestTypes.map(type => (
+                  <option key={type.value} value={type.value}>
+                    {type.emoji} {type.value}
+                  </option>
+                ))}
+              </select>
+              {errors.type && <span className="error-message">{errors.type}</span>}
+            </div>
+            
+            <div className="form-group emoji-group">
+              <label htmlFor="contest-emoji">Emoji</label>
+              <input
+                id="contest-emoji"
+                type="text"
+                value={formData.emoji}
+                onChange={(e) => setFormData(prev => ({ ...prev, emoji: e.target.value }))}
+                placeholder="🏆"
+                className="form-input emoji-input"
+                maxLength={2}
+              />
+            </div>
           </div>
-        </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="contest-description">Description (Optional)</label>
+              <textarea
+                id="contest-description"
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Brief description of your contest..."
+                className="form-textarea"
+                rows={3}
+                maxLength={500}
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="contest-end-date">End Date (Optional)</label>
+              <input
+                id="contest-end-date"
+                type="datetime-local"
+                value={formData.endDate}
+                onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}
+                className={`form-input ${errors.endDate ? 'error' : ''}`}
+                min={new Date().toISOString().slice(0, 16)}
+              />
+              {errors.endDate && <span className="error-message">{errors.endDate}</span>}
+            </div>
+          </div>
+
+          <div className="modal-footer">
+            <button type="button" onClick={onClose} className="btn-secondary">
+              Cancel
+            </button>
+            <button type="submit" className="btn-primary">
+              Create Contest
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )
