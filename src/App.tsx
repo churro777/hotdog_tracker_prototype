@@ -99,16 +99,39 @@ function App() {
     document.title = title
   }, [])
 
+  const handleEditPost = (postId: string, newCount: number, newDescription?: string) => {
+    setPosts(prev => prev.map(post => {
+      if (post.id === postId) {
+        const oldCount = post.count
+        const updatedPost = {
+          ...post,
+          count: newCount,
+          description: newDescription
+        }
+        
+        // Update user's total hot dogs
+        setUsers(prevUsers => prevUsers.map(user => 
+          user.id === post.userId 
+            ? { ...user, totalHotDogs: user.totalHotDogs - oldCount + newCount }
+            : user
+        ))
+        
+        return updatedPost
+      }
+      return post
+    }))
+  }
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'leaderboard':
         return <LeaderboardTab users={users} />
       case 'chat':
-        return <ChatTab posts={posts} />
+        return <ChatTab posts={posts} onEditPost={handleEditPost} />
       case 'log':
         return <LogHotDogsTab setPosts={setPosts} users={users} setUsers={setUsers} setActiveTab={setActiveTab} />
       case 'journal':
-        return <JournalTab posts={posts} currentUserId="4" />
+        return <JournalTab posts={posts} currentUserId="4" onEditPost={handleEditPost} />
       case 'settings':
         return <SettingsTab onClearData={() => {
           localStorage.removeItem('hotdog-contest-users')
@@ -330,9 +353,40 @@ function LogHotDogsTab({ setPosts, users, setUsers, setActiveTab }: {
   )
 }
 
-function ChatTab({ posts }: { 
-  posts: HotDogPost[]
+function ChatTab({ posts, onEditPost }: { 
+  posts: HotDogPost[],
+  onEditPost: (postId: string, newCount: number, newDescription?: string) => void
 }) {
+  const [editingPostId, setEditingPostId] = useState<string | null>(null)
+  const [editCount, setEditCount] = useState<string>('1')
+  const [editDescription, setEditDescription] = useState<string>('')
+
+  const startEditing = (post: HotDogPost) => {
+    setEditingPostId(post.id)
+    setEditCount(post.count.toString())
+    setEditDescription(post.description || '')
+    
+    // Focus and select the input after state updates
+    setTimeout(() => {
+      const input = document.querySelector('.edit-count-input') as HTMLInputElement
+      if (input) {
+        input.focus()
+        input.select()
+      }
+    }, 0)
+  }
+
+  const saveEdit = () => {
+    if (editingPostId) {
+      const count = parseInt(editCount) || 1
+      onEditPost(editingPostId, count, editDescription)
+      setEditingPostId(null)
+    }
+  }
+
+  const cancelEdit = () => {
+    setEditingPostId(null)
+  }
   return (
     <div className="tab-panel">
       <h2>📰 Hot Dog Feed</h2>
@@ -341,27 +395,76 @@ function ChatTab({ posts }: {
         <div className="posts-list">
           {posts.map(post => (
             <div key={post.id} className="post-item">
-              <div className="post-header">
-                <div className="post-user">{post.userName}</div>
-                <div className="post-timestamp">
-                  {post.timestamp.toLocaleDateString()} {post.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+              {editingPostId === post.id ? (
+                <div className="edit-form">
+                  <div className="post-header">
+                    <div className="post-user">{post.userName}</div>
+                    <div className="edit-controls">
+                      <button onClick={saveEdit} className="save-edit-btn">💾</button>
+                      <button onClick={cancelEdit} className="cancel-edit-btn">❌</button>
+                    </div>
+                  </div>
+                  
+                  {post.image && (
+                    <div className="post-image">
+                      <img src={post.image} alt="Hot dog" />
+                    </div>
+                  )}
+                  
+                  <div className="edit-inputs">
+                    <div className="edit-count">
+                      <label>Hot Dogs: </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="50"
+                        value={editCount}
+                        onChange={(e) => setEditCount(e.target.value)}
+                        className="edit-count-input"
+                      />
+                    </div>
+                    <div className="edit-description">
+                      <label>Description: </label>
+                      <textarea
+                        value={editDescription}
+                        onChange={(e) => setEditDescription(e.target.value)}
+                        placeholder="How was it? Any comments?"
+                        className="edit-description-input"
+                        rows={2}
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
-              
-              {post.image && (
-                <div className="post-image">
-                  <img src={post.image} alt="Hot dog" />
-                </div>
+              ) : (
+                <>
+                  <div className="post-header">
+                    <div className="post-user">{post.userName}</div>
+                    <div className="post-timestamp-actions">
+                      <div className="post-timestamp">
+                        {post.timestamp.toLocaleDateString()} {post.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                      </div>
+                      {post.userId === '4' && (
+                        <button onClick={() => startEditing(post)} className="edit-post-btn">✏️</button>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {post.image && (
+                    <div className="post-image">
+                      <img src={post.image} alt="Hot dog" />
+                    </div>
+                  )}
+                  
+                  <div className="post-content">
+                    <div className="post-count">
+                      🌭 <strong>{post.count}</strong> hot dog{post.count !== 1 ? 's' : ''} eaten!
+                    </div>
+                    {post.description && (
+                      <div className="post-description">{post.description}</div>
+                    )}
+                  </div>
+                </>
               )}
-              
-              <div className="post-content">
-                <div className="post-count">
-                  🌭 <strong>{post.count}</strong> hot dog{post.count !== 1 ? 's' : ''} eaten!
-                </div>
-                {post.description && (
-                  <div className="post-description">{post.description}</div>
-                )}
-              </div>
             </div>
           ))}
         </div>
@@ -374,11 +477,46 @@ function ChatTab({ posts }: {
   )
 }
 
-function JournalTab({ posts, currentUserId }: { posts: HotDogPost[], currentUserId: string }) {
+function JournalTab({ posts, currentUserId, onEditPost }: { 
+  posts: HotDogPost[], 
+  currentUserId: string,
+  onEditPost: (postId: string, newCount: number, newDescription?: string) => void
+}) {
+  const [editingPostId, setEditingPostId] = useState<string | null>(null)
+  const [editCount, setEditCount] = useState<string>('1')
+  const [editDescription, setEditDescription] = useState<string>('')
+
   const userPosts = posts.filter(post => post.userId === currentUserId)
   const totalHotDogs = userPosts.reduce((sum, post) => sum + post.count, 0)
   const averagePerPost = userPosts.length > 0 ? (totalHotDogs / userPosts.length).toFixed(1) : 0
   const bestDay = userPosts.length > 0 ? Math.max(...userPosts.map(post => post.count)) : 0
+
+  const startEditing = (post: HotDogPost) => {
+    setEditingPostId(post.id)
+    setEditCount(post.count.toString())
+    setEditDescription(post.description || '')
+    
+    // Focus and select the input after state updates
+    setTimeout(() => {
+      const input = document.querySelector('.edit-count-input') as HTMLInputElement
+      if (input) {
+        input.focus()
+        input.select()
+      }
+    }, 0)
+  }
+
+  const saveEdit = () => {
+    if (editingPostId) {
+      const count = parseInt(editCount) || 1
+      onEditPost(editingPostId, count, editDescription)
+      setEditingPostId(null)
+    }
+  }
+
+  const cancelEdit = () => {
+    setEditingPostId(null)
+  }
 
   const groupedByDate = userPosts.reduce((groups: { [key: string]: HotDogPost[] }, post) => {
     const date = post.timestamp.toLocaleDateString()
@@ -426,25 +564,74 @@ function JournalTab({ posts, currentUserId }: { posts: HotDogPost[], currentUser
                     .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
                     .map(post => (
                       <div key={post.id} className="journal-post">
-                        <div className="journal-post-header">
-                          <div className="journal-post-time">
-                            {post.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        {editingPostId === post.id ? (
+                          <div className="edit-form">
+                            <div className="journal-post-header">
+                              <div className="journal-post-time">
+                                {post.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                              </div>
+                              <div className="edit-controls">
+                                <button onClick={saveEdit} className="save-edit-btn">💾</button>
+                                <button onClick={cancelEdit} className="cancel-edit-btn">❌</button>
+                              </div>
+                            </div>
+                            
+                            {post.image && (
+                              <div className="journal-post-image">
+                                <img src={post.image} alt="Hot dog" />
+                              </div>
+                            )}
+                            
+                            <div className="edit-inputs">
+                              <div className="edit-count">
+                                <label>Hot Dogs: </label>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  max="50"
+                                  value={editCount}
+                                  onChange={(e) => setEditCount(e.target.value)}
+                                  className="edit-count-input"
+                                />
+                              </div>
+                              <div className="edit-description">
+                                <label>Description: </label>
+                                <textarea
+                                  value={editDescription}
+                                  onChange={(e) => setEditDescription(e.target.value)}
+                                  placeholder="How was it? Any comments?"
+                                  className="edit-description-input"
+                                  rows={2}
+                                />
+                              </div>
+                            </div>
                           </div>
-                          <div className="journal-post-count">
-                            🌭 {post.count}
-                          </div>
-                        </div>
-                        
-                        {post.image && (
-                          <div className="journal-post-image">
-                            <img src={post.image} alt="Hot dog" />
-                          </div>
-                        )}
-                        
-                        {post.description && (
-                          <div className="journal-post-description">
-                            {post.description}
-                          </div>
+                        ) : (
+                          <>
+                            <div className="journal-post-header">
+                              <div className="journal-post-time">
+                                {post.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                              </div>
+                              <div className="journal-post-actions">
+                                <div className="journal-post-count">
+                                  🌭 {post.count}
+                                </div>
+                                <button onClick={() => startEditing(post)} className="edit-post-btn">✏️</button>
+                              </div>
+                            </div>
+                            
+                            {post.image && (
+                              <div className="journal-post-image">
+                                <img src={post.image} alt="Hot dog" />
+                              </div>
+                            )}
+                            
+                            {post.description && (
+                              <div className="journal-post-description">
+                                {post.description}
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                     ))}
