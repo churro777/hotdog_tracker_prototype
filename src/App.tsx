@@ -25,6 +25,7 @@ function App() {
   
   const [users, setUsers] = useState<User[]>([])
   const [posts, setPosts] = useState<HotDogPost[]>([])
+  const [darkMode, setDarkMode] = useState<boolean>(false)
 
   const defaultUsers: User[] = [
     { id: '1', name: 'Joey Chestnut', totalHotDogs: 23 },
@@ -99,6 +100,25 @@ function App() {
     document.title = title
   }, [])
 
+  // Load dark mode setting from localStorage
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('hotdog-contest-dark-mode')
+    if (savedDarkMode) {
+      setDarkMode(savedDarkMode === 'true')
+    }
+  }, [])
+
+  // Save dark mode setting to localStorage and apply to body
+  useEffect(() => {
+    localStorage.setItem('hotdog-contest-dark-mode', darkMode.toString())
+    // Apply dark mode class to body
+    if (darkMode) {
+      document.body.classList.add('dark-mode')
+    } else {
+      document.body.classList.remove('dark-mode')
+    }
+  }, [darkMode])
+
   const handleEditPost = (postId: string, newCount: number, newDescription?: string) => {
     setPosts(prev => prev.map(post => {
       if (post.id === postId) {
@@ -133,12 +153,16 @@ function App() {
       case 'journal':
         return <JournalTab posts={posts} currentUserId="4" onEditPost={handleEditPost} />
       case 'settings':
-        return <SettingsTab onClearData={() => {
-          localStorage.removeItem('hotdog-contest-users')
-          localStorage.removeItem('hotdog-contest-posts')
-          setUsers(defaultUsers)
-          setPosts(defaultPosts)
-        }} />
+        return <SettingsTab 
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
+          onClearData={() => {
+            localStorage.removeItem('hotdog-contest-users')
+            localStorage.removeItem('hotdog-contest-posts')
+            setUsers(defaultUsers)
+            setPosts(defaultPosts)
+          }} 
+        />
       default:
         return <LeaderboardTab users={users} />
     }
@@ -650,10 +674,13 @@ function JournalTab({ posts, currentUserId, onEditPost }: {
   )
 }
 
-function SettingsTab({ onClearData }: { onClearData: () => void }) {
+function SettingsTab({ darkMode, setDarkMode, onClearData }: { 
+  darkMode: boolean,
+  setDarkMode: React.Dispatch<React.SetStateAction<boolean>>,
+  onClearData: () => void 
+}) {
   const [userName, setUserName] = useState('You')
   const [notifications, setNotifications] = useState(true)
-  const [darkMode, setDarkMode] = useState(false)
 
   const handleSaveSettings = () => {
     alert('Settings saved! (This is just a prototype)')
@@ -714,7 +741,7 @@ function SettingsTab({ onClearData }: { onClearData: () => void }) {
                 onChange={(e) => setDarkMode(e.target.checked)}
               />
               <span className="checkmark"></span>
-              Dark mode (coming soon)
+              Dark mode
             </label>
           </div>
         </div>
