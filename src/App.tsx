@@ -237,7 +237,7 @@ function LogHotDogsTab({ setPosts, users, setUsers, setActiveTab }: {
   setUsers: React.Dispatch<React.SetStateAction<User[]>>,
   setActiveTab: React.Dispatch<React.SetStateAction<Tab>>
 }) {
-  const [newPostCount, setNewPostCount] = useState<number>(1)
+  const [newPostCount, setNewPostCount] = useState<string>('1')
   const [newPostDescription, setNewPostDescription] = useState<string>('')
   const [imagePreview, setImagePreview] = useState<string | null>(null)
 
@@ -264,7 +264,7 @@ function LogHotDogsTab({ setPosts, users, setUsers, setActiveTab }: {
       id: Date.now().toString(),
       userId: currentUserId,
       userName: currentUser.name,
-      count: newPostCount,
+      count: parseInt(newPostCount) || 1,
       image: imagePreview || undefined,
       timestamp: new Date(),
       description: newPostDescription || undefined
@@ -274,11 +274,11 @@ function LogHotDogsTab({ setPosts, users, setUsers, setActiveTab }: {
     
     setUsers(prev => prev.map(user => 
       user.id === currentUserId 
-        ? { ...user, totalHotDogs: user.totalHotDogs + newPostCount }
+        ? { ...user, totalHotDogs: user.totalHotDogs + (parseInt(newPostCount) || 1) }
         : user
     ))
 
-    setNewPostCount(1)
+    setNewPostCount('1')
     setNewPostDescription('')
     setImagePreview(null)
     
@@ -327,7 +327,7 @@ function LogHotDogsTab({ setPosts, users, setUsers, setActiveTab }: {
             min="1"
             max="50"
             value={newPostCount}
-            onChange={(e) => setNewPostCount(parseInt(e.target.value) || 1)}
+            onChange={(e) => setNewPostCount(e.target.value)}
             className="count-input"
             required
           />
