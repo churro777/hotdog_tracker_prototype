@@ -23,17 +23,21 @@ type User = {
   id: string
   name: string
   avatar?: string
+  contacts?: string[] // array of user IDs
 }
+
 
 type ContestPost = {
   id: string
   contestId: string
   userId: string
   userName: string
-  count: number
+  count?: number
   image?: string
   timestamp: Date
   description?: string
+  type: 'entry' | 'join' | 'invite'
+  invitedUsers?: string[] // for invite posts
 }
 
 type ContestUser = {
@@ -45,11 +49,14 @@ type ContestUser = {
 }
 
 const defaultUsers: User[] = [
-  { id: '1', name: 'You' },
-  { id: '2', name: 'Joey Chestnut' },
-  { id: '3', name: 'Takeru Kobayashi' },
-  { id: '4', name: 'Matt Stonie' },
-  { id: '5', name: 'Your Friend' }
+  { id: '1', name: 'You', contacts: ['2', '3', '4', '5', '6', '7', '8'] },
+  { id: '2', name: 'Joey Chestnut', contacts: ['1'] },
+  { id: '3', name: 'Takeru Kobayashi', contacts: ['1'] },
+  { id: '4', name: 'Matt Stonie', contacts: ['1'] },
+  { id: '5', name: 'Your Friend', contacts: ['1'] },
+  { id: '6', name: 'Sarah Johnson', contacts: ['1'] },
+  { id: '7', name: 'Mike Chen', contacts: ['1'] },
+  { id: '8', name: 'Emma Wilson', contacts: ['1'] }
 ]
 
 const defaultContests: Contest[] = [
@@ -84,7 +91,8 @@ const defaultContestPosts: ContestPost[] = [
     userName: 'Joey Chestnut', 
     count: 5, 
     timestamp: new Date(), 
-    description: 'Just crushed 5 more! 🌭'
+    description: 'Just crushed 5 more! 🌭',
+    type: 'entry'
   }
 ]
 
@@ -99,6 +107,8 @@ function App() {
   const [contestUsers, setContestUsers] = useState<ContestUser[]>([])
   const [darkMode, setDarkMode] = useState<boolean>(false)
   const [showCreateModal, setShowCreateModal] = useState<boolean>(false)
+  const [showInviteModal, setShowInviteModal] = useState<boolean>(false)
+  const [inviteContestId, setInviteContestId] = useState<string | null>(null)
   
   const currentUserId = '1' // This would come from auth in a real app
 
@@ -241,7 +251,7 @@ function App() {
         // Update contest user's total count
         setContestUsers(prevUsers => prevUsers.map(user => 
           user.contestId === post.contestId && user.userId === post.userId
-            ? { ...user, totalCount: user.totalCount - oldCount + newCount }
+            ? { ...user, totalCount: user.totalCount - (oldCount || 0) + newCount }
             : user
         ))
         
@@ -270,13 +280,72 @@ function App() {
     ))
   }
 
+  const handleInviteUsers = (contestId: string, userIds: string[]) => {
+    const contest = contests.find(c => c.id === contestId)
+    if (!contest) return
+
+    // Add invited users to the contest participants
+    setContests(prev => prev.map(c => 
+      c.id === contestId 
+        ? { ...c, participants: [...new Set([...c.participants, ...userIds])] }
+        : c
+    ))
+
+    // Create contest user entries for invited users
+    const invitedUsers = users.filter(u => userIds.includes(u.id))
+    const newContestUsers = invitedUsers.map(user => ({
+      id: `cu-${Date.now()}-${user.id}`,
+      contestId: contestId,
+      userId: user.id,
+      userName: user.name,
+      totalCount: 0
+    }))
+    setContestUsers(prev => [...prev, ...newContestUsers])
+
+    // Create invite notification post
+    const invitePost: ContestPost = {
+      id: `post-${Date.now()}`,
+      contestId: contestId,
+      userId: currentUserId,
+      userName: 'You',
+      timestamp: new Date(),
+      type: 'invite',
+      invitedUsers: userIds,
+      description: `Invited ${invitedUsers.map(u => u.name).join(', ')} to join the contest!`
+    }
+    setContestPosts(prev => [invitePost, ...prev])
+
+    // Create join notification posts for each invited user
+    const joinPosts = invitedUsers.map((user, index) => ({
+      id: `post-${Date.now() + index + 1}`,
+      contestId: contestId,
+      userId: user.id,
+      userName: user.name,
+      timestamp: new Date(Date.now() + (index + 1) * 1000), // Stagger timestamps slightly
+      type: 'join' as const,
+      description: `${user.name} joined the contest! 🎉`
+    }))
+    setContestPosts(prev => [...joinPosts, ...prev])
+
+    setShowInviteModal(false)
+    setInviteContestId(null)
+  }
+
+  const handleShowInviteModal = (contestId: string) => {
+    setInviteContestId(contestId)
+    setShowInviteModal(true)
+  }
+
   const handleCreateContest = (contestData: {
     name: string,
     type: string,
     description?: string,
     emoji: string,
-    endDate?: Date
+    endDate?: Date,
+    invitedUsers?: string[]
   }) => {
+    const allParticipants = [currentUserId, ...(contestData.invitedUsers || [])]
+    
     const newContest: Contest = {
       id: `contest-${Date.now()}`,
       name: contestData.name,
@@ -284,7 +353,7 @@ function App() {
       type: contestData.type,
       hostId: currentUserId,
       hostName: 'You',
-      participants: [currentUserId],
+      participants: allParticipants,
       createdAt: new Date(),
       endDate: contestData.endDate,
       isActive: true,
@@ -295,15 +364,48 @@ function App() {
     // Add the new contest
     setContests(prev => [newContest, ...prev])
 
-    // Create contest user entry for the host
-    const newContestUser: ContestUser = {
-      id: `cu-${Date.now()}`,
-      contestId: newContest.id,
-      userId: currentUserId,
-      userName: 'You',
-      totalCount: 0
+    // Create contest user entries for all participants (host + invited users)
+    const allContestUsers = allParticipants.map((userId, index) => {
+      const user = userId === currentUserId ? { id: currentUserId, name: 'You' } : users.find(u => u.id === userId)
+      return {
+        id: `cu-${Date.now()}-${index}`,
+        contestId: newContest.id,
+        userId: userId,
+        userName: user?.name || 'Unknown User',
+        totalCount: 0
+      }
+    })
+    setContestUsers(prev => [...allContestUsers, ...prev])
+
+    // Create invite and join posts if users were invited
+    if (contestData.invitedUsers && contestData.invitedUsers.length > 0) {
+      const invitedUserDetails = users.filter(u => contestData.invitedUsers!.includes(u.id))
+      
+      // Create invite notification post
+      const invitePost: ContestPost = {
+        id: `post-${Date.now()}`,
+        contestId: newContest.id,
+        userId: currentUserId,
+        userName: 'You',
+        timestamp: new Date(),
+        type: 'invite',
+        invitedUsers: contestData.invitedUsers,
+        description: `Invited ${invitedUserDetails.map(u => u.name).join(', ')} to join the contest!`
+      }
+
+      // Create join notification posts for each invited user
+      const joinPosts = invitedUserDetails.map((user, index) => ({
+        id: `post-${Date.now() + index + 1}`,
+        contestId: newContest.id,
+        userId: user.id,
+        userName: user.name,
+        timestamp: new Date(Date.now() + (index + 1) * 1000),
+        type: 'join' as const,
+        description: `${user.name} joined the contest! 🎉`
+      }))
+
+      setContestPosts(prev => [invitePost, ...joinPosts, ...prev])
     }
-    setContestUsers(prev => [newContestUser, ...prev])
 
     // Close modal and navigate to the new contest
     setShowCreateModal(false)
@@ -321,7 +423,13 @@ function App() {
       case 'leaderboard':
         return <LeaderboardTab contestUsers={contestUsersForContest} contest={currentContest} />
       case 'feed':
-        return <FeedTab posts={contestPostsForContest} onEditPost={handleEditPost} currentUserId={currentUserId} contest={currentContest} />
+        return <FeedTab 
+          posts={contestPostsForContest} 
+          onEditPost={handleEditPost} 
+          currentUserId={currentUserId} 
+          contest={currentContest}
+          onShowInviteModal={handleShowInviteModal}
+        />
       case 'log':
         return <LogTab 
           contestId={currentContestId}
@@ -433,6 +541,21 @@ function App() {
         <CreateContestModal 
           onClose={() => setShowCreateModal(false)}
           onCreateContest={handleCreateContest}
+          users={users}
+          currentUserId={currentUserId}
+        />
+      )}
+      
+      {showInviteModal && inviteContestId && (
+        <InviteModal 
+          contest={contests.find(c => c.id === inviteContestId)}
+          users={users}
+          currentUserId={currentUserId}
+          onClose={() => {
+            setShowInviteModal(false)
+            setInviteContestId(null)
+          }}
+          onInviteUsers={(userIds) => handleInviteUsers(inviteContestId, userIds)}
         />
       )}
     </div>
@@ -638,7 +761,8 @@ function LogTab({
       count: parseInt(newPostCount) || 1,
       image: imagePreview || undefined,
       timestamp: new Date(),
-      description: newPostDescription || undefined
+      description: newPostDescription || undefined,
+      type: 'entry'
     }
 
     setContestPosts(prev => [newPost, ...prev])
@@ -724,11 +848,12 @@ function LogTab({
   )
 }
 
-function FeedTab({ posts, onEditPost, currentUserId, contest }: { 
+function FeedTab({ posts, onEditPost, currentUserId, contest, onShowInviteModal }: { 
   posts: ContestPost[],
   onEditPost: (postId: string, newCount: number, newDescription?: string) => void,
   currentUserId: string,
-  contest: Contest | undefined
+  contest: Contest | undefined,
+  onShowInviteModal: (contestId: string) => void
 }) {
   const [editingPostId, setEditingPostId] = useState<string | null>(null)
   const [editCount, setEditCount] = useState<string>('1')
@@ -736,7 +861,7 @@ function FeedTab({ posts, onEditPost, currentUserId, contest }: {
 
   const startEditing = (post: ContestPost) => {
     setEditingPostId(post.id)
-    setEditCount(post.count.toString())
+    setEditCount((post.count || 1).toString())
     setEditDescription(post.description || '')
     
     // Focus and select the input after state updates
@@ -760,15 +885,67 @@ function FeedTab({ posts, onEditPost, currentUserId, contest }: {
   const cancelEdit = () => {
     setEditingPostId(null)
   }
+  const renderPostContent = (post: ContestPost) => {
+    if (post.type === 'join') {
+      return (
+        <div className="post-content join-post">
+          <div className="join-notification">
+            🎉 <strong>{post.userName}</strong> joined the contest!
+          </div>
+          {post.description && (
+            <div className="post-description">{post.description}</div>
+          )}
+        </div>
+      )
+    }
+
+    if (post.type === 'invite') {
+      return (
+        <div className="post-content invite-post">
+          <div className="invite-notification">
+            📧 <strong>{post.userName}</strong> invited new participants to the contest
+          </div>
+          {post.description && (
+            <div className="post-description">{post.description}</div>
+          )}
+        </div>
+      )
+    }
+
+    // Default entry post
+    return (
+      <div className="post-content">
+        <div className="post-count">
+          {contest?.emoji || '🏆'} <strong>{post.count}</strong> {contest?.type.includes('Hot Dog') ? `hot dog${post.count !== 1 ? 's' : ''} eaten!` : `item${post.count !== 1 ? 's' : ''} consumed!`}
+        </div>
+        {post.description && (
+          <div className="post-description">{post.description}</div>
+        )}
+      </div>
+    )
+  }
+
+  const isHost = contest?.hostId === currentUserId
+
   return (
     <div className="tab-panel">
-      <h2>📰 Contest Feed</h2>
+      <div className="feed-header">
+        <h2>📰 Contest Feed</h2>
+        {isHost && (
+          <button 
+            className="invite-button"
+            onClick={() => contest && onShowInviteModal(contest.id)}
+          >
+            👥 Invite Friends
+          </button>
+        )}
+      </div>
       
       <div className="posts-section">
         <div className="posts-list">
           {posts.map(post => (
-            <div key={post.id} className="post-item">
-              {editingPostId === post.id ? (
+            <div key={post.id} className={`post-item ${post.type}`}>
+              {editingPostId === post.id && post.type === 'entry' ? (
                 <div className="edit-form">
                   <div className="post-header">
                     <div className="post-user">{post.userName}</div>
@@ -816,7 +993,7 @@ function FeedTab({ posts, onEditPost, currentUserId, contest }: {
                       <div className="post-timestamp">
                         {post.timestamp.toLocaleDateString()} {post.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                       </div>
-                      {post.userId === currentUserId && (
+                      {post.userId === currentUserId && post.type === 'entry' && (
                         <button onClick={() => startEditing(post)} className="edit-post-btn">✏️</button>
                       )}
                     </div>
@@ -828,14 +1005,7 @@ function FeedTab({ posts, onEditPost, currentUserId, contest }: {
                     </div>
                   )}
                   
-                  <div className="post-content">
-                    <div className="post-count">
-                      {contest?.emoji || '🏆'} <strong>{post.count}</strong> {contest?.type.includes('Hot Dog') ? `hot dog${post.count !== 1 ? 's' : ''} eaten!` : `item${post.count !== 1 ? 's' : ''} consumed!`}
-                    </div>
-                    {post.description && (
-                      <div className="post-description">{post.description}</div>
-                    )}
-                  </div>
+                  {renderPostContent(post)}
                 </>
               )}
             </div>
@@ -859,14 +1029,14 @@ function JournalTab({ posts, currentUserId, onEditPost }: {
   const [editCount, setEditCount] = useState<string>('1')
   const [editDescription, setEditDescription] = useState<string>('')
 
-  const userPosts = posts.filter(post => post.userId === currentUserId)
-  const totalHotDogs = userPosts.reduce((sum, post) => sum + post.count, 0)
+  const userPosts = posts.filter(post => post.userId === currentUserId && post.type === 'entry')
+  const totalHotDogs = userPosts.reduce((sum, post) => sum + (post.count || 0), 0)
   const averagePerPost = userPosts.length > 0 ? (totalHotDogs / userPosts.length).toFixed(1) : 0
-  const bestDay = userPosts.length > 0 ? Math.max(...userPosts.map(post => post.count)) : 0
+  const bestDay = userPosts.length > 0 ? Math.max(...userPosts.map(post => post.count || 0)) : 0
 
   const startEditing = (post: ContestPost) => {
     setEditingPostId(post.id)
-    setEditCount(post.count.toString())
+    setEditCount((post.count || 1).toString())
     setEditDescription(post.description || '')
     
     // Focus and select the input after state updates
@@ -925,7 +1095,7 @@ function JournalTab({ posts, currentUserId, onEditPost }: {
         {Object.entries(groupedByDate)
           .sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime())
           .map(([date, dayPosts]) => {
-            const dayTotal = dayPosts.reduce((sum, post) => sum + post.count, 0)
+            const dayTotal = dayPosts.reduce((sum, post) => sum + (post.count || 0), 0)
             return (
               <div key={date} className="journal-day">
                 <div className="day-header">
@@ -987,7 +1157,7 @@ function JournalTab({ posts, currentUserId, onEditPost }: {
                               </div>
                               <div className="journal-post-actions">
                                 <div className="journal-post-count">
-                                  📝 {post.count}
+                                  📝 {post.count || 0}
                                 </div>
                                 <button onClick={() => startEditing(post)} className="edit-post-btn">✏️</button>
                               </div>
@@ -1024,15 +1194,18 @@ function JournalTab({ posts, currentUserId, onEditPost }: {
 }
 
 
-function CreateContestModal({ onClose, onCreateContest }: {
+function CreateContestModal({ onClose, onCreateContest, users, currentUserId }: {
   onClose: () => void,
   onCreateContest: (contestData: {
     name: string,
     type: string,
     description?: string,
     emoji: string,
-    endDate?: Date
-  }) => void
+    endDate?: Date,
+    invitedUsers?: string[]
+  }) => void,
+  users: User[],
+  currentUserId: string
 }) {
   const [formData, setFormData] = useState({
     name: '',
@@ -1041,7 +1214,14 @@ function CreateContestModal({ onClose, onCreateContest }: {
     emoji: '🏆',
     endDate: ''
   })
+  const [selectedContacts, setSelectedContacts] = useState<string[]>([])
   const [errors, setErrors] = useState<{[key: string]: string}>({})
+
+  // Get user's contacts for invitation
+  const currentUser = users.find(u => u.id === currentUserId)
+  const availableContacts = users.filter(user => 
+    currentUser?.contacts?.includes(user.id)
+  )
 
   const contestTypes = [
     { value: 'Hot Dog Eating', emoji: '🌭' },
@@ -1081,6 +1261,14 @@ function CreateContestModal({ onClose, onCreateContest }: {
     return Object.keys(newErrors).length === 0
   }
 
+  const handleContactToggle = (userId: string) => {
+    setSelectedContacts(prev => 
+      prev.includes(userId) 
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
+    )
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -1091,7 +1279,8 @@ function CreateContestModal({ onClose, onCreateContest }: {
       type: formData.type,
       description: formData.description.trim() || undefined,
       emoji: formData.emoji,
-      endDate: formData.endDate ? new Date(formData.endDate) : undefined
+      endDate: formData.endDate ? new Date(formData.endDate) : undefined,
+      invitedUsers: selectedContacts.length > 0 ? selectedContacts : undefined
     })
   }
 
@@ -1191,6 +1380,37 @@ function CreateContestModal({ onClose, onCreateContest }: {
             </div>
           </div>
 
+          {availableContacts.length > 0 && (
+            <div className="form-section">
+              <label>Invite Friends (Optional)</label>
+              <p className="form-helper-text">
+                Select friends from your contacts to invite to this contest:
+              </p>
+              <div className="contacts-grid">
+                {availableContacts.map(user => (
+                  <div 
+                    key={user.id} 
+                    className={`contact-card ${selectedContacts.includes(user.id) ? 'selected' : ''}`}
+                    onClick={() => handleContactToggle(user.id)}
+                  >
+                    <div className="contact-avatar-small">
+                      {user.avatar || user.name.charAt(0)}
+                    </div>
+                    <div className="contact-name-small">{user.name}</div>
+                    <div className="contact-checkbox-small">
+                      {selectedContacts.includes(user.id) ? '✓' : ''}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {selectedContacts.length > 0 && (
+                <p className="selected-count">
+                  {selectedContacts.length} friend{selectedContacts.length !== 1 ? 's' : ''} selected
+                </p>
+              )}
+            </div>
+          )}
+
           <div className="modal-footer">
             <button type="button" onClick={onClose} className="btn-secondary">
               Cancel
@@ -1200,6 +1420,108 @@ function CreateContestModal({ onClose, onCreateContest }: {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  )
+}
+
+function InviteModal({ contest, users, currentUserId, onClose, onInviteUsers }: {
+  contest: Contest | undefined,
+  users: User[],
+  currentUserId: string,
+  onClose: () => void,
+  onInviteUsers: (userIds: string[]) => void
+}) {
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([])
+
+  if (!contest) return null
+
+  // Get user's contacts that aren't already in the contest
+  const currentUser = users.find(u => u.id === currentUserId)
+  const availableContacts = users.filter(user => 
+    currentUser?.contacts?.includes(user.id) && 
+    !contest.participants.includes(user.id)
+  )
+
+  const handleUserToggle = (userId: string) => {
+    setSelectedUsers(prev => 
+      prev.includes(userId) 
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
+    )
+  }
+
+  const handleInvite = () => {
+    if (selectedUsers.length > 0) {
+      onInviteUsers(selectedUsers)
+    }
+  }
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose()
+    }
+  }
+
+  return (
+    <div className="modal-backdrop" onClick={handleBackdropClick}>
+      <div className="modal-content invite-modal">
+        <div className="modal-header">
+          <h2>Invite Friends to {contest.name}</h2>
+          <button className="modal-close-btn" onClick={onClose}>
+            ✕
+          </button>
+        </div>
+        
+        <div className="invite-content">
+          {availableContacts.length === 0 ? (
+            <div className="empty-state">
+              <p>All your contacts are already in this contest!</p>
+            </div>
+          ) : (
+            <>
+              <p className="invite-description">
+                Select friends from your contacts to invite to this contest:
+              </p>
+              
+              <div className="contacts-list">
+                {availableContacts.map(user => (
+                  <div 
+                    key={user.id} 
+                    className={`contact-item ${selectedUsers.includes(user.id) ? 'selected' : ''}`}
+                    onClick={() => handleUserToggle(user.id)}
+                  >
+                    <div className="contact-info">
+                      <div className="contact-avatar">
+                        {user.avatar || user.name.charAt(0)}
+                      </div>
+                      <div className="contact-name">{user.name}</div>
+                    </div>
+                    <div className="contact-checkbox">
+                      {selectedUsers.includes(user.id) ? '✓' : ''}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        {availableContacts.length > 0 && (
+          <div className="modal-footer">
+            <button type="button" onClick={onClose} className="btn-secondary">
+              Cancel
+            </button>
+            <button 
+              type="button" 
+              onClick={handleInvite} 
+              className="btn-primary"
+              disabled={selectedUsers.length === 0}
+            >
+              Invite {selectedUsers.length} Friend{selectedUsers.length !== 1 ? 's' : ''}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
