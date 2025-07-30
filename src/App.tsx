@@ -106,7 +106,7 @@ function App() {
       case 'chat':
         return <ChatTab posts={posts} />
       case 'log':
-        return <LogHotDogsTab setPosts={setPosts} users={users} setUsers={setUsers} />
+        return <LogHotDogsTab setPosts={setPosts} users={users} setUsers={setUsers} setActiveTab={setActiveTab} />
       case 'journal':
         return <JournalTab posts={posts} currentUserId="4" />
       case 'settings':
@@ -208,10 +208,11 @@ function LeaderboardTab({ users }: { users: User[] }) {
   )
 }
 
-function LogHotDogsTab({ setPosts, users, setUsers }: { 
+function LogHotDogsTab({ setPosts, users, setUsers, setActiveTab }: { 
   setPosts: React.Dispatch<React.SetStateAction<HotDogPost[]>>,
   users: User[],
-  setUsers: React.Dispatch<React.SetStateAction<User[]>>
+  setUsers: React.Dispatch<React.SetStateAction<User[]>>,
+  setActiveTab: React.Dispatch<React.SetStateAction<Tab>>
 }) {
   const [newPostCount, setNewPostCount] = useState<number>(1)
   const [newPostDescription, setNewPostDescription] = useState<string>('')
@@ -260,6 +261,9 @@ function LogHotDogsTab({ setPosts, users, setUsers }: {
     
     const fileInput = document.getElementById('log-image-upload') as HTMLInputElement
     if (fileInput) fileInput.value = ''
+    
+    // Switch to Feed tab to show the new post
+    setActiveTab('chat')
   }
 
   return (
