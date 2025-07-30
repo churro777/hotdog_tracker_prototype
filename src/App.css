@@ -785,6 +785,244 @@ body.dark-mode .leaderboard-item.top-three .user-score {
   }
 }
 
+/* Homepage styling */
+.homepage {
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.contest-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.contest-section {
+  background: var(--bg-surface);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.section-header h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.create-contest-btn, .create-first-contest {
+  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.create-contest-btn:hover, .create-first-contest:hover {
+  transform: translateY(-2px);
+}
+
+.contest-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.contest-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.contest-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px var(--shadow-hover);
+  border-color: #ff6b35;
+}
+
+.contest-emoji {
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.contest-info h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.contest-info p {
+  margin: 0 0 1rem 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.contest-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+
+.contest-meta span:first-child {
+  color: var(--text-secondary);
+}
+
+.contest-status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.contest-status.active {
+  background: #d4edda;
+  color: #155724;
+}
+
+body.dark-mode .contest-status.active {
+  background: #1d4f2a;
+  color: #4caf50;
+}
+
+.contest-status.inactive {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+body.dark-mode .contest-status.inactive {
+  background: #4a1e21;
+  color: #f56565;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: 2rem;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 2px dashed var(--border-color);
+}
+
+/* Header styling for multi-contest platform */
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.header-content h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: bold;
+  flex: 1;
+  text-align: center;
+}
+
+.back-btn, .settings-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 1.25rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  min-width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-btn:hover, .settings-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .homepage {
+    padding: 0.5rem;
+  }
+  
+  .contest-section {
+    padding: 1rem;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  
+  .section-header h2 {
+    font-size: 1.25rem;
+    text-align: center;
+  }
+  
+  .create-contest-btn, .create-first-contest {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .contest-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .contest-card {
+    padding: 1rem;
+  }
+  
+  .contest-emoji {
+    font-size: 2rem;
+  }
+  
+  .contest-info h3 {
+    font-size: 1.1rem;
+  }
+  
+  .header-content h1 {
+    font-size: 1.25rem;
+  }
+  
+  .back-btn, .settings-btn {
+    font-size: 1rem;
+    min-width: 36px;
+    height: 36px;
+  }
+}
+
 /* Edit post functionality */
 .journal-post-actions {
   display: flex;

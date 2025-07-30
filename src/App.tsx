@@ -1,17 +1,32 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 
-type Tab = 'leaderboard' | 'chat' | 'log' | 'journal' | 'settings'
+type View = 'home' | 'contest'
+type Tab = 'leaderboard' | 'feed' | 'log' | 'journal'
+
+type Contest = {
+  id: string
+  name: string
+  description?: string
+  type: string // e.g., 'Hot Dog Eating', 'Pizza Eating', etc.
+  hostId: string
+  hostName: string
+  participants: string[] // user IDs
+  createdAt: Date
+  endDate?: Date
+  isActive: boolean
+  emoji: string
+}
 
 type User = {
   id: string
   name: string
-  totalHotDogs: number
   avatar?: string
 }
 
-type HotDogPost = {
+type ContestPost = {
   id: string
+  contestId: string
   userId: string
   userName: string
   count: number
@@ -20,25 +35,63 @@ type HotDogPost = {
   description?: string
 }
 
+type ContestUser = {
+  id: string
+  contestId: string
+  userId: string
+  userName: string
+  totalCount: number
+}
+
 function App() {
+  const [currentView, setCurrentView] = useState<View>('home')
   const [activeTab, setActiveTab] = useState<Tab>('leaderboard')
+  const [currentContestId, setCurrentContestId] = useState<string | null>(null)
   
+  const [contests, setContests] = useState<Contest[]>([])
   const [users, setUsers] = useState<User[]>([])
-  const [posts, setPosts] = useState<HotDogPost[]>([])
+  const [contestPosts, setContestPosts] = useState<ContestPost[]>([])
+  const [contestUsers, setContestUsers] = useState<ContestUser[]>([])
   const [darkMode, setDarkMode] = useState<boolean>(false)
+  
+  const currentUserId = '1' // This would come from auth in a real app
 
   const defaultUsers: User[] = [
-    { id: '1', name: 'Joey Chestnut', totalHotDogs: 23 },
-    { id: '2', name: 'Takeru Kobayashi', totalHotDogs: 18 },
-    { id: '3', name: 'Matt Stonie', totalHotDogs: 15 },
-    { id: '4', name: 'You', totalHotDogs: 3 },
-    { id: '5', name: 'Your Friend', totalHotDogs: 7 }
+    { id: '1', name: 'You' },
+    { id: '2', name: 'Joey Chestnut' },
+    { id: '3', name: 'Takeru Kobayashi' },
+    { id: '4', name: 'Matt Stonie' },
+    { id: '5', name: 'Your Friend' }
   ]
 
-  const defaultPosts: HotDogPost[] = [
+  const defaultContests: Contest[] = [
     {
-      id: '1', 
-      userId: '1', 
+      id: 'contest-1',
+      name: 'Hot Dog Contest July 2025',
+      description: 'Annual hot dog eating contest',
+      type: 'Hot Dog Eating',
+      hostId: '1',
+      hostName: 'You',
+      participants: ['1', '2', '3', '4', '5'],
+      createdAt: new Date(),
+      isActive: true,
+      emoji: '🌭'
+    }
+  ]
+
+  const defaultContestUsers: ContestUser[] = [
+    { id: 'cu-1', contestId: 'contest-1', userId: '2', userName: 'Joey Chestnut', totalCount: 23 },
+    { id: 'cu-2', contestId: 'contest-1', userId: '3', userName: 'Takeru Kobayashi', totalCount: 18 },
+    { id: 'cu-3', contestId: 'contest-1', userId: '4', userName: 'Matt Stonie', totalCount: 15 },
+    { id: 'cu-4', contestId: 'contest-1', userId: '1', userName: 'You', totalCount: 3 },
+    { id: 'cu-5', contestId: 'contest-1', userId: '5', userName: 'Your Friend', totalCount: 7 }
+  ]
+
+  const defaultContestPosts: ContestPost[] = [
+    {
+      id: '1',
+      contestId: 'contest-1', 
+      userId: '2', 
       userName: 'Joey Chestnut', 
       count: 5, 
       timestamp: new Date(), 
@@ -47,58 +100,111 @@ function App() {
   ]
 
   useEffect(() => {
-    const savedUsers = localStorage.getItem('hotdog-contest-users')
-    const savedPosts = localStorage.getItem('hotdog-contest-posts')
-    
+    // Load contests
+    const savedContests = localStorage.getItem('contest-platform-contests')
+    if (savedContests) {
+      try {
+        const parsedContests = JSON.parse(savedContests).map((contest: any) => ({
+          ...contest,
+          createdAt: new Date(contest.createdAt),
+          endDate: contest.endDate ? new Date(contest.endDate) : undefined
+        }))
+        setContests(parsedContests)
+      } catch (error) {
+        console.error('Error parsing contests:', error)
+        setContests(defaultContests)
+      }
+    } else {
+      setContests(defaultContests)
+    }
+
+    // Load users
+    const savedUsers = localStorage.getItem('contest-platform-users')
     if (savedUsers) {
       try {
-        const parsedUsers = JSON.parse(savedUsers)
-        setUsers(parsedUsers)
+        setUsers(JSON.parse(savedUsers))
       } catch (error) {
-        console.error('Error parsing users from localStorage:', error)
+        console.error('Error parsing users:', error)
         setUsers(defaultUsers)
       }
     } else {
       setUsers(defaultUsers)
     }
 
+    // Load contest posts
+    const savedPosts = localStorage.getItem('contest-platform-posts')
     if (savedPosts) {
       try {
-        const parsedPosts = JSON.parse(savedPosts)
-        const postsWithDates = parsedPosts.map((post: any) => ({
+        const parsedPosts = JSON.parse(savedPosts).map((post: any) => ({
           ...post,
           timestamp: new Date(post.timestamp)
         }))
-        setPosts(postsWithDates)
+        setContestPosts(parsedPosts)
       } catch (error) {
-        console.error('Error parsing posts from localStorage:', error)
-        setPosts(defaultPosts)
+        console.error('Error parsing posts:', error)
+        setContestPosts(defaultContestPosts)
       }
     } else {
-      setPosts(defaultPosts)
+      setContestPosts(defaultContestPosts)
+    }
+
+    // Load contest users
+    const savedContestUsers = localStorage.getItem('contest-platform-contest-users')
+    if (savedContestUsers) {
+      try {
+        setContestUsers(JSON.parse(savedContestUsers))
+      } catch (error) {
+        console.error('Error parsing contest users:', error)
+        setContestUsers(defaultContestUsers)
+      }
+    } else {
+      setContestUsers(defaultContestUsers)
     }
   }, [])
 
+  // Save data to localStorage
+  useEffect(() => {
+    if (contests.length > 0) {
+      localStorage.setItem('contest-platform-contests', JSON.stringify(contests))
+    }
+  }, [contests])
+
   useEffect(() => {
     if (users.length > 0) {
-      localStorage.setItem('hotdog-contest-users', JSON.stringify(users))
+      localStorage.setItem('contest-platform-users', JSON.stringify(users))
     }
   }, [users])
 
   useEffect(() => {
-    if (posts.length > 0) {
-      localStorage.setItem('hotdog-contest-posts', JSON.stringify(posts))
+    if (contestPosts.length > 0) {
+      localStorage.setItem('contest-platform-posts', JSON.stringify(contestPosts))
     }
-  }, [posts])
+  }, [contestPosts])
 
-  // Set page title based on environment
+  useEffect(() => {
+    if (contestUsers.length > 0) {
+      localStorage.setItem('contest-platform-contest-users', JSON.stringify(contestUsers))
+    }
+  }, [contestUsers])
+
+  // Set page title based on environment and current view
   useEffect(() => {
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    const title = isLocal 
-      ? 'DEBUG - The Board - Hot Dog Contest July 2025'
-      : 'The Board - Hot Dog Contest July 2025'
+    let title = 'Contest Platform'
+    
+    if (currentView === 'contest' && currentContestId) {
+      const contest = contests.find(c => c.id === currentContestId)
+      if (contest) {
+        title = `${contest.emoji} ${contest.name}`
+      }
+    }
+    
+    if (isLocal) {
+      title = `DEBUG - ${title}`
+    }
+    
     document.title = title
-  }, [])
+  }, [currentView, currentContestId, contests])
 
   // Load dark mode setting from localStorage
   useEffect(() => {
@@ -120,7 +226,7 @@ function App() {
   }, [darkMode])
 
   const handleEditPost = (postId: string, newCount: number, newDescription?: string) => {
-    setPosts(prev => prev.map(post => {
+    setContestPosts(prev => prev.map(post => {
       if (post.id === postId) {
         const oldCount = post.count
         const updatedPost = {
@@ -129,10 +235,10 @@ function App() {
           description: newDescription
         }
         
-        // Update user's total hot dogs
-        setUsers(prevUsers => prevUsers.map(user => 
-          user.id === post.userId 
-            ? { ...user, totalHotDogs: user.totalHotDogs - oldCount + newCount }
+        // Update contest user's total count
+        setContestUsers(prevUsers => prevUsers.map(user => 
+          user.contestId === post.contestId && user.userId === post.userId
+            ? { ...user, totalCount: user.totalCount - oldCount + newCount }
             : user
         ))
         
@@ -142,80 +248,225 @@ function App() {
     }))
   }
 
+  const handleContestSelect = (contestId: string) => {
+    setCurrentContestId(contestId)
+    setCurrentView('contest')
+    setActiveTab('leaderboard')
+  }
+
+  const handleBackToHome = () => {
+    setCurrentView('home')
+    setCurrentContestId(null)
+  }
+
   const renderTabContent = () => {
+    if (!currentContestId) return <div>Select a contest</div>
+    
+    const currentContest = contests.find(c => c.id === currentContestId)
+    const contestPostsForContest = contestPosts.filter(p => p.contestId === currentContestId)
+    const contestUsersForContest = contestUsers.filter(u => u.contestId === currentContestId)
+    
     switch (activeTab) {
       case 'leaderboard':
-        return <LeaderboardTab users={users} />
-      case 'chat':
-        return <ChatTab posts={posts} onEditPost={handleEditPost} />
+        return <LeaderboardTab contestUsers={contestUsersForContest} contest={currentContest} />
+      case 'feed':
+        return <FeedTab posts={contestPostsForContest} onEditPost={handleEditPost} currentUserId={currentUserId} contest={currentContest} />
       case 'log':
-        return <LogHotDogsTab setPosts={setPosts} users={users} setUsers={setUsers} setActiveTab={setActiveTab} />
+        return <LogTab 
+          contestId={currentContestId}
+          contestPosts={contestPosts}
+          setContestPosts={setContestPosts} 
+          contestUsers={contestUsers}
+          setContestUsers={setContestUsers}
+          currentUserId={currentUserId}
+          setActiveTab={setActiveTab}
+          contest={currentContest}
+        />
       case 'journal':
-        return <JournalTab posts={posts} currentUserId="4" onEditPost={handleEditPost} />
-      case 'settings':
-        return <SettingsTab 
-          darkMode={darkMode}
-          setDarkMode={setDarkMode}
-          onClearData={() => {
-            localStorage.removeItem('hotdog-contest-users')
-            localStorage.removeItem('hotdog-contest-posts')
-            setUsers(defaultUsers)
-            setPosts(defaultPosts)
-          }} 
+        return <JournalTab 
+          posts={contestPostsForContest} 
+          currentUserId={currentUserId} 
+          onEditPost={handleEditPost} 
         />
       default:
-        return <LeaderboardTab users={users} />
+        return <LeaderboardTab contestUsers={contestUsersForContest} contest={currentContest} />
     }
+  }
+
+  const renderContent = () => {
+    if (currentView === 'home') {
+      return <HomePage 
+        contests={contests}
+        currentUserId={currentUserId}
+        onContestSelect={handleContestSelect}
+        onCreateContest={() => {/* TODO: implement */}}
+      />
+    }
+    
+    return (
+      <>
+        <nav className="tab-nav">
+          <button 
+            className={`tab-button ${activeTab === 'leaderboard' ? 'active' : ''}`}
+            onClick={() => setActiveTab('leaderboard')}
+          >
+            🏆 Leaderboard
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'feed' ? 'active' : ''}`}
+            onClick={() => setActiveTab('feed')}
+          >
+            📰 Feed
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'log' ? 'active' : ''}`}
+            onClick={() => setActiveTab('log')}
+          >
+            📝 Log
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'journal' ? 'active' : ''}`}
+            onClick={() => setActiveTab('journal')}
+          >
+            📔 Journal
+          </button>
+        </nav>
+
+        <main className="tab-content">
+          {renderTabContent()}
+        </main>
+      </>
+    )
+  }
+
+  const getHeaderContent = () => {
+    if (currentView === 'home') {
+      return (
+        <div className="header-content">
+          <h1>Contest Platform</h1>
+          <button 
+            className="settings-btn"
+            onClick={() => {/* TODO: Settings modal */}}
+          >
+            ⚙️
+          </button>
+        </div>
+      )
+    }
+    
+    const currentContest = contests.find(c => c.id === currentContestId)
+    return (
+      <div className="header-content">
+        <button className="back-btn" onClick={handleBackToHome}>
+          ☰
+        </button>
+        <h1>{currentContest ? `${currentContest.emoji} ${currentContest.name}` : 'Contest'}</h1>
+        <button 
+          className="settings-btn"
+          onClick={() => {/* TODO: Settings modal */}}
+        >
+          ⚙️
+        </button>
+      </div>
+    )
   }
 
   return (
     <div className="app">
       <header className="app-header">
-        <h1>🌭 Hot Dog Contest</h1>
+        {getHeaderContent()}
       </header>
       
-      <nav className="tab-nav">
-        <button 
-          className={`tab-button ${activeTab === 'leaderboard' ? 'active' : ''}`}
-          onClick={() => setActiveTab('leaderboard')}
-        >
-          🏆 Leaderboard
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'chat' ? 'active' : ''}`}
-          onClick={() => setActiveTab('chat')}
-        >
-          📰 Feed
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'log' ? 'active' : ''}`}
-          onClick={() => setActiveTab('log')}
-        >
-          🌭 Log Hot Dogs
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'journal' ? 'active' : ''}`}
-          onClick={() => setActiveTab('journal')}
-        >
-          📔 Journal
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'settings' ? 'active' : ''}`}
-          onClick={() => setActiveTab('settings')}
-        >
-          ⚙️ Settings
-        </button>
-      </nav>
-
-      <main className="tab-content">
-        {renderTabContent()}
-      </main>
+      {renderContent()}
     </div>
   )
 }
 
-function LeaderboardTab({ users }: { users: User[] }) {
-  const sortedUsers = [...users].sort((a, b) => b.totalHotDogs - a.totalHotDogs)
+function HomePage({ contests, currentUserId, onContestSelect, onCreateContest }: {
+  contests: Contest[],
+  currentUserId: string,
+  onContestSelect: (contestId: string) => void,
+  onCreateContest: () => void
+}) {
+  const hostedContests = contests.filter(c => c.hostId === currentUserId)
+  const enteredContests = contests.filter(c => c.participants.includes(currentUserId) && c.hostId !== currentUserId)
+
+  return (
+    <div className="homepage">
+      <div className="contest-sections">
+        {/* Your Contests */}
+        <div className="contest-section">
+          <div className="section-header">
+            <h2>Your Contests</h2>
+            <button className="create-contest-btn" onClick={onCreateContest}>
+              + Create Contest
+            </button>
+          </div>
+          <div className="contest-grid">
+            {hostedContests.map(contest => (
+              <ContestCard 
+                key={contest.id}
+                contest={contest}
+                onClick={() => onContestSelect(contest.id)}
+              />
+            ))}
+            {hostedContests.length === 0 && (
+              <div className="empty-state">
+                <p>No contests created yet</p>
+                <button className="create-first-contest" onClick={onCreateContest}>
+                  Create your first contest
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Entered Contests */}
+        <div className="contest-section">
+          <h2>Entered Contests</h2>
+          <div className="contest-grid">
+            {enteredContests.map(contest => (
+              <ContestCard 
+                key={contest.id}
+                contest={contest}
+                onClick={() => onContestSelect(contest.id)}
+              />
+            ))}
+            {enteredContests.length === 0 && (
+              <div className="empty-state">
+                <p>You haven't entered any contests yet</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ContestCard({ contest, onClick }: { contest: Contest, onClick: () => void }) {
+  return (
+    <div className="contest-card" onClick={onClick}>
+      <div className="contest-emoji">{contest.emoji}</div>
+      <div className="contest-info">
+        <h3>{contest.name}</h3>
+        <p>{contest.type}</p>
+        <div className="contest-meta">
+          <span>{contest.participants.length} participants</span>
+          <span className={`contest-status ${contest.isActive ? 'active' : 'inactive'}`}>
+            {contest.isActive ? 'Active' : 'Ended'}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function LeaderboardTab({ contestUsers, contest }: { 
+  contestUsers: ContestUser[], 
+  contest: Contest | undefined 
+}) {
+  const sortedUsers = [...contestUsers].sort((a, b) => b.totalCount - a.totalCount)
 
   const getRankEmoji = (rank: number) => {
     switch (rank) {
@@ -232,34 +483,48 @@ function LeaderboardTab({ users }: { users: User[] }) {
       <div className="leaderboard">
         {sortedUsers.map((user, index) => {
           const rank = index + 1
+          const itemType = contest?.type.toLowerCase().includes('hot dog') ? 'hot dogs' : 'items'
           return (
             <div key={user.id} className={`leaderboard-item ${rank <= 3 ? 'top-three' : ''}`}>
               <div className="rank">
                 {getRankEmoji(rank)}
               </div>
               <div className="user-info">
-                <div className="user-name">{user.name}</div>
-                <div className="user-score">{user.totalHotDogs} hot dogs</div>
+                <div className="user-name">{user.userName}</div>
+                <div className="user-score">{user.totalCount} {itemType}</div>
               </div>
               <div className="hot-dog-count">
-                🌭 {user.totalHotDogs}
+                {contest?.emoji || '🏆'} {user.totalCount}
               </div>
             </div>
           )
         })}
       </div>
       {sortedUsers.length === 0 && (
-        <p className="empty-state">No contestants yet! Start posting your hot dogs to get on the leaderboard.</p>
+        <p className="empty-state">No contestants yet! Start logging to get on the leaderboard.</p>
       )}
     </div>
   )
 }
 
-function LogHotDogsTab({ setPosts, users, setUsers, setActiveTab }: { 
-  setPosts: React.Dispatch<React.SetStateAction<HotDogPost[]>>,
-  users: User[],
-  setUsers: React.Dispatch<React.SetStateAction<User[]>>,
-  setActiveTab: React.Dispatch<React.SetStateAction<Tab>>
+function LogTab({ 
+  contestId, 
+  contestPosts, 
+  setContestPosts, 
+  contestUsers, 
+  setContestUsers, 
+  currentUserId, 
+  setActiveTab,
+  contest
+}: { 
+  contestId: string,
+  contestPosts: ContestPost[],
+  setContestPosts: React.Dispatch<React.SetStateAction<ContestPost[]>>,
+  contestUsers: ContestUser[],
+  setContestUsers: React.Dispatch<React.SetStateAction<ContestUser[]>>,
+  currentUserId: string,
+  setActiveTab: React.Dispatch<React.SetStateAction<Tab>>,
+  contest: Contest | undefined
 }) {
   const [newPostCount, setNewPostCount] = useState<string>('1')
   const [newPostDescription, setNewPostDescription] = useState<string>('')
@@ -279,26 +544,25 @@ function LogHotDogsTab({ setPosts, users, setUsers, setActiveTab }: {
   const handleSubmitPost = (e: React.FormEvent) => {
     e.preventDefault()
     
-    const currentUserId = '4'
-    const currentUser = users.find(u => u.id === currentUserId)
-    
-    if (!currentUser) return
+    const currentContestUser = contestUsers.find(u => u.contestId === contestId && u.userId === currentUserId)
+    if (!currentContestUser) return
 
-    const newPost: HotDogPost = {
+    const newPost: ContestPost = {
       id: Date.now().toString(),
+      contestId: contestId,
       userId: currentUserId,
-      userName: currentUser.name,
+      userName: currentContestUser.userName,
       count: parseInt(newPostCount) || 1,
       image: imagePreview || undefined,
       timestamp: new Date(),
       description: newPostDescription || undefined
     }
 
-    setPosts(prev => [newPost, ...prev])
+    setContestPosts(prev => [newPost, ...prev])
     
-    setUsers(prev => prev.map(user => 
-      user.id === currentUserId 
-        ? { ...user, totalHotDogs: user.totalHotDogs + (parseInt(newPostCount) || 1) }
+    setContestUsers(prev => prev.map(user => 
+      user.contestId === contestId && user.userId === currentUserId
+        ? { ...user, totalCount: user.totalCount + (parseInt(newPostCount) || 1) }
         : user
     ))
 
@@ -310,17 +574,17 @@ function LogHotDogsTab({ setPosts, users, setUsers, setActiveTab }: {
     if (fileInput) fileInput.value = ''
     
     // Switch to Feed tab to show the new post
-    setActiveTab('chat')
+    setActiveTab('feed')
   }
 
   return (
     <div className="tab-panel">
-      <h2>🌭 Log Your Hot Dogs</h2>
+      <h2>📝 Log Entry</h2>
       
       <form onSubmit={handleSubmitPost} className="post-form">
         <div className="form-section">
           <label htmlFor="log-image-upload" className="image-upload-label">
-            📷 Upload Hot Dog Picture (Optional)
+            📷 Upload Picture (Optional)
           </label>
           <input
             id="log-image-upload"
@@ -331,7 +595,7 @@ function LogHotDogsTab({ setPosts, users, setUsers, setActiveTab }: {
           />
           {imagePreview && (
             <div className="image-preview">
-              <img src={imagePreview} alt="Hot dog preview" />
+              <img src={imagePreview} alt="Contest item preview" />
               <button 
                 type="button" 
                 onClick={() => setImagePreview(null)}
@@ -344,7 +608,7 @@ function LogHotDogsTab({ setPosts, users, setUsers, setActiveTab }: {
         </div>
 
         <div className="form-section">
-          <label htmlFor="log-count">Hot Dogs Eaten</label>
+          <label htmlFor="log-count">Items Consumed</label>
           <input
             id="log-count"
             type="number"
@@ -370,22 +634,24 @@ function LogHotDogsTab({ setPosts, users, setUsers, setActiveTab }: {
         </div>
 
         <button type="submit" className="submit-button">
-          🌭 Log Hot Dogs
+          📝 Log Entry
         </button>
       </form>
     </div>
   )
 }
 
-function ChatTab({ posts, onEditPost }: { 
-  posts: HotDogPost[],
-  onEditPost: (postId: string, newCount: number, newDescription?: string) => void
+function FeedTab({ posts, onEditPost, currentUserId, contest }: { 
+  posts: ContestPost[],
+  onEditPost: (postId: string, newCount: number, newDescription?: string) => void,
+  currentUserId: string,
+  contest: Contest | undefined
 }) {
   const [editingPostId, setEditingPostId] = useState<string | null>(null)
   const [editCount, setEditCount] = useState<string>('1')
   const [editDescription, setEditDescription] = useState<string>('')
 
-  const startEditing = (post: HotDogPost) => {
+  const startEditing = (post: ContestPost) => {
     setEditingPostId(post.id)
     setEditCount(post.count.toString())
     setEditDescription(post.description || '')
@@ -413,7 +679,7 @@ function ChatTab({ posts, onEditPost }: {
   }
   return (
     <div className="tab-panel">
-      <h2>📰 Hot Dog Feed</h2>
+      <h2>📰 Contest Feed</h2>
       
       <div className="posts-section">
         <div className="posts-list">
@@ -431,13 +697,13 @@ function ChatTab({ posts, onEditPost }: {
                   
                   {post.image && (
                     <div className="post-image">
-                      <img src={post.image} alt="Hot dog" />
+                      <img src={post.image} alt="Contest item" />
                     </div>
                   )}
                   
                   <div className="edit-inputs">
                     <div className="edit-count">
-                      <label>Hot Dogs: </label>
+                      <label>Items: </label>
                       <input
                         type="number"
                         min="1"
@@ -467,7 +733,7 @@ function ChatTab({ posts, onEditPost }: {
                       <div className="post-timestamp">
                         {post.timestamp.toLocaleDateString()} {post.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                       </div>
-                      {post.userId === '4' && (
+                      {post.userId === currentUserId && (
                         <button onClick={() => startEditing(post)} className="edit-post-btn">✏️</button>
                       )}
                     </div>
@@ -475,13 +741,13 @@ function ChatTab({ posts, onEditPost }: {
                   
                   {post.image && (
                     <div className="post-image">
-                      <img src={post.image} alt="Hot dog" />
+                      <img src={post.image} alt="Contest item" />
                     </div>
                   )}
                   
                   <div className="post-content">
                     <div className="post-count">
-                      🌭 <strong>{post.count}</strong> hot dog{post.count !== 1 ? 's' : ''} eaten!
+                      {contest?.emoji || '🏆'} <strong>{post.count}</strong> {contest?.type.includes('Hot Dog') ? `hot dog${post.count !== 1 ? 's' : ''} eaten!` : `item${post.count !== 1 ? 's' : ''} consumed!`}
                     </div>
                     {post.description && (
                       <div className="post-description">{post.description}</div>
@@ -494,7 +760,7 @@ function ChatTab({ posts, onEditPost }: {
         </div>
         
         {posts.length === 0 && (
-          <p className="empty-state">No posts yet! Head to the "Log Hot Dogs" tab to start sharing your hot dog conquests.</p>
+          <p className="empty-state">No posts yet! Head to the "Log" tab to start sharing your progress.</p>
         )}
       </div>
     </div>
@@ -502,7 +768,7 @@ function ChatTab({ posts, onEditPost }: {
 }
 
 function JournalTab({ posts, currentUserId, onEditPost }: { 
-  posts: HotDogPost[], 
+  posts: ContestPost[], 
   currentUserId: string,
   onEditPost: (postId: string, newCount: number, newDescription?: string) => void
 }) {
@@ -515,7 +781,7 @@ function JournalTab({ posts, currentUserId, onEditPost }: {
   const averagePerPost = userPosts.length > 0 ? (totalHotDogs / userPosts.length).toFixed(1) : 0
   const bestDay = userPosts.length > 0 ? Math.max(...userPosts.map(post => post.count)) : 0
 
-  const startEditing = (post: HotDogPost) => {
+  const startEditing = (post: ContestPost) => {
     setEditingPostId(post.id)
     setEditCount(post.count.toString())
     setEditDescription(post.description || '')
@@ -542,7 +808,7 @@ function JournalTab({ posts, currentUserId, onEditPost }: {
     setEditingPostId(null)
   }
 
-  const groupedByDate = userPosts.reduce((groups: { [key: string]: HotDogPost[] }, post) => {
+  const groupedByDate = userPosts.reduce((groups: { [key: string]: ContestPost[] }, post) => {
     const date = post.timestamp.toLocaleDateString()
     if (!groups[date]) groups[date] = []
     groups[date].push(post)
@@ -551,12 +817,12 @@ function JournalTab({ posts, currentUserId, onEditPost }: {
 
   return (
     <div className="tab-panel">
-      <h2>📔 My Hot Dog Journal</h2>
+      <h2>📔 My Journal</h2>
       
       <div className="journal-stats">
         <div className="stat-card">
           <div className="stat-number">{totalHotDogs}</div>
-          <div className="stat-label">Total Hot Dogs</div>
+          <div className="stat-label">Total Items</div>
         </div>
         <div className="stat-card">
           <div className="stat-number">{userPosts.length}</div>
@@ -581,7 +847,7 @@ function JournalTab({ posts, currentUserId, onEditPost }: {
               <div key={date} className="journal-day">
                 <div className="day-header">
                   <h3>{date}</h3>
-                  <div className="day-total">🌭 {dayTotal} total</div>
+                  <div className="day-total">📝 {dayTotal} total</div>
                 </div>
                 <div className="day-posts">
                   {dayPosts
@@ -602,13 +868,13 @@ function JournalTab({ posts, currentUserId, onEditPost }: {
                             
                             {post.image && (
                               <div className="journal-post-image">
-                                <img src={post.image} alt="Hot dog" />
+                                <img src={post.image} alt="Contest item" />
                               </div>
                             )}
                             
                             <div className="edit-inputs">
                               <div className="edit-count">
-                                <label>Hot Dogs: </label>
+                                <label>Items: </label>
                                 <input
                                   type="number"
                                   min="1"
@@ -638,7 +904,7 @@ function JournalTab({ posts, currentUserId, onEditPost }: {
                               </div>
                               <div className="journal-post-actions">
                                 <div className="journal-post-count">
-                                  🌭 {post.count}
+                                  📝 {post.count}
                                 </div>
                                 <button onClick={() => startEditing(post)} className="edit-post-btn">✏️</button>
                               </div>
@@ -646,7 +912,7 @@ function JournalTab({ posts, currentUserId, onEditPost }: {
                             
                             {post.image && (
                               <div className="journal-post-image">
-                                <img src={post.image} alt="Hot dog" />
+                                <img src={post.image} alt="Contest item" />
                               </div>
                             )}
                             
@@ -667,7 +933,7 @@ function JournalTab({ posts, currentUserId, onEditPost }: {
       
       {userPosts.length === 0 && (
         <div className="empty-state">
-          <p>No hot dogs logged yet! Head over to the Chat tab to start posting your hot dog conquests.</p>
+          <p>No entries logged yet! Head over to the Log tab to start tracking your progress.</p>
         </div>
       )}
     </div>
@@ -750,7 +1016,7 @@ function SettingsTab({ darkMode, setDarkMode, onClearData }: {
           <h3>Data</h3>
           <div className="setting-item">
             <p className="setting-description">
-              Export your hot dog eating data or clear all stored information.
+              Export your contest data or clear all stored information.
             </p>
             <div className="setting-buttons">
               <button className="settings-button secondary" onClick={() => alert('Export feature coming soon!')}>
@@ -767,9 +1033,9 @@ function SettingsTab({ darkMode, setDarkMode, onClearData }: {
           <h3>About</h3>
           <div className="setting-item">
             <p className="setting-description">
-              Hot Dog Contest App v1.0.0<br/>
+              Contest Platform v1.0.0<br/>
               Built with React and TypeScript<br/>
-              Made for friendly hot dog eating competitions
+              Made for friendly eating competitions
             </p>
           </div>
         </div>
