@@ -108,6 +108,7 @@ function App() {
   const [darkMode, setDarkMode] = useState<boolean>(false)
   const [showCreateModal, setShowCreateModal] = useState<boolean>(false)
   const [showInviteModal, setShowInviteModal] = useState<boolean>(false)
+  const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false)
   const [inviteContestId, setInviteContestId] = useState<string | null>(null)
   
   const currentUserId = '1' // This would come from auth in a real app
@@ -336,6 +337,25 @@ function App() {
     setShowInviteModal(true)
   }
 
+  const handleClearAllData = () => {
+    // Clear all localStorage data
+    localStorage.removeItem('contest-platform-contests')
+    localStorage.removeItem('contest-platform-users')
+    localStorage.removeItem('contest-platform-posts')
+    localStorage.removeItem('contest-platform-contest-users')
+    localStorage.removeItem('hotdog-contest-dark-mode')
+
+    // Reset to default data
+    setContests(defaultContests)
+    setUsers(defaultUsers)
+    setContestPosts(defaultContestPosts)
+    setContestUsers(defaultContestUsers)
+    setDarkMode(false)
+    
+    // Close settings modal
+    setShowSettingsModal(false)
+  }
+
   const handleCreateContest = (contestData: {
     name: string,
     type: string,
@@ -504,7 +524,7 @@ function App() {
           <h1>Contest Platform</h1>
           <button 
             className="settings-btn"
-            onClick={() => {/* TODO: Settings modal */}}
+            onClick={() => setShowSettingsModal(true)}
           >
             ⚙️
           </button>
@@ -521,7 +541,7 @@ function App() {
         <h1>{currentContest ? `${currentContest.emoji} ${currentContest.name}` : 'Contest'}</h1>
         <button 
           className="settings-btn"
-          onClick={() => {/* TODO: Settings modal */}}
+          onClick={() => setShowSettingsModal(true)}
         >
           ⚙️
         </button>
@@ -558,6 +578,15 @@ function App() {
           onInviteUsers={(userIds) => handleInviteUsers(inviteContestId, userIds)}
         />
       )}
+      
+      {showSettingsModal && (
+        <SettingsModal 
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
+          onClose={() => setShowSettingsModal(false)}
+          onClearData={handleClearAllData}
+        />
+      )}
     </div>
   )
 }
@@ -583,6 +612,11 @@ function HomePage({ contests, currentUserId, onContestSelect, onCreateContest, o
 
   return (
     <div className="homepage">
+      <div className="homepage-banner">
+        <h1>The Leaderboard</h1>
+        <p>Create and join eating contests with friends</p>
+      </div>
+      
       <div className="contest-sections">
         {/* Your Contests */}
         <div className="contest-section">
@@ -1522,6 +1556,130 @@ function InviteModal({ contest, users, currentUserId, onClose, onInviteUsers }: 
             </button>
           </div>
         )}
+      </div>
+    </div>
+  )
+}
+
+function SettingsModal({ darkMode, setDarkMode, onClose, onClearData }: {
+  darkMode: boolean,
+  setDarkMode: React.Dispatch<React.SetStateAction<boolean>>,
+  onClose: () => void,
+  onClearData: () => void
+}) {
+  const [userName, setUserName] = useState('You')
+  const [notifications, setNotifications] = useState(true)
+
+  const handleSaveSettings = () => {
+    // In a real app, this would save user preferences to backend
+    alert('Settings saved! (This is just a prototype)')
+  }
+
+  const handleClearData = () => {
+    if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+      onClearData()
+      alert('All data has been cleared and reset to defaults!')
+    }
+  }
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose()
+    }
+  }
+
+  return (
+    <div className="modal-backdrop" onClick={handleBackdropClick}>
+      <div className="modal-content settings-modal">
+        <div className="modal-header">
+          <h2>⚙️ Settings</h2>
+          <button className="modal-close-btn" onClick={onClose}>
+            ✕
+          </button>
+        </div>
+        
+        <div className="settings-content">
+          <div className="settings-sections">
+            <div className="settings-section">
+              <h3>Profile</h3>
+              <div className="setting-item">
+                <label htmlFor="username">Display Name</label>
+                <input
+                  id="username"
+                  type="text"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  className="settings-input"
+                  placeholder="Enter your name"
+                />
+              </div>
+            </div>
+
+            <div className="settings-section">
+              <h3>Preferences</h3>
+              <div className="setting-item">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={notifications}
+                    onChange={(e) => setNotifications(e.target.checked)}
+                  />
+                  <span className="checkmark"></span>
+                  Enable notifications for new posts
+                </label>
+              </div>
+              
+              <div className="setting-item">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={darkMode}
+                    onChange={(e) => setDarkMode(e.target.checked)}
+                  />
+                  <span className="checkmark"></span>
+                  Dark mode
+                </label>
+              </div>
+            </div>
+
+            <div className="settings-section">
+              <h3>Data</h3>
+              <div className="setting-item">
+                <p className="setting-description">
+                  Export your contest data or clear all stored information.
+                </p>
+                <div className="setting-buttons">
+                  <button className="settings-button secondary" onClick={() => alert('Export feature coming soon!')}>
+                    📥 Export Data
+                  </button>
+                  <button className="settings-button danger" onClick={handleClearData}>
+                    🗑️ Clear All Data
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="settings-section">
+              <h3>About</h3>
+              <div className="setting-item">
+                <p className="setting-description">
+                  Contest Platform v1.0.0<br/>
+                  Built with React and TypeScript<br/>
+                  Made for friendly eating competitions
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="modal-footer">
+          <button type="button" onClick={onClose} className="btn-secondary">
+            Close
+          </button>
+          <button type="button" onClick={handleSaveSettings} className="btn-primary">
+            💾 Save Settings
+          </button>
+        </div>
       </div>
     </div>
   )

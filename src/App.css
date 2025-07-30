@@ -792,6 +792,30 @@ body.dark-mode .leaderboard-item.top-three .user-score {
   margin: 0 auto;
 }
 
+.homepage-banner {
+  text-align: center;
+  padding: 2rem 1rem;
+  margin-bottom: 2rem;
+  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  border-radius: 16px;
+  color: white;
+  box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+}
+
+.homepage-banner h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.homepage-banner p {
+  margin: 0;
+  font-size: 1.1rem;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
 .contest-sections {
   display: flex;
   flex-direction: column;
@@ -1027,6 +1051,19 @@ body.dark-mode .contest-status.inactive {
 @media (max-width: 768px) {
   .homepage {
     padding: 0.5rem;
+  }
+  
+  .homepage-banner {
+    padding: 1.5rem 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .homepage-banner h1 {
+    font-size: 2rem;
+  }
+  
+  .homepage-banner p {
+    font-size: 1rem;
   }
   
   .contest-section {
@@ -1354,6 +1391,127 @@ body.dark-mode .contest-status.inactive {
   margin: 0;
 }
 
+/* Settings modal styling */
+.settings-modal {
+  max-width: 600px;
+}
+
+.settings-content {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+}
+
+.settings-sections {
+  margin-bottom: 1rem;
+}
+
+.settings-section {
+  background: var(--bg-surface);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.settings-section h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.setting-item {
+  margin-bottom: 1rem;
+}
+
+.setting-item:last-child {
+  margin-bottom: 0;
+}
+
+.setting-item label {
+  display: block;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.settings-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+.settings-input:focus {
+  outline: none;
+  border-color: #ff6b35;
+  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+}
+
+.checkbox-label {
+  display: flex !important;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 500 !important;
+  margin-bottom: 0 !important;
+}
+
+.checkbox-label input[type="checkbox"] {
+  margin-right: 0.75rem;
+  transform: scale(1.2);
+  accent-color: #ff6b35;
+}
+
+.setting-description {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.setting-buttons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.settings-button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.settings-button.secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.settings-button.secondary:hover {
+  background: var(--button-hover);
+}
+
+.settings-button.danger {
+  background: #dc3545;
+  color: white;
+}
+
+.settings-button.danger:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
 /* Mobile responsive adjustments for modal */
 @media (max-width: 768px) {
   .modal-backdrop {
@@ -1394,6 +1552,23 @@ body.dark-mode .contest-status.inactive {
   
   .contact-card {
     padding: 0.5rem;
+  }
+  
+  .settings-content {
+    padding: 0 1rem 1rem 1rem;
+  }
+  
+  .settings-section {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .setting-buttons {
+    flex-direction: column;
+  }
+  
+  .settings-button {
+    justify-content: center;
   }
   
   .modal-footer {
