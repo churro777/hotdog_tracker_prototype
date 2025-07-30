@@ -670,6 +670,12 @@ function SettingsTab({ onClearData }: { onClearData: () => void }) {
     <div className="tab-panel">
       <h2>⚙️ Settings</h2>
       
+      <div className="settings-header">
+        <button className="settings-button primary" onClick={handleSaveSettings}>
+          💾 Save Settings
+        </button>
+      </div>
+      
       <div className="settings-sections">
         <div className="settings-section">
           <h3>Profile</h3>
@@ -740,12 +746,6 @@ function SettingsTab({ onClearData }: { onClearData: () => void }) {
             </p>
           </div>
         </div>
-      </div>
-
-      <div className="settings-footer">
-        <button className="settings-button primary" onClick={handleSaveSettings}>
-          💾 Save Settings
-        </button>
       </div>
     </div>
   )
