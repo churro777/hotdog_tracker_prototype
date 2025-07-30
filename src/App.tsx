@@ -90,6 +90,15 @@ function App() {
     }
   }, [posts])
 
+  // Set page title based on environment
+  useEffect(() => {
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    const title = isLocal 
+      ? 'DEBUG - The Board - Hot Dog Contest July 2025'
+      : 'The Board - Hot Dog Contest July 2025'
+    document.title = title
+  }, [])
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'results':
