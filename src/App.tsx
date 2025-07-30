@@ -204,7 +204,7 @@ function App() {
   // Set page title based on environment and current view
   useEffect(() => {
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    let title = 'Contest Platform'
+    let title = 'The Leaderboard'
     
     if (currentView === 'contest' && currentContestId) {
       const contest = contests.find(c => c.id === currentContestId)
@@ -521,7 +521,7 @@ function App() {
     if (currentView === 'home') {
       return (
         <div className="header-content">
-          <h1>Contest Platform</h1>
+          <h1>The Leaderboard</h1>
           <button 
             className="settings-btn"
             onClick={() => setShowSettingsModal(true)}
