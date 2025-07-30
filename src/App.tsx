@@ -16,6 +16,7 @@ type Contest = {
   endDate?: Date
   isActive: boolean
   emoji: string
+  isFavorite?: boolean
 }
 
 type User = {
@@ -62,7 +63,8 @@ const defaultContests: Contest[] = [
     participants: ['1', '2', '3', '4', '5'],
     createdAt: new Date(),
     isActive: true,
-    emoji: '🌭'
+    emoji: '🌭',
+    isFavorite: false
   }
 ]
 
@@ -260,6 +262,14 @@ function App() {
     setCurrentContestId(null)
   }
 
+  const handleToggleFavorite = (contestId: string) => {
+    setContests(prev => prev.map(contest => 
+      contest.id === contestId 
+        ? { ...contest, isFavorite: !contest.isFavorite }
+        : contest
+    ))
+  }
+
   const handleCreateContest = (contestData: {
     name: string,
     type: string,
@@ -278,7 +288,8 @@ function App() {
       createdAt: new Date(),
       endDate: contestData.endDate,
       isActive: true,
-      emoji: contestData.emoji
+      emoji: contestData.emoji,
+      isFavorite: false
     }
 
     // Add the new contest
@@ -338,6 +349,7 @@ function App() {
         currentUserId={currentUserId}
         onContestSelect={handleContestSelect}
         onCreateContest={() => setShowCreateModal(true)}
+        onToggleFavorite={handleToggleFavorite}
       />
     }
     
@@ -427,14 +439,24 @@ function App() {
   )
 }
 
-function HomePage({ contests, currentUserId, onContestSelect, onCreateContest }: {
+function HomePage({ contests, currentUserId, onContestSelect, onCreateContest, onToggleFavorite }: {
   contests: Contest[],
   currentUserId: string,
   onContestSelect: (contestId: string) => void,
-  onCreateContest: () => void
+  onCreateContest: () => void,
+  onToggleFavorite: (contestId: string) => void
 }) {
-  const hostedContests = contests.filter(c => c.hostId === currentUserId)
-  const enteredContests = contests.filter(c => c.participants.includes(currentUserId) && c.hostId !== currentUserId)
+  const sortContestsByFavorite = (contests: Contest[]) => {
+    return [...contests].sort((a, b) => {
+      // Favorites first, then by creation date (newest first)
+      if (a.isFavorite && !b.isFavorite) return -1
+      if (!a.isFavorite && b.isFavorite) return 1
+      return b.createdAt.getTime() - a.createdAt.getTime()
+    })
+  }
+
+  const hostedContests = sortContestsByFavorite(contests.filter(c => c.hostId === currentUserId))
+  const enteredContests = sortContestsByFavorite(contests.filter(c => c.participants.includes(currentUserId) && c.hostId !== currentUserId))
 
   return (
     <div className="homepage">
@@ -453,6 +475,7 @@ function HomePage({ contests, currentUserId, onContestSelect, onCreateContest }:
                 key={contest.id}
                 contest={contest}
                 onClick={() => onContestSelect(contest.id)}
+                onToggleFavorite={onToggleFavorite}
               />
             ))}
             {hostedContests.length === 0 && (
@@ -475,6 +498,7 @@ function HomePage({ contests, currentUserId, onContestSelect, onCreateContest }:
                 key={contest.id}
                 contest={contest}
                 onClick={() => onContestSelect(contest.id)}
+                onToggleFavorite={onToggleFavorite}
               />
             ))}
             {enteredContests.length === 0 && (
@@ -489,10 +513,28 @@ function HomePage({ contests, currentUserId, onContestSelect, onCreateContest }:
   )
 }
 
-function ContestCard({ contest, onClick }: { contest: Contest, onClick: () => void }) {
+function ContestCard({ contest, onClick, onToggleFavorite }: { 
+  contest: Contest, 
+  onClick: () => void,
+  onToggleFavorite: (contestId: string) => void
+}) {
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent card click
+    onToggleFavorite(contest.id)
+  }
+
   return (
-    <div className="contest-card" onClick={onClick}>
-      <div className="contest-emoji">{contest.emoji}</div>
+    <div className={`contest-card ${contest.isFavorite ? 'favorited' : ''}`} onClick={onClick}>
+      <div className="contest-card-header">
+        <div className="contest-emoji">{contest.emoji}</div>
+        <button 
+          className={`favorite-btn ${contest.isFavorite ? 'favorited' : ''}`}
+          onClick={handleFavoriteClick}
+          title={contest.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+        >
+          {contest.isFavorite ? '★' : '☆'}
+        </button>
+      </div>
       <div className="contest-info">
         <h3>{contest.name}</h3>
         <p>{contest.type}</p>
