@@ -814,3 +814,10 @@
   align-items: center;
   gap: 0.5rem;
 }
+
+/* Settings header */
+.settings-header {
+  max-width: 600px;
+  margin: 0 auto 2rem auto;
+  text-align: center;
+}
