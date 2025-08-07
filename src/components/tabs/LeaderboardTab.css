@@ -17,7 +17,7 @@
 }
 
 .leaderboard-item:hover {
-  transform: translateY(-2px);
+  transform: var(--transform-move-up-sm);
   box-shadow: 0 4px 16px var(--shadow-hover);
 }
 

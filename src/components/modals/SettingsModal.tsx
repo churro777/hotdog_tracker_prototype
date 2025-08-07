@@ -1,26 +1,27 @@
 import { useState } from 'react'
 import './SettingsModal.css'
+import { UI_TEXT, FORM_CONFIG, BUTTON_TEXT, ICONS } from '../../constants'
 
 interface SettingsModalProps {
-  darkMode: boolean
-  setDarkMode: React.Dispatch<React.SetStateAction<boolean>>
+  isDarkMode: boolean
+  onToggleTheme: () => void
   onClose: () => void
   onClearData: () => void
 }
 
-function SettingsModal({ darkMode, setDarkMode, onClose, onClearData }: SettingsModalProps) {
+function SettingsModal({ isDarkMode, onToggleTheme, onClose, onClearData }: SettingsModalProps) {
   const [userName, setUserName] = useState('You')
   const [notifications, setNotifications] = useState(true)
 
   const handleSaveSettings = () => {
     // In a real app, this would save user preferences to backend
-    alert('Settings saved! (This is just a prototype)')
+    alert(UI_TEXT.MESSAGES.SETTINGS_SAVED)
   }
 
   const handleClearData = () => {
-    if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+    if (confirm(UI_TEXT.MESSAGES.CONFIRM_CLEAR_DATA)) {
       onClearData()
-      alert('All data has been cleared and reset to defaults!')
+      alert(UI_TEXT.MESSAGES.DATA_CLEARED)
     }
   }
 
@@ -34,9 +35,9 @@ function SettingsModal({ darkMode, setDarkMode, onClose, onClearData }: Settings
     <div className="modal-backdrop" onClick={handleBackdropClick}>
       <div className="modal-content settings-modal">
         <div className="modal-header">
-          <h2>⚙️ Settings</h2>
+          <h2>{ICONS.SETTINGS} Settings</h2>
           <button className="modal-close-btn" onClick={onClose}>
-            ✕
+            {ICONS.CLOSE}
           </button>
         </div>
         
@@ -45,14 +46,14 @@ function SettingsModal({ darkMode, setDarkMode, onClose, onClearData }: Settings
             <div className="settings-section">
               <h3>Profile</h3>
               <div className="setting-item">
-                <label htmlFor="username">Display Name</label>
+                <label htmlFor="username">{FORM_CONFIG.LABELS.DISPLAY_NAME}</label>
                 <input
                   id="username"
                   type="text"
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
                   className="settings-input"
-                  placeholder="Enter your name"
+                  placeholder={FORM_CONFIG.PLACEHOLDERS.NAME}
                 />
               </div>
             </div>
@@ -67,7 +68,7 @@ function SettingsModal({ darkMode, setDarkMode, onClose, onClearData }: Settings
                     onChange={(e) => setNotifications(e.target.checked)}
                   />
                   <span className="checkmark"></span>
-                  Enable notifications for new posts
+                  {FORM_CONFIG.LABELS.ENABLE_NOTIFICATIONS}
                 </label>
               </div>
               
@@ -75,11 +76,11 @@ function SettingsModal({ darkMode, setDarkMode, onClose, onClearData }: Settings
                 <label className="checkbox-label">
                   <input
                     type="checkbox"
-                    checked={darkMode}
-                    onChange={(e) => setDarkMode(e.target.checked)}
+                    checked={isDarkMode}
+                    onChange={onToggleTheme}
                   />
                   <span className="checkmark"></span>
-                  Dark mode
+                  {FORM_CONFIG.LABELS.DARK_MODE}
                 </label>
               </div>
             </div>
@@ -91,11 +92,11 @@ function SettingsModal({ darkMode, setDarkMode, onClose, onClearData }: Settings
                   Export your contest data or clear all stored information.
                 </p>
                 <div className="setting-buttons">
-                  <button className="settings-button secondary" onClick={() => alert('Export feature coming soon!')}>
-                    📥 Export Data
+                  <button className="settings-button secondary" onClick={() => alert(UI_TEXT.MESSAGES.EXPORT_COMING_SOON)}>
+                    {BUTTON_TEXT.EXPORT_DATA}
                   </button>
                   <button className="settings-button danger" onClick={handleClearData}>
-                    🗑️ Clear All Data
+                    {BUTTON_TEXT.CLEAR_ALL_DATA}
                   </button>
                 </div>
               </div>
@@ -116,10 +117,10 @@ function SettingsModal({ darkMode, setDarkMode, onClose, onClearData }: Settings
 
         <div className="modal-footer">
           <button type="button" onClick={onClose} className="btn-secondary">
-            Close
+            {BUTTON_TEXT.CLOSE}
           </button>
           <button type="button" onClick={handleSaveSettings} className="btn-primary">
-            💾 Save Settings
+            {BUTTON_TEXT.SAVE_SETTINGS}
           </button>
         </div>
       </div>

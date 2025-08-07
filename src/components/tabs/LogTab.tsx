@@ -2,6 +2,7 @@ import { useState } from 'react'
 import './LogTab.css'
 import type { Tab } from '../../types'
 import useImageUpload from '../../hooks/useImageUpload'
+import { UI_TEXT, CSS_CLASSES, FORM_CONFIG, LIMITS, BUTTON_TEXT, ICONS, TAB_TYPES } from '../../constants'
 
 interface LogTabProps {
   onAddPost: (count: number, description?: string, image?: string) => void
@@ -12,7 +13,7 @@ function LogTab({
   onAddPost, 
   setActiveTab
 }: LogTabProps) {
-  const [newPostCount, setNewPostCount] = useState<string>('1')
+  const [newPostCount, setNewPostCount] = useState<string>(LIMITS.DEFAULT_ITEM_COUNT.toString())
   const [newPostDescription, setNewPostDescription] = useState<string>('')
   const { imagePreview, handleImageUpload, clearImage, resetFileInput } = useImageUpload()
 
@@ -20,56 +21,56 @@ function LogTab({
   const handleSubmitPost = (e: React.FormEvent) => {
     e.preventDefault()
     
-    const count = parseInt(newPostCount) || 1
+    const count = parseInt(newPostCount) || LIMITS.DEFAULT_ITEM_COUNT
     onAddPost(count, newPostDescription || undefined, imagePreview || undefined)
 
     // Reset form
-    setNewPostCount('1')
+    setNewPostCount(LIMITS.DEFAULT_ITEM_COUNT.toString())
     setNewPostDescription('')
     clearImage()
     resetFileInput('log-image-upload')
     
     // Switch to Feed tab to show the new post
-    setActiveTab('feed')
+    setActiveTab(TAB_TYPES.FEED)
   }
 
   return (
-    <div className="tab-panel">
-      <h2>📝 Log Entry</h2>
+    <div className={CSS_CLASSES.TAB_PANEL}>
+      <h2>{UI_TEXT.TABS.LOG} Entry</h2>
       
       <form onSubmit={handleSubmitPost} className="post-form">
         <div className="form-section">
           <label htmlFor="log-image-upload" className="image-upload-label">
-            📷 Upload Picture (Optional)
+            {ICONS.CAMERA} {FORM_CONFIG.LABELS.UPLOAD_PICTURE}
           </label>
           <input
             id="log-image-upload"
             type="file"
-            accept="image/*"
+            accept={FORM_CONFIG.INPUT_TYPES.IMAGE_ACCEPT}
             onChange={handleImageUpload}
             className="image-upload-input"
           />
           {imagePreview && (
             <div className="image-preview">
-              <img src={imagePreview} alt="Contest item preview" />
+              <img src={imagePreview} alt={FORM_CONFIG.ALT_TEXT.CONTEST_ITEM_PREVIEW} />
               <button 
                 type="button" 
                 onClick={clearImage}
                 className="remove-image"
               >
-                Remove
+                {BUTTON_TEXT.REMOVE}
               </button>
             </div>
           )}
         </div>
 
         <div className="form-section">
-          <label htmlFor="log-count">Items Consumed</label>
+          <label htmlFor="log-count">{FORM_CONFIG.LABELS.ITEMS_CONSUMED}</label>
           <input
             id="log-count"
             type="number"
-            min="1"
-            max="50"
+            min={LIMITS.MIN_ITEM_COUNT}
+            max={LIMITS.MAX_ITEM_COUNT}
             value={newPostCount}
             onChange={(e) => setNewPostCount(e.target.value)}
             className="count-input"
@@ -78,19 +79,19 @@ function LogTab({
         </div>
 
         <div className="form-section">
-          <label htmlFor="log-description">Description (Optional)</label>
+          <label htmlFor="log-description">{FORM_CONFIG.LABELS.DESCRIPTION_OPTIONAL}</label>
           <textarea
             id="log-description"
             value={newPostDescription}
             onChange={(e) => setNewPostDescription(e.target.value)}
-            placeholder="How was it? Any comments?"
+            placeholder={FORM_CONFIG.PLACEHOLDERS.DESCRIPTION}
             className="description-input"
-            rows={3}
+            rows={LIMITS.TEXTAREA_ROWS_MEDIUM}
           />
         </div>
 
         <button type="submit" className="submit-button">
-          📝 Log Entry
+          {BUTTON_TEXT.LOG_ENTRY}
         </button>
       </form>
     </div>

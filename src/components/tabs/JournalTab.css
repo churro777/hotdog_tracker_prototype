@@ -20,7 +20,7 @@
 }
 
 .stat-card:hover {
-  transform: translateY(-2px);
+  transform: var(--transform-move-up-sm);
   border-color: #ff6b35;
 }
 

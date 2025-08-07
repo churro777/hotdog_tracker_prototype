@@ -181,7 +181,7 @@ body.dark-mode {
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: var(--transform-move-up-sm);
   }
   to {
     opacity: 1;
@@ -279,7 +279,7 @@ body.dark-mode {
 }
 
 .create-contest-btn:hover, .create-first-contest:hover {
-  transform: translateY(-2px);
+  transform: var(--transform-move-up-sm);
 }
 
 .contest-grid {
@@ -301,7 +301,7 @@ body.dark-mode {
 }
 
 .contest-card:hover {
-  transform: translateY(-4px);
+  transform: var(--transform-move-up-md);
   box-shadow: 0 8px 24px var(--shadow-hover);
   border-color: #ff6b35;
 }
@@ -337,7 +337,7 @@ body.dark-mode {
 
 .favorite-btn:hover {
   background: var(--button-hover);
-  transform: scale(1.1);
+  transform: var(--transform-scale-up);
 }
 
 .favorite-btn.favorited {
