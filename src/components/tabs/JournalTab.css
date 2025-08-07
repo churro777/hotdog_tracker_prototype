@@ -145,7 +145,8 @@
   gap: 0.5rem;
 }
 
-.save-edit-btn, .cancel-edit-btn {
+.save-edit-btn,
+.cancel-edit-btn {
   background: none;
   border: none;
   cursor: pointer;
@@ -170,13 +171,15 @@
   margin-top: 0.75rem;
 }
 
-.edit-count, .edit-description {
+.edit-count,
+.edit-description {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
 
-.edit-count label, .edit-description label {
+.edit-count label,
+.edit-description label {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-primary);
@@ -221,26 +224,26 @@
     gap: 0.75rem;
     margin-bottom: 1.5rem;
   }
-  
+
   .stat-card {
     padding: 1rem;
   }
-  
+
   .stat-number {
     font-size: 1.5rem;
   }
-  
+
   .journal-day {
     padding: 1rem;
     margin-bottom: 1rem;
   }
-  
+
   .day-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .journal-post {
     padding: 0.75rem;
   }

@@ -3,10 +3,12 @@
 }
 
 :root {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+    Cantarell, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  
+
   --primary-color: #ff6b35;
   --primary-hover: #f7931e;
   --text-primary: #343a40;
@@ -36,11 +38,16 @@ body {
   min-height: 100vh;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-input, textarea, button, select {
+input,
+textarea,
+button,
+select {
   font-family: inherit;
 }
 
@@ -62,7 +69,12 @@ a:hover {
   text-decoration: underline;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: var(--text-primary);
   margin-top: 0;
 }

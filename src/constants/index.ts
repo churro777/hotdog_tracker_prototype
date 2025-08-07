@@ -14,7 +14,7 @@ export const STORAGE_KEYS = {
   /** Key for storing contest user data */
   CONTEST_USERS: 'hotdog-contest-contest-users',
   /** Key for storing general user data */
-  USERS: 'hotdog-contest-users'
+  USERS: 'hotdog-contest-users',
 } as const
 
 /**
@@ -22,7 +22,7 @@ export const STORAGE_KEYS = {
  */
 export const CONTEST_IDS = {
   /** Default contest ID used throughout the app */
-  DEFAULT: 'hotdog-contest'
+  DEFAULT: 'hotdog-contest',
 } as const
 
 /**
@@ -44,7 +44,7 @@ export const USER_IDS = {
   /** Mock user Mike Chen */
   MIKE_CHEN: '7',
   /** Mock user Emma Wilson */
-  EMMA_WILSON: '8'
+  EMMA_WILSON: '8',
 } as const
 
 /**
@@ -56,7 +56,7 @@ export const POST_TYPES = {
   /** Post indicating a user joined the contest */
   JOIN: 'join',
   /** Post for inviting other users to join */
-  INVITE: 'invite'
+  INVITE: 'invite',
 } as const
 
 /**
@@ -70,7 +70,7 @@ export const TAB_TYPES = {
   /** Log tab for creating new entries */
   LOG: 'log',
   /** Journal tab for personal post history */
-  JOURNAL: 'journal'
+  JOURNAL: 'journal',
 } as const
 
 /**
@@ -81,53 +81,57 @@ export const UI_TEXT = {
   APP_TITLE: '🌭 Hot Dog Contest',
   /** Prefix added to title in development mode */
   DEBUG_PREFIX: 'DEBUG - ',
-  
+
   TABS: {
     LEADERBOARD: '🏆 Leaderboard',
     FEED: '📰 Feed',
     LOG: '📝 Log',
     JOURNAL: '📔 Journal',
-    SETTINGS: '⚙️'
+    SETTINGS: '⚙️',
   },
-  
+
   MESSAGES: {
     SETTINGS_SAVED: 'Settings saved! (This is just a prototype)',
     EXPORT_COMING_SOON: 'Export feature coming soon!',
     DATA_CLEARED: 'All data has been cleared and reset to defaults!',
-    CONFIRM_CLEAR_DATA: 'Are you sure you want to clear all data? This cannot be undone.'
+    CONFIRM_CLEAR_DATA:
+      'Are you sure you want to clear all data? This cannot be undone.',
   },
-  
+
   EMPTY_STATES: {
-    NO_CONTESTANTS: 'No contestants yet! Start logging to get on the leaderboard.',
-    NO_POSTS: 'No posts yet! Head to the "Log" tab to start sharing your progress.',
-    NO_ENTRIES: 'No entries logged yet! Head over to the Log tab to start tracking your progress.'
-  }
+    NO_CONTESTANTS:
+      'No contestants yet! Start logging to get on the leaderboard.',
+    NO_POSTS:
+      'No posts yet! Head to the "Log" tab to start sharing your progress.',
+    NO_ENTRIES:
+      'No entries logged yet! Head over to the Log tab to start tracking your progress.',
+  },
 } as const
 
 // Form Configuration
 export const FORM_CONFIG = {
   PLACEHOLDERS: {
     DESCRIPTION: 'How was it? Any comments?',
-    NAME: 'Enter your name'
+    NAME: 'Enter your name',
   },
-  
+
   ALT_TEXT: {
     CONTEST_ITEM: 'Contest item',
-    CONTEST_ITEM_PREVIEW: 'Contest item preview'
+    CONTEST_ITEM_PREVIEW: 'Contest item preview',
   },
-  
+
   INPUT_TYPES: {
-    IMAGE_ACCEPT: 'image/*'
+    IMAGE_ACCEPT: 'image/*',
   },
-  
+
   LABELS: {
     UPLOAD_PICTURE: '📷 Upload Picture (Optional)',
     ITEMS_CONSUMED: 'Items Consumed',
     DESCRIPTION_OPTIONAL: 'Description (Optional)',
     DISPLAY_NAME: 'Display Name',
     ENABLE_NOTIFICATIONS: 'Enable notifications for new posts',
-    DARK_MODE: 'Dark mode'
-  }
+    DARK_MODE: 'Dark mode',
+  },
 } as const
 
 // Numeric Limits and Defaults
@@ -136,17 +140,17 @@ export const LIMITS = {
   MAX_ITEM_COUNT: 50,
   DEFAULT_ITEM_COUNT: 1,
   TEXTAREA_ROWS_SMALL: 2,
-  TEXTAREA_ROWS_MEDIUM: 3
+  TEXTAREA_ROWS_MEDIUM: 3,
 } as const
 
 export const TIMEOUTS = {
-  FOCUS_DELAY: 0
+  FOCUS_DELAY: 0,
 } as const
 
 // Environment Configuration
 export const CONFIG = {
   DEV_HOSTNAMES: ['localhost', '127.0.0.1'],
-  BASE_PATH: '/hotdog_tracker_prototype/'
+  BASE_PATH: '/hotdog_tracker_prototype/',
 } as const
 
 // CSS Class Names
@@ -154,7 +158,7 @@ export const CSS_CLASSES = {
   // Common Layout
   TAB_PANEL: 'tab-panel',
   EMPTY_STATE: 'empty-state',
-  
+
   // Post Components
   POST_HEADER: 'post-header',
   POST_CONTENT: 'post-content',
@@ -165,7 +169,7 @@ export const CSS_CLASSES = {
   POST_DESCRIPTION: 'post-description',
   POST_COUNT: 'post-count',
   POST_IMAGE: 'post-image',
-  
+
   // Edit Controls
   EDIT_FORM: 'edit-form',
   EDIT_CONTROLS: 'edit-controls',
@@ -174,52 +178,82 @@ export const CSS_CLASSES = {
   EDIT_DESCRIPTION: 'edit-description',
   EDIT_COUNT_INPUT: 'edit-count-input',
   EDIT_DESCRIPTION_INPUT: 'edit-description-input',
-  
+
   // Buttons
   EDIT_POST_BTN: 'edit-post-btn',
   SAVE_EDIT_BTN: 'save-edit-btn',
   CANCEL_EDIT_BTN: 'cancel-edit-btn',
-  
+
   // Modal
   MODAL: {
     BACKDROP: 'modal-backdrop',
     CONTENT: 'modal-content',
     HEADER: 'modal-header',
     CLOSE_BTN: 'modal-close-btn',
-    FOOTER: 'modal-footer'
+    FOOTER: 'modal-footer',
   },
-  
+
   // Form Elements
   FORM: {
     SECTION: 'form-section',
     INPUT: 'settings-input',
     BUTTON_PRIMARY: 'btn-primary',
-    BUTTON_SECONDARY: 'btn-secondary'
-  }
+    BUTTON_SECONDARY: 'btn-secondary',
+  },
 } as const
 
 // Default Mock Data
 export const DEFAULT_DATA = {
   USERS: [
-    { id: 'cu-1', contestId: CONTEST_IDS.DEFAULT, userId: USER_IDS.JOEY_CHESTNUT, userName: 'Joey Chestnut', totalCount: 23 },
-    { id: 'cu-2', contestId: CONTEST_IDS.DEFAULT, userId: USER_IDS.TAKERU_KOBAYASHI, userName: 'Takeru Kobayashi', totalCount: 18 },
-    { id: 'cu-3', contestId: CONTEST_IDS.DEFAULT, userId: USER_IDS.MATT_STONIE, userName: 'Matt Stonie', totalCount: 15 },
-    { id: 'cu-4', contestId: CONTEST_IDS.DEFAULT, userId: USER_IDS.CURRENT_USER, userName: 'You', totalCount: 3 },
-    { id: 'cu-5', contestId: CONTEST_IDS.DEFAULT, userId: USER_IDS.FRIEND, userName: 'Your Friend', totalCount: 7 }
+    {
+      id: 'cu-1',
+      contestId: CONTEST_IDS.DEFAULT,
+      userId: USER_IDS.JOEY_CHESTNUT,
+      userName: 'Joey Chestnut',
+      totalCount: 23,
+    },
+    {
+      id: 'cu-2',
+      contestId: CONTEST_IDS.DEFAULT,
+      userId: USER_IDS.TAKERU_KOBAYASHI,
+      userName: 'Takeru Kobayashi',
+      totalCount: 18,
+    },
+    {
+      id: 'cu-3',
+      contestId: CONTEST_IDS.DEFAULT,
+      userId: USER_IDS.MATT_STONIE,
+      userName: 'Matt Stonie',
+      totalCount: 15,
+    },
+    {
+      id: 'cu-4',
+      contestId: CONTEST_IDS.DEFAULT,
+      userId: USER_IDS.CURRENT_USER,
+      userName: 'You',
+      totalCount: 3,
+    },
+    {
+      id: 'cu-5',
+      contestId: CONTEST_IDS.DEFAULT,
+      userId: USER_IDS.FRIEND,
+      userName: 'Your Friend',
+      totalCount: 7,
+    },
   ],
-  
+
   POST: {
     DESCRIPTION: 'Just crushed 5 more! 🌭',
-    COUNT: 5
-  }
+    COUNT: 5,
+  },
 } as const
 
 // Statistics Labels
 export const STATS_LABELS = {
   TOTAL_ITEMS: 'Total Items',
-  POSTS: 'Posts', 
+  POSTS: 'Posts',
   AVG_PER_POST: 'Avg per Post',
-  BEST_SINGLE_POST: 'Best Single Post'
+  BEST_SINGLE_POST: 'Best Single Post',
 } as const
 
 // Button and Action Text
@@ -229,14 +263,14 @@ export const BUTTON_TEXT = {
   EXPORT_DATA: '📥 Export Data',
   CLEAR_ALL_DATA: '🗑️ Clear All Data',
   REMOVE: 'Remove',
-  CLOSE: 'Close'
+  CLOSE: 'Close',
 } as const
 
 // Emoji and Icons
 export const ICONS = {
   HOT_DOG: '🌭',
   TROPHY: '🏆',
-  NEWSPAPER: '📰', 
+  NEWSPAPER: '📰',
   PENCIL: '📝',
   NOTEBOOK: '📔',
   SETTINGS: '⚙️',
@@ -248,5 +282,5 @@ export const ICONS = {
   TRASH: '🗑️',
   EDIT: '✏️',
   CANCEL: '❌',
-  CLOSE: '✕'
+  CLOSE: '✕',
 } as const

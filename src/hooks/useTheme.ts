@@ -24,18 +24,21 @@ interface UseThemeReturn {
  * Custom hook for managing application theme (light/dark mode).
  * Handles theme persistence via localStorage and applies CSS variables and classes.
  * Provides functions to toggle or set specific themes.
- * 
+ *
  * @returns {UseThemeReturn} Object containing theme state and management functions
  */
 function useTheme(): UseThemeReturn {
-  const [isDarkMode, setIsDarkMode] = useLocalStorage<boolean>(STORAGE_KEYS.DARK_MODE, false)
-  
+  const [isDarkMode, setIsDarkMode] = useLocalStorage<boolean>(
+    STORAGE_KEYS.DARK_MODE,
+    false
+  )
+
   const theme: ThemeMode = isDarkMode ? 'dark' : 'light'
-  
+
   // Apply theme when it changes
   useEffect(() => {
     applyTheme(isDarkMode)
-    
+
     // Also apply CSS class for backward compatibility
     if (isDarkMode) {
       document.body.classList.add('dark-mode')
@@ -43,29 +46,29 @@ function useTheme(): UseThemeReturn {
       document.body.classList.remove('dark-mode')
     }
   }, [isDarkMode])
-  
+
   /**
    * Toggles between light and dark themes.
    */
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode)
   }
-  
+
   /**
    * Sets a specific theme mode.
-   * 
+   *
    * @param {ThemeMode} newTheme - The theme to set ('light' or 'dark')
    */
   const setTheme = (newTheme: ThemeMode) => {
     setIsDarkMode(newTheme === 'dark')
   }
-  
+
   return {
     isDarkMode,
     theme,
     toggleTheme,
     setTheme,
-    getCSSVariable
+    getCSSVariable,
   }
 }
 

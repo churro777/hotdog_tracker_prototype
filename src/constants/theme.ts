@@ -4,25 +4,25 @@ export const THEME_COLORS = {
   // Primary Brand Colors
   PRIMARY_GRADIENT: {
     START: '#ff6b35',
-    END: '#f7931e'
+    END: '#f7931e',
   },
-  
+
   // Status Colors
   SUCCESS: '#4caf50',
   SUCCESS_BG_LIGHT: '#d4edda',
   SUCCESS_TEXT_LIGHT: '#155724',
   SUCCESS_BG_DARK: '#1d4f2a',
-  
+
   ERROR: '#f56565',
-  ERROR_BG_LIGHT: '#f8d7da', 
+  ERROR_BG_LIGHT: '#f8d7da',
   ERROR_TEXT_LIGHT: '#721c24',
   ERROR_BG_DARK: '#4a1e21',
-  
+
   WARNING: '#ffd700',
-  
+
   // Interactive States
   HOVER_SHADOW: 'rgba(255, 107, 53, 0.3)',
-  FOCUS_SHADOW: 'rgba(255, 107, 53, 0.2)'
+  FOCUS_SHADOW: 'rgba(255, 107, 53, 0.2)',
 } as const
 
 // CSS Custom Properties (CSS Variables)
@@ -38,13 +38,13 @@ export const CSS_VARIABLES = {
     '--shadow': 'rgba(0, 0, 0, 0.1)',
     '--shadow-hover': 'rgba(0, 0, 0, 0.15)',
     '--input-bg': '#ffffff',
-    '--button-hover': '#e9ecef'
+    '--button-hover': '#e9ecef',
   },
-  
+
   // Dark Mode
   DARK: {
     '--bg-primary': '#1a1a1a',
-    '--bg-secondary': '#2d2d2d', 
+    '--bg-secondary': '#2d2d2d',
     '--bg-surface': '#2d2d2d',
     '--text-primary': '#ffffff',
     '--text-secondary': '#b0b0b0',
@@ -52,8 +52,8 @@ export const CSS_VARIABLES = {
     '--shadow': 'rgba(0, 0, 0, 0.3)',
     '--shadow-hover': 'rgba(0, 0, 0, 0.4)',
     '--input-bg': '#404040',
-    '--button-hover': '#404040'
-  }
+    '--button-hover': '#404040',
+  },
 } as const
 
 // Component-specific Styling Constants
@@ -64,39 +64,39 @@ export const COMPONENT_STYLES = {
     MEDIUM: '8px',
     LARGE: '12px',
     EXTRA_LARGE: '16px',
-    PILL: '20px'
+    PILL: '20px',
   },
-  
+
   // Shadow Values
   SHADOWS: {
     SMALL: '0 2px 4px rgba(0,0,0,0.1)',
     MEDIUM: '0 2px 8px var(--shadow)',
     LARGE: '0 4px 20px rgba(255, 107, 53, 0.3)',
     HOVER: '0 8px 24px var(--shadow-hover)',
-    MODAL: '0 20px 60px rgba(0, 0, 0, 0.3)'
+    MODAL: '0 20px 60px rgba(0, 0, 0, 0.3)',
   },
-  
+
   // Spacing Scale
   SPACING: {
-    XS: '0.25rem',   // 4px
-    SM: '0.5rem',    // 8px
-    MD: '0.75rem',   // 12px
-    LG: '1rem',      // 16px
-    XL: '1.5rem',    // 24px
-    XXL: '2rem'      // 32px
+    XS: '0.25rem', // 4px
+    SM: '0.5rem', // 8px
+    MD: '0.75rem', // 12px
+    LG: '1rem', // 16px
+    XL: '1.5rem', // 24px
+    XXL: '2rem', // 32px
   },
-  
+
   // Typography Scale
   FONT_SIZES: {
-    XS: '0.75rem',    // 12px
-    SM: '0.875rem',   // 14px
-    BASE: '1rem',     // 16px
-    LG: '1.125rem',   // 18px
-    XL: '1.25rem',    // 20px
-    XXL: '1.5rem',    // 24px
-    XXXL: '2rem'      // 32px
+    XS: '0.75rem', // 12px
+    SM: '0.875rem', // 14px
+    BASE: '1rem', // 16px
+    LG: '1.125rem', // 18px
+    XL: '1.25rem', // 20px
+    XXL: '1.5rem', // 24px
+    XXXL: '2rem', // 32px
   },
-  
+
   // Z-Index Scale
   Z_INDEX: {
     DROPDOWN: 10,
@@ -104,22 +104,22 @@ export const COMPONENT_STYLES = {
     FIXED: 30,
     MODAL_BACKDROP: 100,
     MODAL: 1000,
-    TOOLTIP: 1001
+    TOOLTIP: 1001,
   },
-  
+
   // Transition Durations
   TRANSITIONS: {
     FAST: '0.2s ease',
     NORMAL: '0.3s ease',
-    SLOW: '0.5s ease'
+    SLOW: '0.5s ease',
   },
-  
+
   // Breakpoints (for media queries)
   BREAKPOINTS: {
     MOBILE: '768px',
     TABLET: '1024px',
-    DESKTOP: '1200px'
-  }
+    DESKTOP: '1200px',
+  },
 } as const
 
 // Animation Constants
@@ -127,42 +127,57 @@ export const ANIMATIONS = {
   // Keyframe Names
   KEYFRAMES: {
     FADE_IN: 'fadeIn',
-    MODAL_SLIDE_IN: 'modalSlideIn'
+    MODAL_SLIDE_IN: 'modalSlideIn',
   },
-  
+
   // Transform Values
   TRANSFORMS: {
     SCALE_UP: 'scale(1.1)',
     SCALE_DOWN: 'scale(0.95)',
     MOVE_UP_SMALL: 'translateY(-2px)',
-    MOVE_UP_MEDIUM: 'translateY(-4px)'
-  }
+    MOVE_UP_MEDIUM: 'translateY(-4px)',
+  },
 } as const
 
 // Helper function to apply theme variables to document
 export const applyTheme = (isDarkMode: boolean) => {
   const root = document.documentElement
   const variables = isDarkMode ? CSS_VARIABLES.DARK : CSS_VARIABLES.LIGHT
-  
+
   // Apply theme color variables
   Object.entries(variables).forEach(([property, value]) => {
     root.style.setProperty(property, value)
   })
-  
+
   // Apply component style variables
-  root.style.setProperty('--border-radius-sm', COMPONENT_STYLES.BORDER_RADIUS.SMALL)
-  root.style.setProperty('--border-radius-md', COMPONENT_STYLES.BORDER_RADIUS.MEDIUM)
-  root.style.setProperty('--border-radius-lg', COMPONENT_STYLES.BORDER_RADIUS.LARGE)
-  root.style.setProperty('--border-radius-xl', COMPONENT_STYLES.BORDER_RADIUS.EXTRA_LARGE)
-  root.style.setProperty('--border-radius-pill', COMPONENT_STYLES.BORDER_RADIUS.PILL)
-  
+  root.style.setProperty(
+    '--border-radius-sm',
+    COMPONENT_STYLES.BORDER_RADIUS.SMALL
+  )
+  root.style.setProperty(
+    '--border-radius-md',
+    COMPONENT_STYLES.BORDER_RADIUS.MEDIUM
+  )
+  root.style.setProperty(
+    '--border-radius-lg',
+    COMPONENT_STYLES.BORDER_RADIUS.LARGE
+  )
+  root.style.setProperty(
+    '--border-radius-xl',
+    COMPONENT_STYLES.BORDER_RADIUS.EXTRA_LARGE
+  )
+  root.style.setProperty(
+    '--border-radius-pill',
+    COMPONENT_STYLES.BORDER_RADIUS.PILL
+  )
+
   root.style.setProperty('--spacing-xs', COMPONENT_STYLES.SPACING.XS)
   root.style.setProperty('--spacing-sm', COMPONENT_STYLES.SPACING.SM)
   root.style.setProperty('--spacing-md', COMPONENT_STYLES.SPACING.MD)
   root.style.setProperty('--spacing-lg', COMPONENT_STYLES.SPACING.LG)
   root.style.setProperty('--spacing-xl', COMPONENT_STYLES.SPACING.XL)
   root.style.setProperty('--spacing-xxl', COMPONENT_STYLES.SPACING.XXL)
-  
+
   root.style.setProperty('--font-size-xs', COMPONENT_STYLES.FONT_SIZES.XS)
   root.style.setProperty('--font-size-sm', COMPONENT_STYLES.FONT_SIZES.SM)
   root.style.setProperty('--font-size-base', COMPONENT_STYLES.FONT_SIZES.BASE)
@@ -170,46 +185,80 @@ export const applyTheme = (isDarkMode: boolean) => {
   root.style.setProperty('--font-size-xl', COMPONENT_STYLES.FONT_SIZES.XL)
   root.style.setProperty('--font-size-xxl', COMPONENT_STYLES.FONT_SIZES.XXL)
   root.style.setProperty('--font-size-xxxl', COMPONENT_STYLES.FONT_SIZES.XXXL)
-  
+
   root.style.setProperty('--transition-fast', COMPONENT_STYLES.TRANSITIONS.FAST)
-  root.style.setProperty('--transition-normal', COMPONENT_STYLES.TRANSITIONS.NORMAL)
+  root.style.setProperty(
+    '--transition-normal',
+    COMPONENT_STYLES.TRANSITIONS.NORMAL
+  )
   root.style.setProperty('--transition-slow', COMPONENT_STYLES.TRANSITIONS.SLOW)
-  
+
   // Apply animation constants
   root.style.setProperty('--transform-scale-up', ANIMATIONS.TRANSFORMS.SCALE_UP)
-  root.style.setProperty('--transform-scale-down', ANIMATIONS.TRANSFORMS.SCALE_DOWN)
-  root.style.setProperty('--transform-move-up-sm', ANIMATIONS.TRANSFORMS.MOVE_UP_SMALL)
-  root.style.setProperty('--transform-move-up-md', ANIMATIONS.TRANSFORMS.MOVE_UP_MEDIUM)
+  root.style.setProperty(
+    '--transform-scale-down',
+    ANIMATIONS.TRANSFORMS.SCALE_DOWN
+  )
+  root.style.setProperty(
+    '--transform-move-up-sm',
+    ANIMATIONS.TRANSFORMS.MOVE_UP_SMALL
+  )
+  root.style.setProperty(
+    '--transform-move-up-md',
+    ANIMATIONS.TRANSFORMS.MOVE_UP_MEDIUM
+  )
 }
 
 // Helper function to get CSS variable value
 export const getCSSVariable = (variableName: string): string => {
-  return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim()
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(variableName)
+    .trim()
 }
 
 // Direct color access (for JavaScript styling)
 export const getThemeColors = (isDarkMode: boolean) => ({
   background: {
-    primary: isDarkMode ? CSS_VARIABLES.DARK['--bg-primary'] : CSS_VARIABLES.LIGHT['--bg-primary'],
-    secondary: isDarkMode ? CSS_VARIABLES.DARK['--bg-secondary'] : CSS_VARIABLES.LIGHT['--bg-secondary'],
-    surface: isDarkMode ? CSS_VARIABLES.DARK['--bg-surface'] : CSS_VARIABLES.LIGHT['--bg-surface']
+    primary: isDarkMode
+      ? CSS_VARIABLES.DARK['--bg-primary']
+      : CSS_VARIABLES.LIGHT['--bg-primary'],
+    secondary: isDarkMode
+      ? CSS_VARIABLES.DARK['--bg-secondary']
+      : CSS_VARIABLES.LIGHT['--bg-secondary'],
+    surface: isDarkMode
+      ? CSS_VARIABLES.DARK['--bg-surface']
+      : CSS_VARIABLES.LIGHT['--bg-surface'],
   },
   text: {
-    primary: isDarkMode ? CSS_VARIABLES.DARK['--text-primary'] : CSS_VARIABLES.LIGHT['--text-primary'],
-    secondary: isDarkMode ? CSS_VARIABLES.DARK['--text-secondary'] : CSS_VARIABLES.LIGHT['--text-secondary']
+    primary: isDarkMode
+      ? CSS_VARIABLES.DARK['--text-primary']
+      : CSS_VARIABLES.LIGHT['--text-primary'],
+    secondary: isDarkMode
+      ? CSS_VARIABLES.DARK['--text-secondary']
+      : CSS_VARIABLES.LIGHT['--text-secondary'],
   },
-  border: isDarkMode ? CSS_VARIABLES.DARK['--border-color'] : CSS_VARIABLES.LIGHT['--border-color'],
-  shadow: isDarkMode ? CSS_VARIABLES.DARK['--shadow'] : CSS_VARIABLES.LIGHT['--shadow'],
-  shadowHover: isDarkMode ? CSS_VARIABLES.DARK['--shadow-hover'] : CSS_VARIABLES.LIGHT['--shadow-hover'],
-  input: isDarkMode ? CSS_VARIABLES.DARK['--input-bg'] : CSS_VARIABLES.LIGHT['--input-bg'],
-  buttonHover: isDarkMode ? CSS_VARIABLES.DARK['--button-hover'] : CSS_VARIABLES.LIGHT['--button-hover'],
-  
+  border: isDarkMode
+    ? CSS_VARIABLES.DARK['--border-color']
+    : CSS_VARIABLES.LIGHT['--border-color'],
+  shadow: isDarkMode
+    ? CSS_VARIABLES.DARK['--shadow']
+    : CSS_VARIABLES.LIGHT['--shadow'],
+  shadowHover: isDarkMode
+    ? CSS_VARIABLES.DARK['--shadow-hover']
+    : CSS_VARIABLES.LIGHT['--shadow-hover'],
+  input: isDarkMode
+    ? CSS_VARIABLES.DARK['--input-bg']
+    : CSS_VARIABLES.LIGHT['--input-bg'],
+  buttonHover: isDarkMode
+    ? CSS_VARIABLES.DARK['--button-hover']
+    : CSS_VARIABLES.LIGHT['--button-hover'],
+
   // Brand colors (same for both themes)
   primary: THEME_COLORS.PRIMARY_GRADIENT.START,
   primaryEnd: THEME_COLORS.PRIMARY_GRADIENT.END,
   warning: THEME_COLORS.WARNING,
   success: THEME_COLORS.SUCCESS,
-  error: THEME_COLORS.ERROR
+  error: THEME_COLORS.ERROR,
 })
 
 // Utility type for theme-aware components
