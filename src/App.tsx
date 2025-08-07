@@ -5,37 +5,7 @@ import FeedTab from './components/tabs/FeedTab'
 import LogTab from './components/tabs/LogTab'
 import JournalTab from './components/tabs/JournalTab'
 import SettingsModal from './components/modals/SettingsModal'
-
-type Tab = 'leaderboard' | 'feed' | 'log' | 'journal'
-
-type User = {
-  id: string
-  name: string
-  avatar?: string
-  contacts?: string[] // array of user IDs
-}
-
-
-type ContestPost = {
-  id: string
-  contestId: string
-  userId: string
-  userName: string
-  count?: number
-  image?: string
-  timestamp: Date
-  description?: string
-  type: 'entry' | 'join' | 'invite'
-  invitedUsers?: string[] // for invite posts
-}
-
-type ContestUser = {
-  id: string
-  contestId: string
-  userId: string
-  userName: string
-  totalCount: number
-}
+import type { Tab, User, ContestPost, ContestUser } from './types'
 
 const defaultUsers: User[] = [
   { id: '1', name: 'You', contacts: ['2', '3', '4', '5', '6', '7', '8'] },
