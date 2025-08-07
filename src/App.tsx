@@ -6,41 +6,35 @@ import LogTab from './components/tabs/LogTab'
 import JournalTab from './components/tabs/JournalTab'
 import SettingsModal from './components/modals/SettingsModal'
 import type { Tab } from './types'
-import useLocalStorage from './hooks/useLocalStorage'
 import useContestData from './hooks/useContestData'
+import useTheme from './hooks/useTheme'
+import { STORAGE_KEYS, CONTEST_IDS, USER_IDS, UI_TEXT, CONFIG, TAB_TYPES } from './constants'
 
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('leaderboard')
-  const [darkMode, setDarkMode] = useLocalStorage<boolean>('hotdog-contest-dark-mode', false)
   const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false)
+  const { isDarkMode, toggleTheme } = useTheme()
   
-  const currentUserId = '1' // This would come from auth in a real app
-  const contestId = 'hotdog-contest' // Fixed contest ID
+  const currentUserId = USER_IDS.CURRENT_USER // This would come from auth in a real app
+  const contestId = CONTEST_IDS.DEFAULT // Fixed contest ID
   
   const { contestPosts, contestUsers, addPost, editPost } = useContestData(contestId, currentUserId)
 
 
   // Set page title based on environment
   useEffect(() => {
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    let title = '🌭 Hot Dog Contest'
+    const isLocal = (CONFIG.DEV_HOSTNAMES as readonly string[]).includes(window.location.hostname)
+    let title: string = UI_TEXT.APP_TITLE
     
     if (isLocal) {
-      title = `DEBUG - ${title}`
+      title = `${UI_TEXT.DEBUG_PREFIX}${title}`
     }
     
     document.title = title
   }, [])
 
-  // Apply dark mode class to body
-  useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add('dark-mode')
-    } else {
-      document.body.classList.remove('dark-mode')
-    }
-  }, [darkMode])
+  // Theme is now handled by useTheme hook
 
 
 
@@ -48,10 +42,9 @@ function App() {
 
   const handleClearAllData = () => {
     // Clear all localStorage data
-    localStorage.removeItem('hotdog-contest-users')
-    localStorage.removeItem('hotdog-contest-posts')
-    localStorage.removeItem('hotdog-contest-contest-users')
-    localStorage.removeItem('hotdog-contest-dark-mode')
+    Object.values(STORAGE_KEYS).forEach(key => {
+      localStorage.removeItem(key)
+    })
 
     // Close settings modal
     setShowSettingsModal(false)
@@ -63,20 +56,20 @@ function App() {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'leaderboard':
-        return <LeaderboardTab contestUsers={contestUsers} />
-      case 'feed':
+      case TAB_TYPES.LEADERBOARD:
+        return <LeaderboardTab contestUsers={contestUsers} isDarkMode={isDarkMode} />
+      case TAB_TYPES.FEED:
         return <FeedTab 
           posts={contestPosts} 
           onEditPost={editPost} 
           currentUserId={currentUserId} 
         />
-      case 'log':
+      case TAB_TYPES.LOG:
         return <LogTab 
           onAddPost={addPost}
           setActiveTab={setActiveTab}
         />
-      case 'journal':
+      case TAB_TYPES.JOURNAL:
         return <JournalTab 
           posts={contestPosts} 
           currentUserId={currentUserId} 
@@ -92,28 +85,28 @@ function App() {
       <>
         <nav className="tab-nav">
           <button 
-            className={`tab-button ${activeTab === 'leaderboard' ? 'active' : ''}`}
-            onClick={() => setActiveTab('leaderboard')}
+            className={`tab-button ${activeTab === TAB_TYPES.LEADERBOARD ? 'active' : ''}`}
+            onClick={() => setActiveTab(TAB_TYPES.LEADERBOARD)}
           >
-            🏆 Leaderboard
+            {UI_TEXT.TABS.LEADERBOARD}
           </button>
           <button 
-            className={`tab-button ${activeTab === 'feed' ? 'active' : ''}`}
-            onClick={() => setActiveTab('feed')}
+            className={`tab-button ${activeTab === TAB_TYPES.FEED ? 'active' : ''}`}
+            onClick={() => setActiveTab(TAB_TYPES.FEED)}
           >
-            📰 Feed
+            {UI_TEXT.TABS.FEED}
           </button>
           <button 
-            className={`tab-button ${activeTab === 'log' ? 'active' : ''}`}
-            onClick={() => setActiveTab('log')}
+            className={`tab-button ${activeTab === TAB_TYPES.LOG ? 'active' : ''}`}
+            onClick={() => setActiveTab(TAB_TYPES.LOG)}
           >
-            📝 Log
+            {UI_TEXT.TABS.LOG}
           </button>
           <button 
-            className={`tab-button ${activeTab === 'journal' ? 'active' : ''}`}
-            onClick={() => setActiveTab('journal')}
+            className={`tab-button ${activeTab === TAB_TYPES.JOURNAL ? 'active' : ''}`}
+            onClick={() => setActiveTab(TAB_TYPES.JOURNAL)}
           >
-            📔 Journal
+            {UI_TEXT.TABS.JOURNAL}
           </button>
         </nav>
 
@@ -127,12 +120,12 @@ function App() {
   const getHeaderContent = () => {
     return (
       <div className="header-content">
-        <h1>🌭 Hot Dog Contest</h1>
+        <h1>{UI_TEXT.APP_TITLE}</h1>
         <button 
           className="settings-btn"
           onClick={() => setShowSettingsModal(true)}
         >
-          ⚙️
+          {UI_TEXT.TABS.SETTINGS}
         </button>
       </div>
     )
@@ -149,8 +142,8 @@ function App() {
       
       {showSettingsModal && (
         <SettingsModal 
-          darkMode={darkMode}
-          setDarkMode={setDarkMode}
+          isDarkMode={isDarkMode}
+          onToggleTheme={toggleTheme}
           onClose={() => setShowSettingsModal(false)}
           onClearData={handleClearAllData}
         />

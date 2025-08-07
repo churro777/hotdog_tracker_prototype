@@ -15,19 +15,19 @@
 
 .modal-content {
   background: var(--bg-primary);
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   width: 100%;
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
-  animation: modalSlideIn 0.3s ease-out;
+  animation: modalSlideIn var(--transition-normal) ease-out;
 }
 
 @keyframes modalSlideIn {
   from {
     opacity: 0;
-    transform: translateY(-50px) scale(0.95);
+    transform: translateY(-50px) var(--transform-scale-down);
   }
   to {
     opacity: 1;
@@ -97,9 +97,9 @@
 
 .settings-section {
   background: var(--bg-surface);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
   box-shadow: 0 2px 8px var(--shadow);
 }
 
@@ -128,11 +128,11 @@
 
 .settings-input {
   width: 100%;
-  padding: 0.75rem;
+  padding: var(--spacing-md);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.2s ease;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-base);
+  transition: border-color var(--transition-fast);
   background: var(--input-bg);
   color: var(--text-primary);
 }
@@ -221,7 +221,7 @@
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
+  transform: var(--transform-move-up-sm);
   box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
 }
 

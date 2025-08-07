@@ -1,23 +1,16 @@
 import { useState, useEffect } from 'react'
 
 function useLocalStorage<T>(key: string, defaultValue: T): [T, React.Dispatch<React.SetStateAction<T>>] {
-  const [value, setValue] = useState<T>(defaultValue)
-  
-  // Load data from localStorage on mount
-  useEffect(() => {
-    const savedValue = localStorage.getItem(key)
-    if (savedValue) {
-      try {
-        const parsedValue = JSON.parse(savedValue)
-        setValue(parsedValue)
-      } catch (error) {
-        console.error(`Error parsing localStorage value for key "${key}":`, error)
-        setValue(defaultValue)
-      }
-    } else {
-      setValue(defaultValue)
+  // Initialize state with localStorage value or default
+  const [value, setValue] = useState<T>(() => {
+    try {
+      const savedValue = localStorage.getItem(key)
+      return savedValue ? JSON.parse(savedValue) : defaultValue
+    } catch (error) {
+      console.error(`Error parsing localStorage value for key "${key}":`, error)
+      return defaultValue
     }
-  }, [key, defaultValue])
+  })
   
   // Save data to localStorage whenever value changes
   useEffect(() => {

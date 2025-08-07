@@ -1,5 +1,6 @@
 import type { ContestPost, ContestUser } from '../types'
 import useLocalStorage from './useLocalStorage'
+import { STORAGE_KEYS, DEFAULT_DATA, CONTEST_IDS, USER_IDS, POST_TYPES } from '../constants'
 
 interface UseContestDataReturn {
   contestPosts: ContestPost[]
@@ -12,34 +13,28 @@ interface UseContestDataReturn {
   setAllContestUsers: React.Dispatch<React.SetStateAction<ContestUser[]>>
 }
 
-const defaultContestUsers: ContestUser[] = [
-  { id: 'cu-1', contestId: 'hotdog-contest', userId: '2', userName: 'Joey Chestnut', totalCount: 23 },
-  { id: 'cu-2', contestId: 'hotdog-contest', userId: '3', userName: 'Takeru Kobayashi', totalCount: 18 },
-  { id: 'cu-3', contestId: 'hotdog-contest', userId: '4', userName: 'Matt Stonie', totalCount: 15 },
-  { id: 'cu-4', contestId: 'hotdog-contest', userId: '1', userName: 'You', totalCount: 3 },
-  { id: 'cu-5', contestId: 'hotdog-contest', userId: '5', userName: 'Your Friend', totalCount: 7 }
-]
+const defaultContestUsers: ContestUser[] = [...DEFAULT_DATA.USERS]
 
 const defaultContestPosts: ContestPost[] = [
   {
     id: '1',
-    contestId: 'hotdog-contest', 
-    userId: '2', 
+    contestId: CONTEST_IDS.DEFAULT, 
+    userId: USER_IDS.JOEY_CHESTNUT, 
     userName: 'Joey Chestnut', 
-    count: 5, 
+    count: DEFAULT_DATA.POST.COUNT, 
     timestamp: new Date(), 
-    description: 'Just crushed 5 more! 🌭',
-    type: 'entry'
+    description: DEFAULT_DATA.POST.DESCRIPTION,
+    type: POST_TYPES.ENTRY
   }
 ]
 
 function useContestData(contestId: string, currentUserId: string): UseContestDataReturn {
-  const [rawContestPosts, setRawContestPosts] = useLocalStorage<any[]>(
-    'hotdog-contest-posts', 
+  const [rawContestPosts, setRawContestPosts] = useLocalStorage<(ContestPost & { timestamp: string | Date })[]>(
+    STORAGE_KEYS.POSTS, 
     defaultContestPosts
   )
   const [allContestUsers, setAllContestUsers] = useLocalStorage<ContestUser[]>(
-    'hotdog-contest-contest-users', 
+    STORAGE_KEYS.CONTEST_USERS, 
     defaultContestUsers
   )
   
@@ -62,7 +57,7 @@ function useContestData(contestId: string, currentUserId: string): UseContestDat
       image,
       timestamp: new Date(),
       description,
-      type: 'entry'
+      type: POST_TYPES.ENTRY
     }
     
     setRawContestPosts(prev => [newPost, ...prev])
