@@ -1,8 +1,11 @@
 import { COMPONENT_STYLES } from '../constants/theme'
 
 /**
- * Hook that provides easy access to component styling constants
- * This allows components to use consistent styling values in JavaScript
+ * Custom hook that provides easy access to component styling constants.
+ * This allows components to use consistent styling values in JavaScript for dynamic styling.
+ * All values come from the centralized COMPONENT_STYLES configuration.
+ * 
+ * @returns {object} Object containing organized styling constants with shortcuts for common properties
  */
 function useComponentStyles() {
   return {

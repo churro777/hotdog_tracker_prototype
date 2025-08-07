@@ -1,44 +1,85 @@
-// localStorage Keys
+/**
+ * Application constants for the Hot Dog Contest Tracker
+ * Centralizes all configuration, UI text, styling, and default data
+ */
+
+/**
+ * localStorage key constants for data persistence
+ */
 export const STORAGE_KEYS = {
+  /** Key for storing dark mode preference */
   DARK_MODE: 'hotdog-contest-dark-mode',
+  /** Key for storing contest posts */
   POSTS: 'hotdog-contest-posts',
+  /** Key for storing contest user data */
   CONTEST_USERS: 'hotdog-contest-contest-users',
+  /** Key for storing general user data */
   USERS: 'hotdog-contest-users'
 } as const
 
-// User and Contest Identifiers
+/**
+ * Contest identifier constants
+ */
 export const CONTEST_IDS = {
+  /** Default contest ID used throughout the app */
   DEFAULT: 'hotdog-contest'
 } as const
 
+/**
+ * User identifier constants for mock users and current user
+ */
 export const USER_IDS = {
+  /** ID representing the current logged-in user */
   CURRENT_USER: '1',
+  /** Famous competitive eater Joey Chestnut */
   JOEY_CHESTNUT: '2',
+  /** Famous competitive eater Takeru Kobayashi */
   TAKERU_KOBAYASHI: '3',
+  /** Competitive eater Matt Stonie */
   MATT_STONIE: '4',
+  /** Generic friend user for testing */
   FRIEND: '5',
+  /** Mock user Sarah Johnson */
   SARAH_JOHNSON: '6',
+  /** Mock user Mike Chen */
   MIKE_CHEN: '7',
+  /** Mock user Emma Wilson */
   EMMA_WILSON: '8'
 } as const
 
-// Post and Tab Types
+/**
+ * Post type constants for different kinds of contest posts
+ */
 export const POST_TYPES = {
+  /** Regular entry post with consumption data */
   ENTRY: 'entry',
+  /** Post indicating a user joined the contest */
   JOIN: 'join',
+  /** Post for inviting other users to join */
   INVITE: 'invite'
 } as const
 
+/**
+ * Tab type constants for the main navigation
+ */
 export const TAB_TYPES = {
+  /** Leaderboard tab showing user rankings */
   LEADERBOARD: 'leaderboard',
+  /** Feed tab showing chronological posts */
   FEED: 'feed',
+  /** Log tab for creating new entries */
   LOG: 'log',
+  /** Journal tab for personal post history */
   JOURNAL: 'journal'
 } as const
 
-// UI Text and Messages
+/**
+ * UI text constants for consistent messaging throughout the app
+ */
 export const UI_TEXT = {
+  /** Main application title */
   APP_TITLE: '🌭 Hot Dog Contest',
+  /** Prefix added to title in development mode */
   DEBUG_PREFIX: 'DEBUG - ',
   
   TABS: {

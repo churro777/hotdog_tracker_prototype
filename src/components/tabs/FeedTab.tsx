@@ -2,12 +2,27 @@ import './FeedTab.css'
 import type { ContestPost } from '../../types'
 import usePostEdit from '../../hooks/usePostEdit'
 
+/**
+ * Props for the FeedTab component
+ * @interface FeedTabProps
+ */
 interface FeedTabProps {
+  /** Array of contest posts to display in the feed */
   posts: ContestPost[]
+  /** Function to handle editing a post */
   onEditPost: (postId: string, newCount: number, newDescription?: string) => void
+  /** ID of the current user (used to determine edit permissions) */
   currentUserId: string
 }
 
+/**
+ * FeedTab component displays a chronological feed of contest posts.
+ * Shows different types of posts (entries, joins, invites) with appropriate styling.
+ * Allows users to edit their own posts inline.
+ * 
+ * @param {FeedTabProps} props - The component props
+ * @returns {JSX.Element} The feed tab content
+ */
 function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
   const {
     editingPostId,
@@ -21,6 +36,13 @@ function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
   } = usePostEdit(onEditPost)
 
 
+  /**
+   * Renders the content of a post based on its type.
+   * Different rendering for entry, join, and invite posts.
+   * 
+   * @param {ContestPost} post - The post to render
+   * @returns {JSX.Element} The rendered post content
+   */
   const renderPostContent = (post: ContestPost) => {
     if (post.type === 'join') {
       return (

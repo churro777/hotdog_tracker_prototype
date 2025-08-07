@@ -10,7 +10,13 @@ import useContestData from './hooks/useContestData'
 import useTheme from './hooks/useTheme'
 import { STORAGE_KEYS, CONTEST_IDS, USER_IDS, UI_TEXT, CONFIG, TAB_TYPES } from './constants'
 
-
+/**
+ * Main App component that manages the hot dog contest tracking application.
+ * Provides tab-based navigation between leaderboard, feed, logging, and journal views.
+ * Handles theme management, settings modal, and data persistence.
+ * 
+ * @returns {JSX.Element} The main application component
+ */
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('leaderboard')
   const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false)
@@ -40,6 +46,13 @@ function App() {
 
 
 
+  /**
+   * Handles clearing all application data from localStorage.
+   * Removes all stored data including posts, users, and settings,
+   * then closes the settings modal and reloads the page for a clean state.
+   * 
+   * @function handleClearAllData
+   */
   const handleClearAllData = () => {
     // Clear all localStorage data
     Object.values(STORAGE_KEYS).forEach(key => {
@@ -54,6 +67,11 @@ function App() {
   }
 
 
+  /**
+   * Renders the appropriate tab content based on the currently active tab.
+   * 
+   * @returns {JSX.Element} The component for the currently active tab
+   */
   const renderTabContent = () => {
     switch (activeTab) {
       case TAB_TYPES.LEADERBOARD:
@@ -80,6 +98,11 @@ function App() {
     }
   }
 
+  /**
+   * Renders the main content area including tab navigation and active tab content.
+   * 
+   * @returns {JSX.Element} The main content area with navigation and tab content
+   */
   const renderContent = () => {
     return (
       <>
@@ -117,6 +140,11 @@ function App() {
     )
   }
 
+  /**
+   * Renders the header content with app title and settings button.
+   * 
+   * @returns {JSX.Element} The header content with title and settings access
+   */
   const getHeaderContent = () => {
     return (
       <div className="header-content">
