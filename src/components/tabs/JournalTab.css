@@ -1,0 +1,247 @@
+/* Journal statistics */
+.journal-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.stat-card {
+  background: var(--bg-surface);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 2px 8px var(--shadow);
+  border: 2px solid var(--bg-secondary);
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  border-color: #ff6b35;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #ff6b35;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Journal entries */
+.journal-entries {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.journal-day {
+  background: var(--bg-surface);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.day-header h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+}
+
+.day-total {
+  font-weight: 600;
+  color: #ff6b35;
+  font-size: 1.1rem;
+}
+
+.day-posts {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.journal-post {
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.journal-post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.journal-post-time {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.journal-post-count {
+  font-weight: 600;
+  color: #ff6b35;
+}
+
+.journal-post-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.journal-post-image {
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.journal-post-image img {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.journal-post-description {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 0.95rem;
+}
+
+/* Edit functionality */
+.edit-post-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.edit-post-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.edit-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.save-edit-btn, .cancel-edit-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.save-edit-btn:hover {
+  background: rgba(0, 255, 0, 0.1);
+}
+
+.cancel-edit-btn:hover {
+  background: rgba(255, 0, 0, 0.1);
+}
+
+.edit-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.edit-count, .edit-description {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.edit-count label, .edit-description label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.edit-count-input {
+  width: 80px;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.edit-description-input {
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  resize: vertical;
+  min-height: 60px;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-top: 2rem;
+  padding: 2rem;
+  background: var(--bg-surface);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .journal-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .stat-card {
+    padding: 1rem;
+  }
+  
+  .stat-number {
+    font-size: 1.5rem;
+  }
+  
+  .journal-day {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .day-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .journal-post {
+    padding: 0.75rem;
+  }
+}
