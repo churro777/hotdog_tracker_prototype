@@ -21,6 +21,18 @@ Object.defineProperty(window, 'location', {
   writable: true,
 })
 
+// Mock window.alert for tests
+Object.defineProperty(window, 'alert', {
+  value: vi.fn(),
+  writable: true,
+})
+
+// Mock window.confirm for tests
+Object.defineProperty(window, 'confirm', {
+  value: vi.fn(() => true),
+  writable: true,
+})
+
 // Reset mocks before each test
 beforeEach(() => {
   vi.clearAllMocks()
