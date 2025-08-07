@@ -1,6 +1,6 @@
-import { useState } from 'react'
 import './FeedTab.css'
 import type { ContestPost } from '../../types'
+import usePostEdit from '../../hooks/usePostEdit'
 
 interface FeedTabProps {
   posts: ContestPost[]
@@ -9,36 +9,17 @@ interface FeedTabProps {
 }
 
 function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
-  const [editingPostId, setEditingPostId] = useState<string | null>(null)
-  const [editCount, setEditCount] = useState<string>('1')
-  const [editDescription, setEditDescription] = useState<string>('')
+  const {
+    editingPostId,
+    editCount,
+    editDescription,
+    setEditCount,
+    setEditDescription,
+    startEditing,
+    saveEdit,
+    cancelEdit
+  } = usePostEdit(onEditPost)
 
-  const startEditing = (post: ContestPost) => {
-    setEditingPostId(post.id)
-    setEditCount((post.count || 1).toString())
-    setEditDescription(post.description || '')
-    
-    // Focus and select the input after state updates
-    setTimeout(() => {
-      const input = document.querySelector('.edit-count-input') as HTMLInputElement
-      if (input) {
-        input.focus()
-        input.select()
-      }
-    }, 0)
-  }
-
-  const saveEdit = () => {
-    if (editingPostId) {
-      const count = parseInt(editCount) || 1
-      onEditPost(editingPostId, count, editDescription)
-      setEditingPostId(null)
-    }
-  }
-
-  const cancelEdit = () => {
-    setEditingPostId(null)
-  }
 
   const renderPostContent = (post: ContestPost) => {
     if (post.type === 'join') {
