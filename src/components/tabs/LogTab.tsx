@@ -1,28 +1,6 @@
 import { useState } from 'react'
 import './LogTab.css'
-
-type Tab = 'leaderboard' | 'feed' | 'log' | 'journal'
-
-type ContestPost = {
-  id: string
-  contestId: string
-  userId: string
-  userName: string
-  count?: number
-  image?: string
-  timestamp: Date
-  description?: string
-  type: 'entry' | 'join' | 'invite'
-  invitedUsers?: string[]
-}
-
-type ContestUser = {
-  id: string
-  contestId: string
-  userId: string
-  userName: string
-  totalCount: number
-}
+import type { Tab, ContestPost, ContestUser } from '../../types'
 
 interface LogTabProps {
   contestId: string

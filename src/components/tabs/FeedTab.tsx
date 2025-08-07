@@ -1,18 +1,6 @@
 import { useState } from 'react'
 import './FeedTab.css'
-
-type ContestPost = {
-  id: string
-  contestId: string
-  userId: string
-  userName: string
-  count?: number
-  image?: string
-  timestamp: Date
-  description?: string
-  type: 'entry' | 'join' | 'invite'
-  invitedUsers?: string[]
-}
+import type { ContestPost } from '../../types'
 
 interface FeedTabProps {
   posts: ContestPost[]

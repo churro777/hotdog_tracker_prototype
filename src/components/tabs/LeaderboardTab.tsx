@@ -1,12 +1,5 @@
 import './LeaderboardTab.css'
-
-type ContestUser = {
-  id: string
-  contestId: string
-  userId: string
-  userName: string
-  totalCount: number
-}
+import type { ContestUser } from '../../types'
 
 interface LeaderboardTabProps {
   contestUsers: ContestUser[]
