@@ -1,71 +1,33 @@
 import { useState } from 'react'
 import './LogTab.css'
-import type { Tab, ContestPost, ContestUser } from '../../types'
+import type { Tab } from '../../types'
+import useImageUpload from '../../hooks/useImageUpload'
 
 interface LogTabProps {
-  contestId: string
-  setContestPosts: React.Dispatch<React.SetStateAction<ContestPost[]>>
-  contestUsers: ContestUser[]
-  setContestUsers: React.Dispatch<React.SetStateAction<ContestUser[]>>
-  currentUserId: string
+  onAddPost: (count: number, description?: string, image?: string) => void
   setActiveTab: React.Dispatch<React.SetStateAction<Tab>>
 }
 
 function LogTab({ 
-  contestId, 
-  setContestPosts, 
-  contestUsers, 
-  setContestUsers, 
-  currentUserId, 
+  onAddPost, 
   setActiveTab
 }: LogTabProps) {
   const [newPostCount, setNewPostCount] = useState<string>('1')
   const [newPostDescription, setNewPostDescription] = useState<string>('')
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const { imagePreview, handleImageUpload, clearImage, resetFileInput } = useImageUpload()
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
 
   const handleSubmitPost = (e: React.FormEvent) => {
     e.preventDefault()
     
-    const currentContestUser = contestUsers.find(u => u.userId === currentUserId)
-    if (!currentContestUser) return
+    const count = parseInt(newPostCount) || 1
+    onAddPost(count, newPostDescription || undefined, imagePreview || undefined)
 
-    const newPost: ContestPost = {
-      id: Date.now().toString(),
-      contestId: contestId,
-      userId: currentUserId,
-      userName: currentContestUser.userName,
-      count: parseInt(newPostCount) || 1,
-      image: imagePreview || undefined,
-      timestamp: new Date(),
-      description: newPostDescription || undefined,
-      type: 'entry'
-    }
-
-    setContestPosts(prev => [newPost, ...prev])
-    
-    setContestUsers(prev => prev.map(user => 
-      user.userId === currentUserId
-        ? { ...user, totalCount: user.totalCount + (parseInt(newPostCount) || 1) }
-        : user
-    ))
-
+    // Reset form
     setNewPostCount('1')
     setNewPostDescription('')
-    setImagePreview(null)
-    
-    const fileInput = document.getElementById('log-image-upload') as HTMLInputElement
-    if (fileInput) fileInput.value = ''
+    clearImage()
+    resetFileInput('log-image-upload')
     
     // Switch to Feed tab to show the new post
     setActiveTab('feed')
@@ -92,7 +54,7 @@ function LogTab({
               <img src={imagePreview} alt="Contest item preview" />
               <button 
                 type="button" 
-                onClick={() => setImagePreview(null)}
+                onClick={clearImage}
                 className="remove-image"
               >
                 Remove

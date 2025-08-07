@@ -1,6 +1,6 @@
-import { useState } from 'react'
 import './JournalTab.css'
 import type { ContestPost } from '../../types'
+import usePostEdit from '../../hooks/usePostEdit'
 
 interface JournalTabProps {
   posts: ContestPost[]
@@ -9,41 +9,22 @@ interface JournalTabProps {
 }
 
 function JournalTab({ posts, currentUserId, onEditPost }: JournalTabProps) {
-  const [editingPostId, setEditingPostId] = useState<string | null>(null)
-  const [editCount, setEditCount] = useState<string>('1')
-  const [editDescription, setEditDescription] = useState<string>('')
+  const {
+    editingPostId,
+    editCount,
+    editDescription,
+    setEditCount,
+    setEditDescription,
+    startEditing,
+    saveEdit,
+    cancelEdit
+  } = usePostEdit(onEditPost)
 
   const userPosts = posts.filter(post => post.userId === currentUserId && post.type === 'entry')
   const totalHotDogs = userPosts.reduce((sum, post) => sum + (post.count || 0), 0)
   const averagePerPost = userPosts.length > 0 ? (totalHotDogs / userPosts.length).toFixed(1) : 0
   const bestDay = userPosts.length > 0 ? Math.max(...userPosts.map(post => post.count || 0)) : 0
 
-  const startEditing = (post: ContestPost) => {
-    setEditingPostId(post.id)
-    setEditCount((post.count || 1).toString())
-    setEditDescription(post.description || '')
-    
-    // Focus and select the input after state updates
-    setTimeout(() => {
-      const input = document.querySelector('.edit-count-input') as HTMLInputElement
-      if (input) {
-        input.focus()
-        input.select()
-      }
-    }, 0)
-  }
-
-  const saveEdit = () => {
-    if (editingPostId) {
-      const count = parseInt(editCount) || 1
-      onEditPost(editingPostId, count, editDescription)
-      setEditingPostId(null)
-    }
-  }
-
-  const cancelEdit = () => {
-    setEditingPostId(null)
-  }
 
   const groupedByDate = userPosts.reduce((groups: { [key: string]: ContestPost[] }, post) => {
     const date = post.timestamp.toLocaleDateString()
