@@ -87,17 +87,17 @@
 
 /* Post types styling */
 .post-item.join {
-  border-left: 4px solid #4CAF50;
+  border-left: 4px solid #4caf50;
   background: var(--bg-surface);
 }
 
 .post-item.invite {
-  border-left: 4px solid #2196F3;
+  border-left: 4px solid #2196f3;
   background: var(--bg-surface);
 }
 
 .join-notification {
-  color: #4CAF50;
+  color: #4caf50;
   font-weight: 600;
   padding: 0.75rem;
   background: rgba(76, 175, 80, 0.1);
@@ -106,7 +106,7 @@
 }
 
 .invite-notification {
-  color: #2196F3;
+  color: #2196f3;
   font-weight: 600;
   padding: 0.75rem;
   background: rgba(33, 150, 243, 0.1);
@@ -143,7 +143,8 @@ body.dark-mode .invite-notification {
   gap: 0.5rem;
 }
 
-.save-edit-btn, .cancel-edit-btn {
+.save-edit-btn,
+.cancel-edit-btn {
   background: none;
   border: none;
   cursor: pointer;
@@ -168,13 +169,15 @@ body.dark-mode .invite-notification {
   margin-top: 0.75rem;
 }
 
-.edit-count, .edit-description {
+.edit-count,
+.edit-description {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
 
-.edit-count label, .edit-description label {
+.edit-count label,
+.edit-description label {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-primary);

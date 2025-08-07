@@ -9,7 +9,12 @@ interface SettingsModalProps {
   onClearData: () => void
 }
 
-function SettingsModal({ isDarkMode, onToggleTheme, onClose, onClearData }: SettingsModalProps) {
+function SettingsModal({
+  isDarkMode,
+  onToggleTheme,
+  onClose,
+  onClearData,
+}: SettingsModalProps) {
   const [userName, setUserName] = useState('You')
   const [notifications, setNotifications] = useState(true)
 
@@ -40,18 +45,20 @@ function SettingsModal({ isDarkMode, onToggleTheme, onClose, onClearData }: Sett
             {ICONS.CLOSE}
           </button>
         </div>
-        
+
         <div className="settings-content">
           <div className="settings-sections">
             <div className="settings-section">
               <h3>Profile</h3>
               <div className="setting-item">
-                <label htmlFor="username">{FORM_CONFIG.LABELS.DISPLAY_NAME}</label>
+                <label htmlFor="username">
+                  {FORM_CONFIG.LABELS.DISPLAY_NAME}
+                </label>
                 <input
                   id="username"
                   type="text"
                   value={userName}
-                  onChange={(e) => setUserName(e.target.value)}
+                  onChange={e => setUserName(e.target.value)}
                   className="settings-input"
                   placeholder={FORM_CONFIG.PLACEHOLDERS.NAME}
                 />
@@ -65,13 +72,13 @@ function SettingsModal({ isDarkMode, onToggleTheme, onClose, onClearData }: Sett
                   <input
                     type="checkbox"
                     checked={notifications}
-                    onChange={(e) => setNotifications(e.target.checked)}
+                    onChange={e => setNotifications(e.target.checked)}
                   />
                   <span className="checkmark"></span>
                   {FORM_CONFIG.LABELS.ENABLE_NOTIFICATIONS}
                 </label>
               </div>
-              
+
               <div className="setting-item">
                 <label className="checkbox-label">
                   <input
@@ -92,10 +99,16 @@ function SettingsModal({ isDarkMode, onToggleTheme, onClose, onClearData }: Sett
                   Export your contest data or clear all stored information.
                 </p>
                 <div className="setting-buttons">
-                  <button className="settings-button secondary" onClick={() => alert(UI_TEXT.MESSAGES.EXPORT_COMING_SOON)}>
+                  <button
+                    className="settings-button secondary"
+                    onClick={() => alert(UI_TEXT.MESSAGES.EXPORT_COMING_SOON)}
+                  >
                     {BUTTON_TEXT.EXPORT_DATA}
                   </button>
-                  <button className="settings-button danger" onClick={handleClearData}>
+                  <button
+                    className="settings-button danger"
+                    onClick={handleClearData}
+                  >
                     {BUTTON_TEXT.CLEAR_ALL_DATA}
                   </button>
                 </div>
@@ -106,8 +119,10 @@ function SettingsModal({ isDarkMode, onToggleTheme, onClose, onClearData }: Sett
               <h3>About</h3>
               <div className="setting-item">
                 <p className="setting-description">
-                  Contest Platform v1.0.0<br/>
-                  Built with React and TypeScript<br/>
+                  Contest Platform v1.0.0
+                  <br />
+                  Built with React and TypeScript
+                  <br />
                   Made for friendly eating competitions
                 </p>
               </div>
@@ -119,7 +134,11 @@ function SettingsModal({ isDarkMode, onToggleTheme, onClose, onClearData }: Sett
           <button type="button" onClick={onClose} className="btn-secondary">
             {BUTTON_TEXT.CLOSE}
           </button>
-          <button type="button" onClick={handleSaveSettings} className="btn-primary">
+          <button
+            type="button"
+            onClick={handleSaveSettings}
+            className="btn-primary"
+          >
             {BUTTON_TEXT.SAVE_SETTINGS}
           </button>
         </div>

@@ -18,22 +18,24 @@ function usePostEdit(
   const [editingPostId, setEditingPostId] = useState<string | null>(null)
   const [editCount, setEditCount] = useState<string>('1')
   const [editDescription, setEditDescription] = useState<string>('')
-  
+
   const startEditing = (post: ContestPost) => {
     setEditingPostId(post.id)
     setEditCount((post.count || 1).toString())
     setEditDescription(post.description || '')
-    
+
     // Focus and select the input after state updates
     setTimeout(() => {
-      const input = document.querySelector('.edit-count-input') as HTMLInputElement
+      const input = document.querySelector(
+        '.edit-count-input'
+      ) as HTMLInputElement
       if (input) {
         input.focus()
         input.select()
       }
     }, 0)
   }
-  
+
   const saveEdit = () => {
     if (editingPostId) {
       const count = parseInt(editCount) || 1
@@ -41,11 +43,11 @@ function usePostEdit(
       setEditingPostId(null)
     }
   }
-  
+
   const cancelEdit = () => {
     setEditingPostId(null)
   }
-  
+
   return {
     editingPostId,
     editCount,
@@ -54,7 +56,7 @@ function usePostEdit(
     setEditDescription,
     startEditing,
     saveEdit,
-    cancelEdit
+    cancelEdit,
   }
 }
 

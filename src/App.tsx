@@ -8,49 +8,56 @@ import SettingsModal from './components/modals/SettingsModal'
 import type { Tab } from './types'
 import useContestData from './hooks/useContestData'
 import useTheme from './hooks/useTheme'
-import { STORAGE_KEYS, CONTEST_IDS, USER_IDS, UI_TEXT, CONFIG, TAB_TYPES } from './constants'
+import {
+  STORAGE_KEYS,
+  CONTEST_IDS,
+  USER_IDS,
+  UI_TEXT,
+  CONFIG,
+  TAB_TYPES,
+} from './constants'
 
 /**
  * Main App component that manages the hot dog contest tracking application.
  * Provides tab-based navigation between leaderboard, feed, logging, and journal views.
  * Handles theme management, settings modal, and data persistence.
- * 
+ *
  * @returns {JSX.Element} The main application component
  */
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('leaderboard')
   const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false)
   const { isDarkMode, toggleTheme } = useTheme()
-  
+
   const currentUserId = USER_IDS.CURRENT_USER // This would come from auth in a real app
   const contestId = CONTEST_IDS.DEFAULT // Fixed contest ID
-  
-  const { contestPosts, contestUsers, addPost, editPost } = useContestData(contestId, currentUserId)
 
+  const { contestPosts, contestUsers, addPost, editPost } = useContestData(
+    contestId,
+    currentUserId
+  )
 
   // Set page title based on environment
   useEffect(() => {
-    const isLocal = (CONFIG.DEV_HOSTNAMES as readonly string[]).includes(window.location.hostname)
+    const isLocal = (CONFIG.DEV_HOSTNAMES as readonly string[]).includes(
+      window.location.hostname
+    )
     let title: string = UI_TEXT.APP_TITLE
-    
+
     if (isLocal) {
       title = `${UI_TEXT.DEBUG_PREFIX}${title}`
     }
-    
+
     document.title = title
   }, [])
 
   // Theme is now handled by useTheme hook
 
-
-
-
-
   /**
    * Handles clearing all application data from localStorage.
    * Removes all stored data including posts, users, and settings,
    * then closes the settings modal and reloads the page for a clean state.
-   * 
+   *
    * @function handleClearAllData
    */
   const handleClearAllData = () => {
@@ -61,38 +68,40 @@ function App() {
 
     // Close settings modal
     setShowSettingsModal(false)
-    
+
     // Reload the page to ensure clean state
     window.location.reload()
   }
 
-
   /**
    * Renders the appropriate tab content based on the currently active tab.
-   * 
+   *
    * @returns {JSX.Element} The component for the currently active tab
    */
   const renderTabContent = () => {
     switch (activeTab) {
       case TAB_TYPES.LEADERBOARD:
-        return <LeaderboardTab contestUsers={contestUsers} isDarkMode={isDarkMode} />
+        return (
+          <LeaderboardTab contestUsers={contestUsers} isDarkMode={isDarkMode} />
+        )
       case TAB_TYPES.FEED:
-        return <FeedTab 
-          posts={contestPosts} 
-          onEditPost={editPost} 
-          currentUserId={currentUserId} 
-        />
+        return (
+          <FeedTab
+            posts={contestPosts}
+            onEditPost={editPost}
+            currentUserId={currentUserId}
+          />
+        )
       case TAB_TYPES.LOG:
-        return <LogTab 
-          onAddPost={addPost}
-          setActiveTab={setActiveTab}
-        />
+        return <LogTab onAddPost={addPost} setActiveTab={setActiveTab} />
       case TAB_TYPES.JOURNAL:
-        return <JournalTab 
-          posts={contestPosts} 
-          currentUserId={currentUserId} 
-          onEditPost={editPost} 
-        />
+        return (
+          <JournalTab
+            posts={contestPosts}
+            currentUserId={currentUserId}
+            onEditPost={editPost}
+          />
+        )
       default:
         return <LeaderboardTab contestUsers={contestUsers} />
     }
@@ -100,32 +109,32 @@ function App() {
 
   /**
    * Renders the main content area including tab navigation and active tab content.
-   * 
+   *
    * @returns {JSX.Element} The main content area with navigation and tab content
    */
   const renderContent = () => {
     return (
       <>
         <nav className="tab-nav">
-          <button 
+          <button
             className={`tab-button ${activeTab === TAB_TYPES.LEADERBOARD ? 'active' : ''}`}
             onClick={() => setActiveTab(TAB_TYPES.LEADERBOARD)}
           >
             {UI_TEXT.TABS.LEADERBOARD}
           </button>
-          <button 
+          <button
             className={`tab-button ${activeTab === TAB_TYPES.FEED ? 'active' : ''}`}
             onClick={() => setActiveTab(TAB_TYPES.FEED)}
           >
             {UI_TEXT.TABS.FEED}
           </button>
-          <button 
+          <button
             className={`tab-button ${activeTab === TAB_TYPES.LOG ? 'active' : ''}`}
             onClick={() => setActiveTab(TAB_TYPES.LOG)}
           >
             {UI_TEXT.TABS.LOG}
           </button>
-          <button 
+          <button
             className={`tab-button ${activeTab === TAB_TYPES.JOURNAL ? 'active' : ''}`}
             onClick={() => setActiveTab(TAB_TYPES.JOURNAL)}
           >
@@ -133,23 +142,21 @@ function App() {
           </button>
         </nav>
 
-        <main className="tab-content">
-          {renderTabContent()}
-        </main>
+        <main className="tab-content">{renderTabContent()}</main>
       </>
     )
   }
 
   /**
    * Renders the header content with app title and settings button.
-   * 
+   *
    * @returns {JSX.Element} The header content with title and settings access
    */
   const getHeaderContent = () => {
     return (
       <div className="header-content">
         <h1>{UI_TEXT.APP_TITLE}</h1>
-        <button 
+        <button
           className="settings-btn"
           onClick={() => setShowSettingsModal(true)}
         >
@@ -161,15 +168,12 @@ function App() {
 
   return (
     <div className="app">
-      <header className="app-header">
-        {getHeaderContent()}
-      </header>
-      
+      <header className="app-header">{getHeaderContent()}</header>
+
       {renderContent()}
-      
-      
+
       {showSettingsModal && (
-        <SettingsModal 
+        <SettingsModal
           isDarkMode={isDarkMode}
           onToggleTheme={toggleTheme}
           onClose={() => setShowSettingsModal(false)}
@@ -179,13 +183,5 @@ function App() {
     </div>
   )
 }
-
-
-
-
-
-
-
-
 
 export default App

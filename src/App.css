@@ -25,7 +25,7 @@ body.dark-mode {
   --shadow-hover: rgba(0, 0, 0, 0.4);
   --input-bg: #404040;
   --button-hover: #404040;
-  
+
   background-color: var(--bg-primary);
   color: var(--text-primary);
 }
@@ -43,15 +43,15 @@ body.dark-mode {
   .app {
     flex-direction: column;
   }
-  
+
   .tab-nav {
     order: 2;
   }
-  
+
   .app-header {
     order: 1;
   }
-  
+
   .tab-content {
     order: 3;
   }
@@ -62,17 +62,17 @@ body.dark-mode {
   .app {
     flex-direction: column;
   }
-  
+
   .app-header {
     order: 1;
   }
-  
+
   .tab-content {
     order: 2;
     flex: 1;
     padding-bottom: 100px; /* Space for bottom nav */
   }
-  
+
   .tab-nav {
     order: 3;
     position: fixed;
@@ -92,7 +92,7 @@ body.dark-mode {
   color: white;
   padding: 1rem;
   text-align: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .app-header h1 {
@@ -138,12 +138,11 @@ body.dark-mode {
     border-bottom: none;
     min-height: 75px;
   }
-  
+
   .tab-button.active {
     border-top-color: #ff6b35;
     border-bottom-color: transparent;
   }
-  
 }
 
 .tab-button:hover {
@@ -189,19 +188,11 @@ body.dark-mode {
   }
 }
 
-
 @media (max-width: 768px) {
   .app-header h1 {
     font-size: 1.5rem;
   }
-  
 }
-
-
-
-
-
-
 
 /* Homepage styling */
 .homepage {
@@ -263,7 +254,8 @@ body.dark-mode {
   font-weight: 600;
 }
 
-.create-contest-btn, .create-first-contest {
+.create-contest-btn,
+.create-first-contest {
   background: linear-gradient(135deg, #ff6b35, #f7931e);
   color: white;
   border: none;
@@ -278,7 +270,8 @@ body.dark-mode {
   gap: 0.5rem;
 }
 
-.create-contest-btn:hover, .create-first-contest:hover {
+.create-contest-btn:hover,
+.create-first-contest:hover {
   transform: var(--transform-move-up-sm);
 }
 
@@ -445,7 +438,8 @@ body.dark-mode .contest-status.inactive {
   text-align: center;
 }
 
-.back-btn, .settings-btn {
+.back-btn,
+.settings-btn {
   background: rgba(255, 255, 255, 0.2);
   border: none;
   color: white;
@@ -461,7 +455,8 @@ body.dark-mode .contest-status.inactive {
   justify-content: center;
 }
 
-.back-btn:hover, .settings-btn:hover {
+.back-btn:hover,
+.settings-btn:hover {
   background: rgba(255, 255, 255, 0.3);
 }
 
@@ -470,74 +465,72 @@ body.dark-mode .contest-status.inactive {
   .homepage {
     padding: 0.5rem;
   }
-  
+
   .homepage-banner {
     padding: 1.5rem 1rem;
     margin-bottom: 1.5rem;
   }
-  
+
   .homepage-banner h1 {
     font-size: 2rem;
   }
-  
+
   .homepage-banner p {
     font-size: 1rem;
   }
-  
+
   .contest-section {
     padding: 1rem;
   }
-  
+
   .section-header {
     flex-direction: column;
     align-items: stretch;
     gap: 0.75rem;
   }
-  
+
   .section-header h2 {
     font-size: 1.25rem;
     text-align: center;
   }
-  
-  .create-contest-btn, .create-first-contest {
+
+  .create-contest-btn,
+  .create-first-contest {
     width: 100%;
     justify-content: center;
   }
-  
+
   .contest-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .contest-card {
     padding: 1rem;
   }
-  
+
   .contest-emoji {
     font-size: 2rem;
   }
-  
+
   .favorite-btn {
     font-size: 1.25rem;
     min-width: 28px;
     height: 28px;
   }
-  
+
   .contest-info h3 {
     font-size: 1.1rem;
   }
-  
+
   .header-content h1 {
     font-size: 1.25rem;
   }
-  
-  .back-btn, .settings-btn {
+
+  .back-btn,
+  .settings-btn {
     font-size: 1rem;
     min-width: 36px;
     height: 36px;
   }
 }
-
-
-
-
