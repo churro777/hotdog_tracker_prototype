@@ -51,10 +51,10 @@ describe('App Component - Basic Integration', () => {
       .map(btn => btn.textContent)
       .filter(
         text =>
-          text?.includes('🏆') ||
-          text?.includes('📰') ||
-          text?.includes('📝') ||
-          text?.includes('📔')
+          (text?.includes('🏆') ?? false) ||
+          (text?.includes('📰') ?? false) ||
+          (text?.includes('📝') ?? false) ||
+          (text?.includes('📔') ?? false)
       )
 
     expect(tabTexts).toHaveLength(4)
