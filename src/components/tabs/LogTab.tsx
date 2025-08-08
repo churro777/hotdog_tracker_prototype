@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 
 import './LogTab.css'
 import {
@@ -111,4 +111,4 @@ function LogTab({ onAddPost, setActiveTab }: LogTabProps) {
   )
 }
 
-export default LogTab
+export default memo(LogTab)

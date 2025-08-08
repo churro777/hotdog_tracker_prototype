@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 import './JournalTab.css'
 import usePostEdit from '@hooks/usePostEdit'
 import type { ContestPost } from '@types'
@@ -204,4 +206,4 @@ function JournalTab({ posts, currentUserId, onEditPost }: JournalTabProps) {
   )
 }
 
-export default JournalTab
+export default memo(JournalTab)
