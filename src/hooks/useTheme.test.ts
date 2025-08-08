@@ -37,7 +37,7 @@ describe('useTheme', () => {
   })
 
   it('should apply theme and CSS classes on initialization', () => {
-    const { result } = renderHook(() => useTheme())
+    renderHook(() => useTheme())
 
     expect(mockApplyTheme).toHaveBeenCalledWith(false)
     expect(document.body.classList.remove).toHaveBeenCalledWith('dark-mode')

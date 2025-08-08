@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { logStorageError } from '../utils/errorLogger'
 
 /**
  * Custom hook for managing state that persists to localStorage.
@@ -20,7 +21,11 @@ function useLocalStorage<T>(
       const savedValue = localStorage.getItem(key)
       return savedValue ? JSON.parse(savedValue) : defaultValue
     } catch (error) {
-      console.error(`Error parsing localStorage value for key "${key}":`, error)
+      logStorageError(
+        `Error parsing localStorage value for key "${key}"`,
+        error as Error,
+        key
+      )
       return defaultValue
     }
   })
@@ -28,7 +33,17 @@ function useLocalStorage<T>(
   // Save data to localStorage whenever value changes
   useEffect(() => {
     if (value !== undefined && value !== null) {
-      localStorage.setItem(key, JSON.stringify(value))
+      try {
+        localStorage.setItem(key, JSON.stringify(value))
+      } catch (error) {
+        logStorageError(
+          `Error saving to localStorage for key "${key}"`,
+          error as Error,
+          key
+        )
+        // In a real app, you might want to show a notification to the user
+        // or retry the operation, but for now we'll just log the error
+      }
     }
   }, [key, value])
 

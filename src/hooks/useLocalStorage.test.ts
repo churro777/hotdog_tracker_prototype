@@ -10,9 +10,7 @@ describe('useLocalStorage', () => {
 
   it('should return parsed value from localStorage when it exists', () => {
     const mockValue = { name: 'John', age: 30 }
-    vi.mocked(localStorage.getItem).mockReturnValue(
-      JSON.stringify(mockValue)
-    )
+    vi.mocked(localStorage.getItem).mockReturnValue(JSON.stringify(mockValue))
 
     const { result } = renderHook(() =>
       useLocalStorage('test-key', { name: '', age: 0 })
@@ -45,8 +43,12 @@ describe('useLocalStorage', () => {
 
     expect(result.current[0]).toBe('fallback')
     expect(consoleSpy).toHaveBeenCalledWith(
-      'Error parsing localStorage value for key "test-key":',
-      expect.any(Error)
+      '[Error] Error parsing localStorage value for key "test-key"',
+      expect.objectContaining({
+        context: 'storage',
+        action: 'key: test-key',
+        error: expect.any(Error),
+      })
     )
 
     consoleSpy.mockRestore()
@@ -60,7 +62,11 @@ describe('useLocalStorage', () => {
     }
 
     const { result } = renderHook(() =>
-      useLocalStorage('complex-key', { users: [], settings: {}, lastUpdated: '' })
+      useLocalStorage('complex-key', {
+        users: [],
+        settings: {},
+        lastUpdated: '',
+      })
     )
 
     act(() => {
@@ -91,14 +97,14 @@ describe('useLocalStorage', () => {
     vi.mocked(localStorage.setItem).mockClear()
 
     act(() => {
-      result.current[1](undefined as any)
+      result.current[1](undefined as never)
     })
 
     // Should not call setItem for undefined
     expect(localStorage.setItem).not.toHaveBeenCalled()
 
     act(() => {
-      result.current[1](null as any)
+      result.current[1](null as never)
     })
 
     // Should not call setItem for null
@@ -121,7 +127,9 @@ describe('useLocalStorage', () => {
 
   it('should handle array values correctly', () => {
     const testArray = [1, 2, 3, 4, 5]
-    const { result } = renderHook(() => useLocalStorage('array-key', [] as number[]))
+    const { result } = renderHook(() =>
+      useLocalStorage('array-key', [] as number[])
+    )
 
     act(() => {
       result.current[1](testArray)
@@ -132,5 +140,36 @@ describe('useLocalStorage', () => {
       'array-key',
       JSON.stringify(testArray)
     )
+  })
+
+  it('should handle localStorage setItem errors gracefully', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const originalSetItem = localStorage.setItem
+
+    // Mock setItem to throw an error (e.g., storage quota exceeded)
+    vi.mocked(localStorage.setItem).mockImplementation(() => {
+      throw new Error('Storage quota exceeded')
+    })
+
+    const { result } = renderHook(() => useLocalStorage('test-key', 'initial'))
+
+    act(() => {
+      result.current[1]('new value')
+    })
+
+    // State should still update even if localStorage fails
+    expect(result.current[0]).toBe('new value')
+    expect(consoleSpy).toHaveBeenCalledWith(
+      '[Error] Error saving to localStorage for key "test-key"',
+      expect.objectContaining({
+        context: 'storage',
+        action: 'key: test-key',
+        error: expect.any(Error),
+      })
+    )
+
+    // Restore mocks
+    localStorage.setItem = originalSetItem
+    consoleSpy.mockRestore()
   })
 })
