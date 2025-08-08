@@ -1,6 +1,7 @@
-import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
+
 import { render, screen } from '@test/test-utils'
+
 import App from './App'
 
 // Mock all the hooks with simple implementations

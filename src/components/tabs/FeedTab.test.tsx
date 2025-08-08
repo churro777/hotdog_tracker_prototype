@@ -1,8 +1,8 @@
-import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '../../test/test-utils'
+
+import { render, screen, createMockProps } from '../../test/test-utils'
+
 import FeedTab from './FeedTab'
-import { createMockProps } from '../../test/test-utils'
 
 // Mock the usePostEdit hook with simple return values
 vi.mock('../../hooks/usePostEdit', () => ({

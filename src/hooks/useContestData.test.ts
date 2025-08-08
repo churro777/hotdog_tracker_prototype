@@ -1,12 +1,15 @@
 import React from 'react'
+
 import { renderHook, act } from '@testing-library/react'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import useContestData from './useContestData'
+
 import { CONTEST_IDS, USER_IDS, POST_TYPES } from '../constants'
+
+import useContestData from './useContestData'
 
 // Mock useLocalStorage
 vi.mock('./useLocalStorage', () => ({
-  default: vi.fn((key, defaultValue) => {
+  default: vi.fn((_key, defaultValue) => {
     const [value, setValue] = React.useState(defaultValue)
     return [value, setValue]
   }),

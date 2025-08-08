@@ -3,6 +3,8 @@
  * Centralizes all configuration, UI text, styling, and default data
  */
 
+import { env } from '@utils/env'
+
 /**
  * localStorage key constants for data persistence
  */
@@ -78,9 +80,9 @@ export const TAB_TYPES = {
  */
 export const UI_TEXT = {
   /** Main application title */
-  APP_TITLE: '🌭 Hot Dog Contest',
+  APP_TITLE: env.APP_NAME,
   /** Prefix added to title in development mode */
-  DEBUG_PREFIX: 'DEBUG - ',
+  DEBUG_PREFIX: env.IS_DEBUG_ENABLED ? 'DEBUG - ' : '',
 
   TABS: {
     LEADERBOARD: '🏆 Leaderboard',
@@ -151,6 +153,10 @@ export const TIMEOUTS = {
 export const CONFIG = {
   DEV_HOSTNAMES: ['localhost', '127.0.0.1'],
   BASE_PATH: '/hotdog_tracker_prototype/',
+  IS_DEVELOPMENT: env.isDevelopment,
+  IS_PRODUCTION: env.isProduction,
+  IS_DEBUG_ENABLED: env.IS_DEBUG_ENABLED,
+  APP_VERSION: env.APP_VERSION,
 } as const
 
 // CSS Class Names

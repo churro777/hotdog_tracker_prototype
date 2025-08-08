@@ -1,6 +1,3 @@
-import type { ContestPost, ContestUser } from '@types'
-import useLocalStorage from './useLocalStorage'
-import { logError, logUserError, logValidationError } from '@utils/errorLogger'
 import {
   STORAGE_KEYS,
   DEFAULT_DATA,
@@ -8,6 +5,10 @@ import {
   USER_IDS,
   POST_TYPES,
 } from '@constants'
+import type { ContestPost, ContestUser } from '@types'
+import { logError, logUserError, logValidationError } from '@utils/errorLogger'
+
+import useLocalStorage from './useLocalStorage'
 
 /**
  * Return type for the useContestData hook

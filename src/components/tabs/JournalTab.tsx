@@ -1,6 +1,6 @@
 import './JournalTab.css'
-import type { ContestPost } from '@types'
 import usePostEdit from '@hooks/usePostEdit'
+import type { ContestPost } from '@types'
 
 interface JournalTabProps {
   posts: ContestPost[]
@@ -39,7 +39,7 @@ function JournalTab({ posts, currentUserId, onEditPost }: JournalTabProps) {
       : 0
 
   const groupedByDate = userPosts.reduce(
-    (groups: { [key: string]: ContestPost[] }, post) => {
+    (groups: Record<string, ContestPost[]>, post) => {
       const date = post.timestamp.toLocaleDateString()
       if (!groups[date]) groups[date] = []
       groups[date].push(post)

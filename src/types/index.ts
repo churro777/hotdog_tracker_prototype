@@ -7,7 +7,7 @@ export type Tab = 'leaderboard' | 'feed' | 'log' | 'journal'
  * Represents a user in the system
  * @interface User
  */
-export type User = {
+export interface User {
   /** Unique identifier for the user */
   id: string
   /** Display name of the user */
@@ -22,7 +22,7 @@ export type User = {
  * Represents a post in a contest
  * @interface ContestPost
  */
-export type ContestPost = {
+export interface ContestPost {
   /** Unique identifier for the post */
   id: string
   /** ID of the contest this post belongs to */
@@ -49,7 +49,7 @@ export type ContestPost = {
  * Represents a user's participation in a specific contest
  * @interface ContestUser
  */
-export type ContestUser = {
+export interface ContestUser {
   /** Unique identifier for the contest user record */
   id: string
   /** ID of the contest */
