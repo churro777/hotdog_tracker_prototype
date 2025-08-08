@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 import './FeedTab.css'
 import usePostEdit from '@hooks/usePostEdit'
 import type { ContestPost } from '@types'
@@ -189,4 +191,4 @@ function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
   )
 }
 
-export default FeedTab
+export default memo(FeedTab)

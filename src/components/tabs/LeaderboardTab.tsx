@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 import './LeaderboardTab.css'
 import { UI_TEXT, CSS_CLASSES, ICONS } from '@constants'
 import { getThemeColors, COMPONENT_STYLES } from '@constants/theme'
@@ -77,4 +79,4 @@ function LeaderboardTab({
   )
 }
 
-export default LeaderboardTab
+export default memo(LeaderboardTab)
