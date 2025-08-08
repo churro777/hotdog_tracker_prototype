@@ -1,1 +1,31 @@
-npx --no -- commitlint --edit "$1"
+#!/bin/sh
+# Check commit message format
+if ! npx --no -- commitlint --edit "$1"; then
+  echo ""
+  echo "❌ Invalid commit message format!"
+  echo ""
+  echo "✅ Required format: <type>: <description>"
+  echo ""
+  echo "📝 Valid types:"
+  echo "  • feat:     new feature"
+  echo "  • fix:      bug fix"
+  echo "  • docs:     documentation"
+  echo "  • style:    formatting, missing semi colons, etc"
+  echo "  • refactor: code refactoring"
+  echo "  • perf:     performance improvement"
+  echo "  • test:     adding tests"
+  echo "  • chore:    maintenance tasks"
+  echo "  • ci:       CI/CD changes"
+  echo "  • build:    build system changes"
+  echo "  • revert:   reverting changes"
+  echo ""
+  echo "💡 Examples:"
+  echo "  • feat: add user authentication"
+  echo "  • fix: resolve navigation bug"
+  echo "  • chore: update dependencies"
+  echo "  • ci: fix deployment pipeline"
+  echo ""
+  echo "📖 Learn more: https://conventionalcommits.org/"
+  echo ""
+  exit 1
+fi
