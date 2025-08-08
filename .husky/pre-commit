@@ -1,0 +1,5 @@
+# Run lint-staged (lint & format only changed files)
+npx lint-staged
+
+# Run tests (quick run, not coverage)
+npm run test:run
