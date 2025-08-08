@@ -39,7 +39,7 @@ vi.mock('@hooks/useTheme', () => ({
 describe('App Component - Basic Integration', () => {
   it('should render app title', () => {
     render(<App />)
-    expect(screen.getByText('🌭 Hot Dog Contest')).toBeInTheDocument()
+    expect(screen.getByText('Hot Dog Tracker')).toBeInTheDocument()
   })
 
   it('should render navigation tabs', () => {
