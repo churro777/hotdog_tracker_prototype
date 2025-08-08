@@ -1,10 +1,10 @@
 import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from './test/test-utils'
+import { render, screen } from '@test/test-utils'
 import App from './App'
 
 // Mock all the hooks with simple implementations
-vi.mock('./hooks/useContestData', () => ({
+vi.mock('@hooks/useContestData', () => ({
   default: () => ({
     contestPosts: [],
     contestUsers: [
@@ -28,7 +28,7 @@ vi.mock('./hooks/useContestData', () => ({
   }),
 }))
 
-vi.mock('./hooks/useTheme', () => ({
+vi.mock('@hooks/useTheme', () => ({
   default: () => ({
     isDarkMode: false,
     toggleTheme: vi.fn(),

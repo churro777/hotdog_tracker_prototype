@@ -1,4 +1,4 @@
-import { COMPONENT_STYLES } from '../constants/theme'
+import { COMPONENT_STYLES } from '@constants/theme'
 
 /**
  * Custom hook that provides easy access to component styling constants.

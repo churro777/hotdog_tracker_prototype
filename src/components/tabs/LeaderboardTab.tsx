@@ -1,7 +1,7 @@
 import './LeaderboardTab.css'
-import type { ContestUser } from '../../types'
-import { UI_TEXT, CSS_CLASSES, ICONS } from '../../constants'
-import { getThemeColors, COMPONENT_STYLES } from '../../constants/theme'
+import type { ContestUser } from '@types'
+import { UI_TEXT, CSS_CLASSES, ICONS } from '@constants'
+import { getThemeColors, COMPONENT_STYLES } from '@constants/theme'
 
 interface LeaderboardTabProps {
   contestUsers: ContestUser[]
