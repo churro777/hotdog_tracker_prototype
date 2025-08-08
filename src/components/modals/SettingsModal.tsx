@@ -1,4 +1,5 @@
 import { useState } from 'react'
+
 import './SettingsModal.css'
 import { UI_TEXT, FORM_CONFIG, BUTTON_TEXT, ICONS } from '@constants'
 

@@ -1,7 +1,9 @@
 import { renderHook, act } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
-import useTheme from './useTheme'
+
 import * as themeModule from '../constants/theme'
+
+import useTheme from './useTheme'
 
 // Mock the theme module
 vi.mock('../constants/theme', () => ({

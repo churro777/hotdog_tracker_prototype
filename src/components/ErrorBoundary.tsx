@@ -1,4 +1,5 @@
 import React, { Component, type ReactNode } from 'react'
+
 import { logError } from '@utils/errorLogger'
 
 /**
@@ -56,7 +57,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
    * @param error - The error that was thrown
    * @param errorInfo - Additional error information
    */
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  override componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // Use centralized error logging
     logError({
       message: 'ErrorBoundary caught an error',
@@ -95,7 +96,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     return import.meta.env.DEV
   }
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       // Custom fallback UI
       if (this.props.fallback) {

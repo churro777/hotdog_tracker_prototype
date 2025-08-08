@@ -1,7 +1,9 @@
 import React from 'react'
+
 import { render, type RenderOptions } from '@testing-library/react'
-import type { ContestPost, ContestUser } from '@types'
+
 import { CONTEST_IDS, USER_IDS, POST_TYPES } from '@constants'
+import type { ContestPost, ContestUser } from '@types'
 
 /**
  * Mock data for testing components

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+
 import type { ContestPost } from '@types'
 
 interface UsePostEditReturn {
@@ -26,9 +27,7 @@ function usePostEdit(
 
     // Focus and select the input after state updates
     setTimeout(() => {
-      const input = document.querySelector(
-        '.edit-count-input'
-      ) as HTMLInputElement
+      const input = document.querySelector('.edit-count-input')!
       if (input) {
         input.focus()
         input.select()

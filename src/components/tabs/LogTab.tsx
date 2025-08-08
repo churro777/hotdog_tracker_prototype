@@ -1,7 +1,6 @@
 import { useState } from 'react'
+
 import './LogTab.css'
-import type { Tab } from '@types'
-import useImageUpload from '@hooks/useImageUpload'
 import {
   UI_TEXT,
   CSS_CLASSES,
@@ -11,6 +10,8 @@ import {
   ICONS,
   TAB_TYPES,
 } from '@constants'
+import useImageUpload from '@hooks/useImageUpload'
+import type { Tab } from '@types'
 
 interface LogTabProps {
   onAddPost: (count: number, description?: string, image?: string) => void

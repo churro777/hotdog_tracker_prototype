@@ -1,6 +1,6 @@
 import './FeedTab.css'
-import type { ContestPost } from '@types'
 import usePostEdit from '@hooks/usePostEdit'
+import type { ContestPost } from '@types'
 
 /**
  * Props for the FeedTab component

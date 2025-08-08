@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react'
+
 import './App.css'
-import LeaderboardTab from '@components/tabs/LeaderboardTab'
-import FeedTab from '@components/tabs/FeedTab'
-import LogTab from '@components/tabs/LogTab'
-import JournalTab from '@components/tabs/JournalTab'
-import SettingsModal from '@components/modals/SettingsModal'
 import ErrorBoundary from '@components/ErrorBoundary'
-import type { Tab } from '@types'
-import useContestData from '@hooks/useContestData'
-import useTheme from '@hooks/useTheme'
+import SettingsModal from '@components/modals/SettingsModal'
+import FeedTab from '@components/tabs/FeedTab'
+import JournalTab from '@components/tabs/JournalTab'
+import LeaderboardTab from '@components/tabs/LeaderboardTab'
+import LogTab from '@components/tabs/LogTab'
 import {
   STORAGE_KEYS,
   CONTEST_IDS,
@@ -17,6 +15,9 @@ import {
   CONFIG,
   TAB_TYPES,
 } from '@constants'
+import useContestData from '@hooks/useContestData'
+import useTheme from '@hooks/useTheme'
+import type { Tab } from '@types'
 
 /**
  * Main App component that manages the hot dog contest tracking application.
