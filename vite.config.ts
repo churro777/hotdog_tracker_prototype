@@ -3,18 +3,13 @@ import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 
 // https://vite.dev/config/
-export default defineConfig(({ command, mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
-  
+export default defineConfig(({ mode }) => {
+  loadEnv(mode, process.cwd(), '')
+
   return {
     base: '/hotdog_tracker_prototype/',
-    plugins: [
-      react({
-        // Enable Fast Refresh for development
-        fastRefresh: true,
-      }),
-    ],
-    
+    plugins: [react()],
+
     // Path aliases for cleaner imports
     resolve: {
       alias: {
@@ -47,7 +42,7 @@ export default defineConfig(({ command, mode }) => {
     build: {
       // Generate source maps for production debugging
       sourcemap: true,
-      
+
       // Optimize chunk splitting
       rollupOptions: {
         output: {
@@ -58,13 +53,13 @@ export default defineConfig(({ command, mode }) => {
           },
         },
       },
-      
+
       // Build target
       target: 'esnext',
-      
+
       // Enable minification
       minify: 'esbuild',
-      
+
       // Chunk size warnings
       chunkSizeWarningLimit: 1000,
     },

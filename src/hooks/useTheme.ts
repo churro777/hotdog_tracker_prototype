@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
-import { applyTheme, getCSSVariable, type ThemeMode } from '../constants/theme'
+import { applyTheme, getCSSVariable, type ThemeMode } from '@constants/theme'
 import useLocalStorage from './useLocalStorage'
-import { STORAGE_KEYS } from '../constants'
+import { STORAGE_KEYS } from '@constants'
 
 /**
  * Return type for the useTheme hook

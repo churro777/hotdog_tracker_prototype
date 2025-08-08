@@ -1,5 +1,5 @@
 import React, { Component, type ReactNode } from 'react'
-import { logError } from '../utils/errorLogger'
+import { logError } from '@utils/errorLogger'
 
 /**
  * Props for the ErrorBoundary component

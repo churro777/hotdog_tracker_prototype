@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { logStorageError } from '../utils/errorLogger'
+import { logStorageError } from '@utils/errorLogger'
 
 /**
  * Custom hook for managing state that persists to localStorage.

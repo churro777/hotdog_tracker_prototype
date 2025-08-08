@@ -1,17 +1,13 @@
-import type { ContestPost, ContestUser } from '../types'
+import type { ContestPost, ContestUser } from '@types'
 import useLocalStorage from './useLocalStorage'
-import {
-  logError,
-  logUserError,
-  logValidationError,
-} from '../utils/errorLogger'
+import { logError, logUserError, logValidationError } from '@utils/errorLogger'
 import {
   STORAGE_KEYS,
   DEFAULT_DATA,
   CONTEST_IDS,
   USER_IDS,
   POST_TYPES,
-} from '../constants'
+} from '@constants'
 
 /**
  * Return type for the useContestData hook
@@ -216,12 +212,7 @@ function useContestData(
         })
       )
     } catch (error) {
-      logUserError(
-        'Error editing post',
-        error as Error,
-        postToEdit?.userId,
-        'edit-post'
-      )
+      logUserError('Error editing post', error as Error, undefined, 'edit-post')
     }
   }
 

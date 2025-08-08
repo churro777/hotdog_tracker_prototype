@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { ContestPost } from '../types'
+import type { ContestPost } from '@types'
 
 interface UsePostEditReturn {
   editingPostId: string | null
