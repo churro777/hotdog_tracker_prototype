@@ -9,9 +9,9 @@ updates:
       time: "04:00"
     open-pull-requests-limit: 10
     reviewers:
-      - "arturo"  # Replace with your GitHub username
+      - "churro777"  # Replace with your GitHub username
     assignees:
-      - "arturo"  # Replace with your GitHub username
+      - "churro777"  # Replace with your GitHub username
     commit-message:
       prefix: "chore(deps)"
       include: "scope"
