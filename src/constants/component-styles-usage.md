@@ -24,9 +24,10 @@ Use CSS custom properties that are automatically applied by the theme system:
 }
 ```
 
-### Available CSS Variables:
+### Available CSS Variables
 
 **Border Radius:**
+
 - `var(--border-radius-sm)` → 4px
 - `var(--border-radius-md)` → 8px  
 - `var(--border-radius-lg)` → 12px
@@ -34,6 +35,7 @@ Use CSS custom properties that are automatically applied by the theme system:
 - `var(--border-radius-pill)` → 20px
 
 **Spacing:**
+
 - `var(--spacing-xs)` → 0.25rem (4px)
 - `var(--spacing-sm)` → 0.5rem (8px)
 - `var(--spacing-md)` → 0.75rem (12px)
@@ -42,6 +44,7 @@ Use CSS custom properties that are automatically applied by the theme system:
 - `var(--spacing-xxl)` → 2rem (32px)
 
 **Font Sizes:**
+
 - `var(--font-size-xs)` → 0.75rem (12px)
 - `var(--font-size-sm)` → 0.875rem (14px)
 - `var(--font-size-base)` → 1rem (16px)
@@ -51,6 +54,7 @@ Use CSS custom properties that are automatically applied by the theme system:
 - `var(--font-size-xxxl)` → 2rem (32px)
 
 **Transitions:**
+
 - `var(--transition-fast)` → 0.2s ease
 - `var(--transition-normal)` → 0.3s ease
 - `var(--transition-slow)` → 0.5s ease
@@ -91,7 +95,7 @@ function MyComponent() {
 
 ## 3. Examples of Implementation
 
-### High-Impact Replacements (100+ occurrences):
+### High-Impact Replacements (100+ occurrences)
 
 1. **Border Radius 12px** → `var(--border-radius-lg)`
 2. **Border Radius 8px** → `var(--border-radius-md)`  
@@ -99,7 +103,7 @@ function MyComponent() {
 4. **Font Size 1.5rem** → `var(--font-size-xxl)`
 5. **Padding/Margin 1rem** → `var(--spacing-lg)`
 
-### Before & After Examples:
+### Before & After Examples
 
 ```css
 /* BEFORE - Hardcoded values */
