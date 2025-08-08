@@ -5,6 +5,7 @@ import FeedTab from './components/tabs/FeedTab'
 import LogTab from './components/tabs/LogTab'
 import JournalTab from './components/tabs/JournalTab'
 import SettingsModal from './components/modals/SettingsModal'
+import ErrorBoundary from './components/ErrorBoundary'
 import type { Tab } from './types'
 import useContestData from './hooks/useContestData'
 import useTheme from './hooks/useTheme'
@@ -170,15 +171,17 @@ function App() {
     <div className="app">
       <header className="app-header">{getHeaderContent()}</header>
 
-      {renderContent()}
+      <ErrorBoundary>{renderContent()}</ErrorBoundary>
 
       {showSettingsModal && (
-        <SettingsModal
-          isDarkMode={isDarkMode}
-          onToggleTheme={toggleTheme}
-          onClose={() => setShowSettingsModal(false)}
-          onClearData={handleClearAllData}
-        />
+        <ErrorBoundary>
+          <SettingsModal
+            isDarkMode={isDarkMode}
+            onToggleTheme={toggleTheme}
+            onClose={() => setShowSettingsModal(false)}
+            onClearData={handleClearAllData}
+          />
+        </ErrorBoundary>
       )}
     </div>
   )

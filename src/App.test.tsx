@@ -8,8 +8,20 @@ vi.mock('./hooks/useContestData', () => ({
   default: () => ({
     contestPosts: [],
     contestUsers: [
-      { id: 'cu-1', userId: '1', userName: 'You', totalCount: 5, contestId: 'test' },
-      { id: 'cu-2', userId: '2', userName: 'Joey Chestnut', totalCount: 23, contestId: 'test' },
+      {
+        id: 'cu-1',
+        userId: '1',
+        userName: 'You',
+        totalCount: 5,
+        contestId: 'test',
+      },
+      {
+        id: 'cu-2',
+        userId: '2',
+        userName: 'Joey Chestnut',
+        totalCount: 23,
+        contestId: 'test',
+      },
     ],
     addPost: vi.fn(),
     editPost: vi.fn(),
@@ -31,13 +43,19 @@ describe('App Component - Basic Integration', () => {
 
   it('should render navigation tabs', () => {
     render(<App />)
-    
+
     // Find buttons by their role, not by duplicate text
     const buttons = screen.getAllByRole('button')
-    const tabTexts = buttons.map(btn => btn.textContent).filter(text => 
-      text?.includes('🏆') || text?.includes('📰') || text?.includes('📝') || text?.includes('📔')
-    )
-    
+    const tabTexts = buttons
+      .map(btn => btn.textContent)
+      .filter(
+        text =>
+          text?.includes('🏆') ||
+          text?.includes('📰') ||
+          text?.includes('📝') ||
+          text?.includes('📔')
+      )
+
     expect(tabTexts).toHaveLength(4)
   })
 
@@ -48,7 +66,7 @@ describe('App Component - Basic Integration', () => {
 
   it('should have proper app structure', () => {
     render(<App />)
-    
+
     // Check for main structural elements
     expect(document.querySelector('.app')).toBeInTheDocument()
     expect(document.querySelector('.app-header')).toBeInTheDocument()
@@ -58,7 +76,7 @@ describe('App Component - Basic Integration', () => {
 
   it('should render some leaderboard content by default', () => {
     render(<App />)
-    
+
     // Should show some user names from the mocked data
     expect(screen.getByText('Joey Chestnut')).toBeInTheDocument()
     expect(screen.getByText('You')).toBeInTheDocument()

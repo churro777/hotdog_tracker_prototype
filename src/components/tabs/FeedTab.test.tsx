@@ -2,7 +2,7 @@ import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '../../test/test-utils'
 import FeedTab from './FeedTab'
-import { mockContestPosts, createMockProps } from '../../test/test-utils'
+import { createMockProps } from '../../test/test-utils'
 
 // Mock the usePostEdit hook with simple return values
 vi.mock('../../hooks/usePostEdit', () => ({
@@ -22,7 +22,7 @@ describe('FeedTab Component - Basic Functionality', () => {
   it('should render feed header correctly', () => {
     const props = createMockProps.feedTab
     render(<FeedTab {...props} />)
-    
+
     expect(screen.getByText('📰 Contest Feed')).toBeInTheDocument()
   })
 

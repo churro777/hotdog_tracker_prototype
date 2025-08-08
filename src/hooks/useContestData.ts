@@ -1,6 +1,11 @@
 import type { ContestPost, ContestUser } from '../types'
 import useLocalStorage from './useLocalStorage'
 import {
+  logError,
+  logUserError,
+  logValidationError,
+} from '../utils/errorLogger'
+import {
   STORAGE_KEYS,
   DEFAULT_DATA,
   CONTEST_IDS,
@@ -67,14 +72,29 @@ function useContestData(
     defaultContestUsers
   )
 
-  // Convert timestamp strings back to Date objects
-  const allContestPosts: ContestPost[] = rawContestPosts.map(post => ({
-    ...post,
-    timestamp:
-      typeof post.timestamp === 'string'
-        ? new Date(post.timestamp)
-        : post.timestamp,
-  }))
+  // Convert timestamp strings back to Date objects with error handling
+  const allContestPosts: ContestPost[] = rawContestPosts.map(post => {
+    try {
+      return {
+        ...post,
+        timestamp:
+          typeof post.timestamp === 'string'
+            ? new Date(post.timestamp)
+            : post.timestamp,
+      }
+    } catch (error) {
+      logError({
+        message: `Error converting timestamp for post ${post.id}`,
+        error: error as Error,
+        context: 'data-processing',
+        action: 'timestamp-conversion',
+      })
+      return {
+        ...post,
+        timestamp: new Date(), // Fallback to current date
+      }
+    }
+  })
 
   /**
    * Adds a new post to the contest and updates the user's total count.
@@ -84,31 +104,56 @@ function useContestData(
    * @param {string} [image] - Optional image URL for the post
    */
   const addPost = (count: number, description?: string, image?: string) => {
-    const currentContestUser = allContestUsers.find(
-      u => u.userId === currentUserId
-    )
-    if (!currentContestUser) return
-
-    const newPost: ContestPost = {
-      id: Date.now().toString(),
-      contestId,
-      userId: currentUserId,
-      userName: currentContestUser.userName,
-      count,
-      image,
-      timestamp: new Date(),
-      description,
-      type: POST_TYPES.ENTRY,
-    }
-
-    setRawContestPosts(prev => [newPost, ...prev])
-    setAllContestUsers(prev =>
-      prev.map(user =>
-        user.userId === currentUserId
-          ? { ...user, totalCount: user.totalCount + count }
-          : user
+    try {
+      const currentContestUser = allContestUsers.find(
+        u => u.userId === currentUserId
       )
-    )
+      if (!currentContestUser) {
+        logValidationError(
+          `Current user ${currentUserId} not found in contest users`,
+          { currentUserId, availableUsers: allContestUsers.map(u => u.userId) },
+          'user-validation'
+        )
+        return
+      }
+
+      if (count < 0) {
+        logValidationError(
+          'Post count cannot be negative',
+          { count },
+          'count-validation'
+        )
+        return
+      }
+
+      const newPost: ContestPost = {
+        id: Date.now().toString(),
+        contestId,
+        userId: currentUserId,
+        userName: currentContestUser.userName,
+        count,
+        image,
+        timestamp: new Date(),
+        description,
+        type: POST_TYPES.ENTRY,
+      }
+
+      setRawContestPosts(prev => [newPost, ...prev])
+      setAllContestUsers(prev =>
+        prev.map(user =>
+          user.userId === currentUserId
+            ? { ...user, totalCount: user.totalCount + count }
+            : user
+        )
+      )
+    } catch (error) {
+      logUserError(
+        'Error adding post',
+        error as Error,
+        currentUserId,
+        'add-post'
+      )
+    }
   }
 
   /**
@@ -123,30 +168,61 @@ function useContestData(
     newCount: number,
     newDescription?: string
   ) => {
-    setRawContestPosts(prev =>
-      prev.map(post => {
-        if (post.id === postId) {
-          const oldCount = post.count || 0
-          const updatedPost = {
-            ...post,
-            count: newCount,
-            description: newDescription,
-          }
+    try {
+      if (newCount < 0) {
+        logValidationError(
+          'Post count cannot be negative',
+          { newCount },
+          'count-validation'
+        )
+        return
+      }
 
-          // Update contest user's total count
-          setAllContestUsers(prevUsers =>
-            prevUsers.map(user =>
-              user.userId === post.userId
-                ? { ...user, totalCount: user.totalCount - oldCount + newCount }
-                : user
+      const postToEdit = allContestPosts.find(p => p.id === postId)
+      if (!postToEdit) {
+        logValidationError(
+          `Post with ID ${postId} not found`,
+          { postId },
+          'post-validation'
+        )
+        return
+      }
+
+      setRawContestPosts(prev =>
+        prev.map(post => {
+          if (post.id === postId) {
+            const oldCount = post.count || 0
+            const updatedPost = {
+              ...post,
+              count: newCount,
+              description: newDescription,
+            }
+
+            // Update contest user's total count
+            setAllContestUsers(prevUsers =>
+              prevUsers.map(user =>
+                user.userId === post.userId
+                  ? {
+                      ...user,
+                      totalCount: user.totalCount - oldCount + newCount,
+                    }
+                  : user
+              )
             )
-          )
 
-          return updatedPost
-        }
-        return post
-      })
-    )
+            return updatedPost
+          }
+          return post
+        })
+      )
+    } catch (error) {
+      logUserError(
+        'Error editing post',
+        error as Error,
+        postToEdit?.userId,
+        'edit-post'
+      )
+    }
   }
 
   // Filter data for the specific contest
