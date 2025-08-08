@@ -21,7 +21,9 @@
     "pre-commit": "npx lint-staged && npm run test:run",
     "release": "git tag -a v$(node -p \"require('./package.json').version\") -m \"Release v$(node -p \"require('./package.json').version\")\" && git push origin --tags",
     "ci": "npm run lint && npm run test:run && npm run build:ci",
-    "build:ci": "npx vite build"
+    "build:ci": "npx vite build",
+    "commit-check": "echo 'Testing commit message format...' && echo 'feat: example commit message' | npx commitlint",
+    "commit-help": "echo '✅ Commit message format: <type>: <description>\\n\\n📝 Types: feat, fix, docs, style, refactor, perf, test, chore, ci, build, revert\\n\\n💡 Examples:\\n  • feat: add new feature\\n  • fix: resolve bug\\n  • chore: update dependencies'"
   },
   "dependencies": {
     "react": "^19.1.0",
