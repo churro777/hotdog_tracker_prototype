@@ -17,7 +17,10 @@
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
     "preview": "vite preview",
-    "prepare": "husky"
+    "prepare": "husky",
+    "pre-commit": "npx lint-staged && npm run test:run",
+    "release": "git tag -a v$(node -p \"require('./package.json').version\") -m \"Release v$(node -p \"require('./package.json').version\")\" && git push origin --tags",
+    "ci": "npm run lint && npm run test:run && npm run build"
   },
   "dependencies": {
     "react": "^19.1.0",
