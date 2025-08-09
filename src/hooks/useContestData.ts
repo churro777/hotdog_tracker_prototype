@@ -188,7 +188,7 @@ function useContestData(
       setRawContestPosts(prev =>
         prev.map(post => {
           if (post.id === postId) {
-            const oldCount = post.count || 0
+            const oldCount = post.count ?? 0
             const updatedPost = {
               ...post,
               count: newCount,

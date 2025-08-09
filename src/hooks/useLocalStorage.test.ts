@@ -1,7 +1,13 @@
 import { renderHook, act } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 
+import { localStorageMock } from '../test/setup'
+
 import useLocalStorage from './useLocalStorage'
+
+// Get references to the mocked localStorage methods
+const mockGetItem = localStorageMock.getItem
+const mockSetItem = localStorageMock.setItem
 
 describe('useLocalStorage', () => {
   it('should return default value when localStorage is empty', () => {
@@ -11,14 +17,14 @@ describe('useLocalStorage', () => {
 
   it('should return parsed value from localStorage when it exists', () => {
     const mockValue = { name: 'John', age: 30 }
-    vi.mocked(localStorage.getItem).mockReturnValue(JSON.stringify(mockValue))
+    mockGetItem.mockReturnValue(JSON.stringify(mockValue))
 
     const { result } = renderHook(() =>
       useLocalStorage('test-key', { name: '', age: 0 })
     )
 
     expect(result.current[0]).toEqual(mockValue)
-    expect(localStorage.getItem).toHaveBeenCalledWith('test-key')
+    expect(mockGetItem).toHaveBeenCalledWith('test-key')
   })
 
   it('should save value to localStorage when setValue is called', () => {
@@ -29,7 +35,7 @@ describe('useLocalStorage', () => {
     })
 
     expect(result.current[0]).toBe('new value')
-    expect(localStorage.setItem).toHaveBeenCalledWith(
+    expect(mockSetItem).toHaveBeenCalledWith(
       'test-key',
       JSON.stringify('new value')
     )
@@ -37,8 +43,10 @@ describe('useLocalStorage', () => {
 
   it('should handle localStorage parsing errors gracefully', () => {
     // Mock console.error to avoid noise in tests
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    vi.mocked(localStorage.getItem).mockReturnValue('invalid json {')
+    const consoleSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => void 0)
+    mockGetItem.mockReturnValue('invalid json {')
 
     const { result } = renderHook(() => useLocalStorage('test-key', 'fallback'))
 
@@ -48,7 +56,7 @@ describe('useLocalStorage', () => {
       expect.objectContaining({
         context: 'storage',
         action: 'key: test-key',
-        error: expect.any(Error),
+        error: expect.any(Error) as Error,
       })
     )
 
@@ -75,7 +83,7 @@ describe('useLocalStorage', () => {
     })
 
     expect(result.current[0]).toEqual(complexObject)
-    expect(localStorage.setItem).toHaveBeenCalledWith(
+    expect(mockSetItem).toHaveBeenCalledWith(
       'complex-key',
       JSON.stringify(complexObject)
     )
@@ -95,21 +103,21 @@ describe('useLocalStorage', () => {
     const { result } = renderHook(() => useLocalStorage('test-key', 'initial'))
 
     // Clear previous calls from initialization
-    vi.mocked(localStorage.setItem).mockClear()
+    mockSetItem.mockClear()
 
     act(() => {
       result.current[1](undefined as never)
     })
 
     // Should not call setItem for undefined
-    expect(localStorage.setItem).not.toHaveBeenCalled()
+    expect(mockSetItem).not.toHaveBeenCalled()
 
     act(() => {
       result.current[1](null as never)
     })
 
     // Should not call setItem for null
-    expect(localStorage.setItem).not.toHaveBeenCalled()
+    expect(mockSetItem).not.toHaveBeenCalled()
   })
 
   it('should handle boolean values correctly', () => {
@@ -120,7 +128,7 @@ describe('useLocalStorage', () => {
     })
 
     expect(result.current[0]).toBe(true)
-    expect(localStorage.setItem).toHaveBeenCalledWith(
+    expect(mockSetItem).toHaveBeenCalledWith(
       'boolean-key',
       JSON.stringify(true)
     )
@@ -137,18 +145,19 @@ describe('useLocalStorage', () => {
     })
 
     expect(result.current[0]).toEqual(testArray)
-    expect(localStorage.setItem).toHaveBeenCalledWith(
+    expect(mockSetItem).toHaveBeenCalledWith(
       'array-key',
       JSON.stringify(testArray)
     )
   })
 
   it('should handle localStorage setItem errors gracefully', () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const originalSetItem = localStorage.setItem
+    const consoleSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => void 0)
 
     // Mock setItem to throw an error (e.g., storage quota exceeded)
-    vi.mocked(localStorage.setItem).mockImplementation(() => {
+    mockSetItem.mockImplementation(() => {
       throw new Error('Storage quota exceeded')
     })
 
@@ -165,12 +174,11 @@ describe('useLocalStorage', () => {
       expect.objectContaining({
         context: 'storage',
         action: 'key: test-key',
-        error: expect.any(Error),
+        error: expect.any(Error) as Error,
       })
     )
 
     // Restore mocks
-    localStorage.setItem = originalSetItem
     consoleSpy.mockRestore()
   })
 })

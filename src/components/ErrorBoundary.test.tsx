@@ -78,13 +78,15 @@ describe('ErrorBoundary Component', () => {
     expect(onError).toHaveBeenCalledWith(
       expect.any(Error),
       expect.objectContaining({
-        componentStack: expect.any(String),
+        componentStack: expect.any(String) as string,
       })
     )
   })
 
   it('should log error to console', () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => void 0)
 
     render(
       <ErrorBoundary>
@@ -97,7 +99,7 @@ describe('ErrorBoundary Component', () => {
       expect.objectContaining({
         context: 'react-error-boundary',
         action: 'component-error',
-        error: expect.any(Error),
+        error: expect.any(Error) as Error,
       })
     )
 

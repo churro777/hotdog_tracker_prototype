@@ -29,8 +29,8 @@ function LogTab({ onAddPost, setActiveTab }: LogTabProps) {
   const handleSubmitPost = (e: React.FormEvent) => {
     e.preventDefault()
 
-    const count = parseInt(newPostCount) || LIMITS.DEFAULT_ITEM_COUNT
-    onAddPost(count, newPostDescription || undefined, imagePreview || undefined)
+    const count = parseInt(newPostCount) ?? LIMITS.DEFAULT_ITEM_COUNT
+    onAddPost(count, newPostDescription ?? undefined, imagePreview ?? undefined)
 
     // Reset form
     setNewPostCount(LIMITS.DEFAULT_ITEM_COUNT.toString())

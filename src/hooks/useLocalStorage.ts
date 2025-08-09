@@ -20,7 +20,7 @@ function useLocalStorage<T>(
   const [value, setValue] = useState<T>(() => {
     try {
       const savedValue = localStorage.getItem(key)
-      return savedValue ? JSON.parse(savedValue) : defaultValue
+      return savedValue ? (JSON.parse(savedValue) as T) : defaultValue
     } catch (error) {
       logStorageError(
         `Error parsing localStorage value for key "${key}"`,
