@@ -94,16 +94,11 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Start server
-        run: npm run preview &
-
-      - name: Wait for server
-        run: npx wait-on http://localhost:4173
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.12.x
 
       - name: Run Lighthouse CI
-        run: |
-          npm install -g @lhci/cli@0.12.x
-          lhci autorun
+        run: lhci autorun
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
 
