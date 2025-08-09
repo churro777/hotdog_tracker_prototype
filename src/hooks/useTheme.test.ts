@@ -4,6 +4,20 @@ import { describe, it, expect, vi } from 'vitest'
 import * as themeModule from '../constants/theme'
 import { localStorageMock } from '../test/setup'
 
+// Define typed mock interface for localStorage
+interface MockedStorage {
+  getItem: {
+    mockReturnValue: (value: string | null) => void
+    toHaveBeenCalledWith: (key: string) => void
+  }
+  setItem: {
+    toHaveBeenCalledWith: (key: string, value: string) => void
+  }
+}
+
+// Create typed references to avoid unsafe calls
+const mockLocalStorage = localStorageMock as unknown as MockedStorage
+
 import useTheme from './useTheme'
 
 // Mock the theme module
@@ -16,9 +30,7 @@ describe('useTheme', () => {
   const mockApplyTheme = vi.mocked(themeModule.applyTheme)
   const mockGetCSSVariable = vi.mocked(themeModule.getCSSVariable)
 
-  // Get references to the mocked methods
-  const mockGetItem = localStorageMock.getItem
-  const mockSetItem = localStorageMock.setItem
+  // Use localStorageMock methods directly instead of creating references
 
   let mockAdd: ReturnType<typeof vi.spyOn>
   let mockRemove: ReturnType<typeof vi.spyOn>
@@ -42,7 +54,7 @@ describe('useTheme', () => {
 
   it('should initialize with stored dark mode preference', () => {
     // Mock localStorage to return dark mode
-    mockGetItem.mockReturnValue(JSON.stringify(true))
+    mockLocalStorage.getItem.mockReturnValue(JSON.stringify(true))
 
     const { result } = renderHook(() => useTheme())
 
@@ -58,7 +70,7 @@ describe('useTheme', () => {
   })
 
   it('should apply dark mode theme and CSS classes', () => {
-    mockGetItem.mockReturnValue(JSON.stringify(true))
+    mockLocalStorage.getItem.mockReturnValue(JSON.stringify(true))
 
     renderHook(() => useTheme())
 
@@ -82,7 +94,7 @@ describe('useTheme', () => {
   })
 
   it('should toggle theme from dark to light', () => {
-    mockGetItem.mockReturnValue(JSON.stringify(true))
+    mockLocalStorage.getItem.mockReturnValue(JSON.stringify(true))
     const { result } = renderHook(() => useTheme())
 
     expect(result.current.isDarkMode).toBe(true)
@@ -109,7 +121,7 @@ describe('useTheme', () => {
   })
 
   it('should set specific theme to light', () => {
-    mockGetItem.mockReturnValue(JSON.stringify(true))
+    mockLocalStorage.getItem.mockReturnValue(JSON.stringify(true))
     const { result } = renderHook(() => useTheme())
 
     act(() => {
@@ -136,7 +148,7 @@ describe('useTheme', () => {
       result.current.toggleTheme()
     })
 
-    expect(mockSetItem).toHaveBeenCalledWith(
+    expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
       'hotdog-contest-dark-mode',
       JSON.stringify(true)
     )

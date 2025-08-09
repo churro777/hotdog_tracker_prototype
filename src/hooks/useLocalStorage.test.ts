@@ -5,9 +5,23 @@ import { localStorageMock } from '../test/setup'
 
 import useLocalStorage from './useLocalStorage'
 
-// Get references to the mocked localStorage methods
-const mockGetItem = localStorageMock.getItem
-const mockSetItem = localStorageMock.setItem
+// Define typed mock interface for localStorage to avoid ESLint unsafe call errors
+interface MockedStorage {
+  getItem: {
+    mockReturnValue: (value: string | null) => void
+    toHaveBeenCalledWith: (key: string) => void
+    mockClear: () => void
+    mockImplementation: (fn: () => void) => void
+  }
+  setItem: {
+    toHaveBeenCalledWith: (key: string, value: string) => void
+    not: { toHaveBeenCalled: () => void }
+    mockClear: () => void
+    mockImplementation: (fn: () => void) => void
+  }
+}
+
+const mockLocalStorage = localStorageMock as unknown as MockedStorage
 
 describe('useLocalStorage', () => {
   it('should return default value when localStorage is empty', () => {
@@ -17,14 +31,14 @@ describe('useLocalStorage', () => {
 
   it('should return parsed value from localStorage when it exists', () => {
     const mockValue = { name: 'John', age: 30 }
-    mockGetItem.mockReturnValue(JSON.stringify(mockValue))
+    mockLocalStorage.getItem.mockReturnValue(JSON.stringify(mockValue))
 
     const { result } = renderHook(() =>
       useLocalStorage('test-key', { name: '', age: 0 })
     )
 
     expect(result.current[0]).toEqual(mockValue)
-    expect(mockGetItem).toHaveBeenCalledWith('test-key')
+    expect(mockLocalStorage.getItem).toHaveBeenCalledWith('test-key')
   })
 
   it('should save value to localStorage when setValue is called', () => {
@@ -35,7 +49,7 @@ describe('useLocalStorage', () => {
     })
 
     expect(result.current[0]).toBe('new value')
-    expect(mockSetItem).toHaveBeenCalledWith(
+    expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
       'test-key',
       JSON.stringify('new value')
     )
@@ -46,7 +60,7 @@ describe('useLocalStorage', () => {
     const consoleSpy = vi
       .spyOn(console, 'error')
       .mockImplementation(() => void 0)
-    mockGetItem.mockReturnValue('invalid json {')
+    mockLocalStorage.getItem.mockReturnValue('invalid json {')
 
     const { result } = renderHook(() => useLocalStorage('test-key', 'fallback'))
 
@@ -83,7 +97,7 @@ describe('useLocalStorage', () => {
     })
 
     expect(result.current[0]).toEqual(complexObject)
-    expect(mockSetItem).toHaveBeenCalledWith(
+    expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
       'complex-key',
       JSON.stringify(complexObject)
     )
@@ -103,21 +117,21 @@ describe('useLocalStorage', () => {
     const { result } = renderHook(() => useLocalStorage('test-key', 'initial'))
 
     // Clear previous calls from initialization
-    mockSetItem.mockClear()
+    mockLocalStorage.setItem.mockClear()
 
     act(() => {
       result.current[1](undefined as never)
     })
 
     // Should not call setItem for undefined
-    expect(mockSetItem).not.toHaveBeenCalled()
+    expect(mockLocalStorage.setItem).not.toHaveBeenCalled()
 
     act(() => {
       result.current[1](null as never)
     })
 
     // Should not call setItem for null
-    expect(mockSetItem).not.toHaveBeenCalled()
+    expect(mockLocalStorage.setItem).not.toHaveBeenCalled()
   })
 
   it('should handle boolean values correctly', () => {
@@ -128,7 +142,7 @@ describe('useLocalStorage', () => {
     })
 
     expect(result.current[0]).toBe(true)
-    expect(mockSetItem).toHaveBeenCalledWith(
+    expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
       'boolean-key',
       JSON.stringify(true)
     )
@@ -145,7 +159,7 @@ describe('useLocalStorage', () => {
     })
 
     expect(result.current[0]).toEqual(testArray)
-    expect(mockSetItem).toHaveBeenCalledWith(
+    expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
       'array-key',
       JSON.stringify(testArray)
     )
@@ -157,7 +171,7 @@ describe('useLocalStorage', () => {
       .mockImplementation(() => void 0)
 
     // Mock setItem to throw an error (e.g., storage quota exceeded)
-    mockSetItem.mockImplementation(() => {
+    mockLocalStorage.setItem.mockImplementation(() => {
       throw new Error('Storage quota exceeded')
     })
 
