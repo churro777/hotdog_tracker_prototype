@@ -136,7 +136,17 @@ class LocalStorageDataService implements DataService {
       throw new Error(`Post with id ${id} not found`)
     }
 
-    const updatedPost = { ...posts[postIndex], ...updates }
+    const existingPost = posts[postIndex]!
+    const updatedPost: ContestPost = {
+      ...existingPost,
+      ...updates,
+      id: existingPost.id,
+      contestId: existingPost.contestId,
+      userId: existingPost.userId,
+      userName: existingPost.userName,
+      timestamp: existingPost.timestamp,
+      type: existingPost.type,
+    }
     posts[postIndex] = updatedPost
 
     this.saveToStorage(STORAGE_KEYS.POSTS, posts)
@@ -175,7 +185,14 @@ class LocalStorageDataService implements DataService {
       throw new Error(`User with id ${id} not found`)
     }
 
-    const updatedUser = { ...users[userIndex], ...updates }
+    const existingUser = users[userIndex]!
+    const updatedUser: ContestUser = {
+      ...existingUser,
+      ...updates,
+      id: existingUser.id,
+      contestId: existingUser.contestId,
+      userId: existingUser.userId,
+    }
     users[userIndex] = updatedUser
 
     this.saveToStorage(STORAGE_KEYS.USERS, users)
