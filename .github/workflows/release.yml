@@ -12,7 +12,7 @@ jobs:
     permissions:
       contents: write
       packages: write
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -39,14 +39,14 @@ jobs:
         run: |
           # Get the previous tag
           PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
-          
+
           # Generate changelog since last tag
           if [ -z "$PREV_TAG" ]; then
             CHANGELOG=$(git log --pretty=format:"- %s (%h)" --reverse)
           else
             CHANGELOG=$(git log --pretty=format:"- %s (%h)" --reverse ${PREV_TAG}..HEAD)
           fi
-          
+
           # Save changelog to output
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
           echo "$CHANGELOG" >> $GITHUB_OUTPUT
@@ -59,15 +59,15 @@ jobs:
           name: Release ${{ github.ref_name }}
           body: |
             ## What's Changed
-            
+
             ${{ steps.changelog.outputs.changelog }}
-            
+
             **Full Changelog**: https://github.com/${{ github.repository }}/compare/${{ steps.changelog.outputs.previous_tag }}...${{ github.ref_name }}
-            
+
             ---
-            
+
             🚀 **Deployment**: This release has been automatically deployed to [GitHub Pages](https://arturo.github.io/hotdog_tracker_prototype/)
-            
+
             📊 **Bundle Size**: Check the bundle analysis in the deployment artifacts
           draft: false
           prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
