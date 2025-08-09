@@ -11,7 +11,7 @@ interface JournalTabProps {
     postId: string,
     newCount: number,
     newDescription?: string
-  ) => void
+  ) => Promise<boolean>
 }
 
 function JournalTab({ posts, currentUserId, onEditPost }: JournalTabProps) {
@@ -19,6 +19,7 @@ function JournalTab({ posts, currentUserId, onEditPost }: JournalTabProps) {
     editingPostId,
     editCount,
     editDescription,
+    isSaving,
     setEditCount,
     setEditDescription,
     startEditing,
@@ -105,14 +106,18 @@ function JournalTab({ posts, currentUserId, onEditPost }: JournalTabProps) {
                               </div>
                               <div className="edit-controls">
                                 <button
-                                  onClick={saveEdit}
+                                  onClick={() => {
+                                    void saveEdit()
+                                  }}
                                   className="save-edit-btn"
+                                  disabled={isSaving}
                                 >
-                                  💾
+                                  {isSaving ? '⏳' : '💾'}
                                 </button>
                                 <button
                                   onClick={cancelEdit}
                                   className="cancel-edit-btn"
+                                  disabled={isSaving}
                                 >
                                   ❌
                                 </button>

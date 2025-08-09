@@ -6,19 +6,25 @@ interface UsePostEditReturn {
   editingPostId: string | null
   editCount: string
   editDescription: string
+  isSaving: boolean
   setEditCount: React.Dispatch<React.SetStateAction<string>>
   setEditDescription: React.Dispatch<React.SetStateAction<string>>
   startEditing: (post: ContestPost) => void
-  saveEdit: () => void
+  saveEdit: () => Promise<void>
   cancelEdit: () => void
 }
 
 function usePostEdit(
-  onSave: (postId: string, count: number, description?: string) => void
+  onSave: (
+    postId: string,
+    count: number,
+    description?: string
+  ) => Promise<boolean>
 ): UsePostEditReturn {
   const [editingPostId, setEditingPostId] = useState<string | null>(null)
   const [editCount, setEditCount] = useState<string>('1')
   const [editDescription, setEditDescription] = useState<string>('')
+  const [isSaving, setIsSaving] = useState<boolean>(false)
 
   const startEditing = (post: ContestPost) => {
     setEditingPostId(post.id)
@@ -35,11 +41,18 @@ function usePostEdit(
     }, 0)
   }
 
-  const saveEdit = () => {
-    if (editingPostId) {
-      const count = parseInt(editCount) || 1
-      onSave(editingPostId, count, editDescription)
-      setEditingPostId(null)
+  const saveEdit = async () => {
+    if (editingPostId && !isSaving) {
+      setIsSaving(true)
+      try {
+        const count = parseInt(editCount) || 1
+        const success = await onSave(editingPostId, count, editDescription)
+        if (success) {
+          setEditingPostId(null)
+        }
+      } finally {
+        setIsSaving(false)
+      }
     }
   }
 
@@ -51,6 +64,7 @@ function usePostEdit(
     editingPostId,
     editCount,
     editDescription,
+    isSaving,
     setEditCount,
     setEditDescription,
     startEditing,

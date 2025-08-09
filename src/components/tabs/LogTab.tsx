@@ -14,7 +14,11 @@ import useImageUpload from '@hooks/useImageUpload'
 import type { Tab } from '@types'
 
 interface LogTabProps {
-  onAddPost: (count: number, description?: string, image?: string) => void
+  onAddPost: (
+    count: number,
+    description?: string,
+    image?: string
+  ) => Promise<boolean>
   setActiveTab: React.Dispatch<React.SetStateAction<Tab>>
 }
 
@@ -23,30 +27,47 @@ function LogTab({ onAddPost, setActiveTab }: LogTabProps) {
     LIMITS.DEFAULT_ITEM_COUNT.toString()
   )
   const [newPostDescription, setNewPostDescription] = useState<string>('')
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const { imagePreview, handleImageUpload, clearImage, resetFileInput } =
     useImageUpload()
 
-  const handleSubmitPost = (e: React.FormEvent) => {
+  const handleSubmitPost = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsSubmitting(true)
 
-    const count = parseInt(newPostCount) ?? LIMITS.DEFAULT_ITEM_COUNT
-    onAddPost(count, newPostDescription ?? undefined, imagePreview ?? undefined)
+    try {
+      const count = parseInt(newPostCount) ?? LIMITS.DEFAULT_ITEM_COUNT
+      const success = await onAddPost(
+        count,
+        newPostDescription ?? undefined,
+        imagePreview ?? undefined
+      )
 
-    // Reset form
-    setNewPostCount(LIMITS.DEFAULT_ITEM_COUNT.toString())
-    setNewPostDescription('')
-    clearImage()
-    resetFileInput('log-image-upload')
+      if (success) {
+        // Reset form
+        setNewPostCount(LIMITS.DEFAULT_ITEM_COUNT.toString())
+        setNewPostDescription('')
+        clearImage()
+        resetFileInput('log-image-upload')
 
-    // Switch to Feed tab to show the new post
-    setActiveTab(TAB_TYPES.FEED)
+        // Switch to Feed tab to show the new post
+        setActiveTab(TAB_TYPES.FEED)
+      }
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
     <div className={CSS_CLASSES.TAB_PANEL}>
       <h2>{UI_TEXT.TABS.LOG} Entry</h2>
 
-      <form onSubmit={handleSubmitPost} className="post-form">
+      <form
+        onSubmit={e => {
+          void handleSubmitPost(e)
+        }}
+        className="post-form"
+      >
         <div className="form-section">
           <label htmlFor="log-image-upload" className="image-upload-label">
             {ICONS.CAMERA} {FORM_CONFIG.LABELS.UPLOAD_PICTURE}
@@ -103,8 +124,8 @@ function LogTab({ onAddPost, setActiveTab }: LogTabProps) {
           />
         </div>
 
-        <button type="submit" className="submit-button">
-          {BUTTON_TEXT.LOG_ENTRY}
+        <button type="submit" className="submit-button" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving...' : BUTTON_TEXT.LOG_ENTRY}
         </button>
       </form>
     </div>

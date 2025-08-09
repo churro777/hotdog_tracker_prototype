@@ -5,7 +5,7 @@ import { render, screen } from '@test/test-utils'
 import App from './App'
 
 // Mock all the hooks with simple implementations
-vi.mock('@hooks/useContestData', () => ({
+vi.mock('@hooks/useContestDataV2', () => ({
   default: () => ({
     contestPosts: [],
     contestUsers: [
@@ -24,8 +24,14 @@ vi.mock('@hooks/useContestData', () => ({
         contestId: 'test',
       },
     ],
+    isLoading: false,
+    error: null,
     addPost: vi.fn(),
     editPost: vi.fn(),
+    refreshData: vi.fn(),
+    getCurrentUserStats: () => null,
+    allPosts: [],
+    allUsers: [],
   }),
 }))
 

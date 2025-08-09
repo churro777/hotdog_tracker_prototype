@@ -16,7 +16,7 @@ interface FeedTabProps {
     postId: string,
     newCount: number,
     newDescription?: string
-  ) => void
+  ) => Promise<boolean>
   /** ID of the current user (used to determine edit permissions) */
   currentUserId: string
 }
@@ -34,6 +34,7 @@ function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
     editingPostId,
     editCount,
     editDescription,
+    isSaving,
     setEditCount,
     setEditDescription,
     startEditing,
@@ -105,10 +106,20 @@ function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
                   <div className="post-header">
                     <div className="post-user">{post.userName}</div>
                     <div className="edit-controls">
-                      <button onClick={saveEdit} className="save-edit-btn">
-                        💾
+                      <button
+                        onClick={() => {
+                          void saveEdit()
+                        }}
+                        className="save-edit-btn"
+                        disabled={isSaving}
+                      >
+                        {isSaving ? '⏳' : '💾'}
                       </button>
-                      <button onClick={cancelEdit} className="cancel-edit-btn">
+                      <button
+                        onClick={cancelEdit}
+                        className="cancel-edit-btn"
+                        disabled={isSaving}
+                      >
                         ❌
                       </button>
                     </div>

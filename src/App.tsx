@@ -15,7 +15,7 @@ import {
   CONFIG,
   TAB_TYPES,
 } from '@constants'
-import useContestData from '@hooks/useContestData'
+import useContestDataV2 from '@hooks/useContestDataV2'
 import useTheme from '@hooks/useTheme'
 import type { Tab } from '@types'
 
@@ -34,10 +34,8 @@ function App() {
   const currentUserId = USER_IDS.CURRENT_USER // This would come from auth in a real app
   const contestId = CONTEST_IDS.DEFAULT // Fixed contest ID
 
-  const { contestPosts, contestUsers, addPost, editPost } = useContestData(
-    contestId,
-    currentUserId
-  )
+  const { contestPosts, contestUsers, addPost, editPost, isLoading, error } =
+    useContestDataV2(contestId, currentUserId)
 
   // Set page title based on environment
   useEffect(() => {
@@ -115,6 +113,22 @@ function App() {
    * @returns {JSX.Element} The main content area with navigation and tab content
    */
   const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="loading-container">
+          <p>Loading contest data...</p>
+        </div>
+      )
+    }
+
+    if (error) {
+      return (
+        <div className="error-container">
+          <p>Error loading data: {error}</p>
+        </div>
+      )
+    }
+
     return (
       <>
         <nav className="tab-nav">
