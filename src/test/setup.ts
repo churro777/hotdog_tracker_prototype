@@ -3,10 +3,10 @@ import { vi, beforeEach } from 'vitest'
 
 // Mock localStorage for tests
 export const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
+  getItem: vi.fn<[string], string | null>(),
+  setItem: vi.fn<[string, string], void>(),
+  removeItem: vi.fn<[string], void>(),
+  clear: vi.fn<[], void>(),
 }
 
 Object.defineProperty(window, 'localStorage', {
@@ -17,20 +17,20 @@ Object.defineProperty(window, 'localStorage', {
 Object.defineProperty(window, 'location', {
   value: {
     hostname: 'localhost',
-    reload: vi.fn(),
+    reload: vi.fn<[], void>(),
   },
   writable: true,
 })
 
 // Mock window.alert for tests
 Object.defineProperty(window, 'alert', {
-  value: vi.fn(),
+  value: vi.fn<[string], void>(),
   writable: true,
 })
 
 // Mock window.confirm for tests
 Object.defineProperty(window, 'confirm', {
-  value: vi.fn(() => true),
+  value: vi.fn<[string], boolean>(() => true),
   writable: true,
 })
 
