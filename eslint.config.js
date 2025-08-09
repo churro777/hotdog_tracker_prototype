@@ -29,7 +29,7 @@ export default tseslint.config([
       ecmaVersion: 2020,
       globals: globals.browser,
       parserOptions: {
-        project: ['./tsconfig.app.json', './tsconfig.node.json'],
+        project: './tsconfig.app.json',
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -37,7 +37,7 @@ export default tseslint.config([
       'import/resolver': {
         typescript: {
           alwaysTryTypes: true,
-          project: ['./tsconfig.app.json', './tsconfig.node.json'],
+          project: './tsconfig.app.json',
         },
       },
     },
@@ -106,7 +106,11 @@ export default tseslint.config([
   },
   {
     // Test files - less strict rules
-    files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', '**/test/**/*.{ts,tsx}'],
+    files: [
+      '**/*.test.{ts,tsx}',
+      '**/*.spec.{ts,tsx}',
+      '**/test/**/*.{ts,tsx}',
+    ],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
