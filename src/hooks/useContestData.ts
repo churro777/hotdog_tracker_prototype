@@ -129,10 +129,10 @@ function useContestData(
         userId: currentUserId,
         userName: currentContestUser.userName,
         count,
-        image,
         timestamp: new Date(),
-        description,
         type: POST_TYPES.ENTRY,
+        ...(image !== undefined && { image }),
+        ...(description !== undefined && { description }),
       }
 
       setRawContestPosts(prev => [newPost, ...prev])
@@ -189,10 +189,12 @@ function useContestData(
         prev.map(post => {
           if (post.id === postId) {
             const oldCount = post.count ?? 0
-            const updatedPost = {
+            const updatedPost: ContestPost = {
               ...post,
               count: newCount,
-              description: newDescription,
+              ...(newDescription !== undefined && {
+                description: newDescription,
+              }),
             }
 
             // Update contest user's total count

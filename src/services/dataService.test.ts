@@ -96,7 +96,7 @@ describe('LocalStorageDataService', () => {
         userName: 'New User',
         count: 3,
         timestamp: new Date(),
-        type: POST_TYPES.ENTRY as const,
+        type: POST_TYPES.ENTRY,
       }
 
       const newPost = await service.addPost(postData)
@@ -284,7 +284,7 @@ describe('LocalStorageDataService', () => {
         userName: 'Test',
         count: 1,
         timestamp: new Date(),
-        type: POST_TYPES.ENTRY as const,
+        type: POST_TYPES.ENTRY,
       }
 
       await expect(service.addPost(postData)).rejects.toThrow(

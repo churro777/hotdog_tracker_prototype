@@ -86,8 +86,8 @@ describe('useLocalStorage', () => {
 
     const { result } = renderHook(() =>
       useLocalStorage('complex-key', {
-        users: [],
-        settings: {},
+        users: [] as { id: number; name: string }[],
+        settings: {} as { theme: string; notifications: boolean },
         lastUpdated: '',
       })
     )
