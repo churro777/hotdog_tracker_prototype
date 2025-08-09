@@ -1,15 +1,15 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   logError,
-  logUserError,
   logStorageError,
+  logUserError,
   logValidationError,
 } from './errorLogger'
 
 describe('errorLogger', () => {
   let consoleSpy: ReturnType<typeof vi.spyOn>
-  const originalNodeEnv = process.env.NODE_ENV
+  const originalNodeEnv = process.env['NODE_ENV']
 
   beforeEach(() => {
     consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => void 0)
@@ -17,7 +17,7 @@ describe('errorLogger', () => {
 
   afterEach(() => {
     consoleSpy.mockRestore()
-    process.env.NODE_ENV = originalNodeEnv
+    process.env['NODE_ENV'] = originalNodeEnv
   })
 
   describe('logError', () => {
@@ -189,7 +189,7 @@ describe('errorLogger', () => {
       )
 
       // Check that the error contains the stringified data
-      const errorObj = consoleSpy.mock.calls[0]![1]!.error as Error
+      const errorObj = (consoleSpy.mock.calls[0]![1]! as { error: Error }).error
       expect(errorObj.message).toContain(JSON.stringify(data, null, 2))
     })
 
@@ -212,7 +212,7 @@ describe('errorLogger', () => {
     it('should handle circular references in data', () => {
       const message = 'Circular data error'
       const circularData: Record<string, unknown> = { name: 'test' }
-      circularData.self = circularData
+      circularData['self'] = circularData
 
       // Should not throw error even with circular reference
       expect(() => {
