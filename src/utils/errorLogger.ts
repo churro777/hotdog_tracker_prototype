@@ -64,8 +64,8 @@ export function logUserError(
     message,
     error,
     context: 'user-action',
-    userId,
-    action,
+    ...(userId !== undefined && { userId }),
+    ...(action !== undefined && { action }),
   })
 }
 
@@ -84,7 +84,7 @@ export function logStorageError(
     message,
     error,
     context: 'storage',
-    action: key ? `key: ${key}` : undefined,
+    ...(key && { action: `key: ${key}` }),
   })
 }
 
@@ -110,7 +110,7 @@ export function logValidationError(
   logError({
     message,
     context: 'validation',
-    action: validator,
+    ...(validator !== undefined && { action: validator }),
     error: new Error(`Invalid data: ${dataString}`),
   })
 }

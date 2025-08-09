@@ -119,10 +119,10 @@ function useContestDataV2(
           userId: currentUserId,
           userName: currentContestUser.userName,
           count,
-          image,
           timestamp: new Date(),
-          description,
           type: POST_TYPES.ENTRY,
+          ...(image !== undefined && { image }),
+          ...(description !== undefined && { description }),
         }
 
         // Add post via service
@@ -194,10 +194,11 @@ function useContestDataV2(
         const countDifference = newCount - oldCount
 
         // Update the post
-        const updatedPost = await serviceUpdatePost(postId, {
+        const updateData: Partial<ContestPost> = {
           count: newCount,
-          description: newDescription,
-        })
+          ...(newDescription !== undefined && { description: newDescription }),
+        }
+        const updatedPost = await serviceUpdatePost(postId, updateData)
         if (!updatedPost) return false
 
         // Update user's total count
