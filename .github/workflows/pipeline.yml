@@ -261,12 +261,12 @@ jobs:
             })
 
   # ============================================================================
-  # SUMMARY - Post a summary comment on PRs
+  # SUMMARY - Show pipeline results summary (log for pushes, comment on PRs)
   # ============================================================================
   summary:
     name: Pipeline Summary
     runs-on: ubuntu-latest
-    if: always() && github.event_name == 'pull_request'
+    if: always()
     needs:
       - quality-checks
       - accessibility-tests
@@ -295,9 +295,15 @@ jobs:
               summary += `${icon} **${job}**: ${result}\n`;
             }
 
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: summary
-            });
+            // Log summary to Actions output for all runs
+            console.log(summary);
+
+            // Only comment on PRs
+            if (context.eventName === 'pull_request') {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: summary
+              });
+            }
