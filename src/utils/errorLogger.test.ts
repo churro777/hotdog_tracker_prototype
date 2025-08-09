@@ -12,7 +12,7 @@ describe('errorLogger', () => {
   const originalNodeEnv = process.env.NODE_ENV
 
   beforeEach(() => {
-    consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => void 0)
   })
 
   afterEach(() => {
@@ -30,7 +30,7 @@ describe('errorLogger', () => {
       expect(consoleSpy).toHaveBeenCalledWith(
         '[Error] Something went wrong',
         expect.objectContaining({
-          timestamp: expect.any(Date),
+          timestamp: expect.any(Date) as Date,
           error,
         })
       )
@@ -49,7 +49,7 @@ describe('errorLogger', () => {
         expect.objectContaining({
           context,
           action,
-          timestamp: expect.any(Date),
+          timestamp: expect.any(Date) as Date,
           error,
         })
       )
@@ -65,7 +65,7 @@ describe('errorLogger', () => {
         '[Error] User action failed',
         expect.objectContaining({
           userId,
-          timestamp: expect.any(Date),
+          timestamp: expect.any(Date) as Date,
         })
       )
     })
@@ -87,7 +87,7 @@ describe('errorLogger', () => {
         '[Error] Production error',
         expect.objectContaining({
           context,
-          timestamp: expect.any(Date),
+          timestamp: expect.any(Date) as Date,
         })
       )
 
@@ -112,7 +112,7 @@ describe('errorLogger', () => {
           userId,
           action,
           error,
-          timestamp: expect.any(Date),
+          timestamp: expect.any(Date) as Date,
         })
       )
     })
@@ -128,7 +128,7 @@ describe('errorLogger', () => {
         expect.objectContaining({
           context: 'user-action',
           error,
-          timestamp: expect.any(Date),
+          timestamp: expect.any(Date) as Date,
         })
       )
     })
@@ -148,7 +148,7 @@ describe('errorLogger', () => {
           context: 'storage',
           action: 'key: user-data',
           error,
-          timestamp: expect.any(Date),
+          timestamp: expect.any(Date) as Date,
         })
       )
     })
@@ -164,7 +164,7 @@ describe('errorLogger', () => {
         expect.objectContaining({
           context: 'storage',
           error,
-          timestamp: expect.any(Date),
+          timestamp: expect.any(Date) as Date,
         })
       )
     })
@@ -183,13 +183,13 @@ describe('errorLogger', () => {
         expect.objectContaining({
           context: 'validation',
           action: validator,
-          error: expect.any(Error),
-          timestamp: expect.any(Date),
+          error: expect.any(Error) as Error,
+          timestamp: expect.any(Date) as Date,
         })
       )
 
       // Check that the error contains the stringified data
-      const errorObj = consoleSpy.mock.calls[0][1].error
+      const errorObj = consoleSpy.mock.calls[0]![1]!.error as Error
       expect(errorObj.message).toContain(JSON.stringify(data, null, 2))
     })
 
@@ -203,8 +203,8 @@ describe('errorLogger', () => {
         '[Error] Validation failed',
         expect.objectContaining({
           context: 'validation',
-          error: expect.any(Error),
-          timestamp: expect.any(Date),
+          error: expect.any(Error) as Error,
+          timestamp: expect.any(Date) as Date,
         })
       )
     })
@@ -224,7 +224,7 @@ describe('errorLogger', () => {
         expect.objectContaining({
           context: 'validation',
           action: 'circular-validator',
-          timestamp: expect.any(Date),
+          timestamp: expect.any(Date) as Date,
         })
       )
     })

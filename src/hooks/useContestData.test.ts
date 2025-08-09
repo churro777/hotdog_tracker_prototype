@@ -9,9 +9,12 @@ import useContestData from './useContestData'
 
 // Mock useLocalStorage
 vi.mock('./useLocalStorage', () => ({
-  default: vi.fn((_key, defaultValue) => {
+  default: vi.fn((_key: string, defaultValue: unknown) => {
     const [value, setValue] = React.useState(defaultValue)
-    return [value, setValue]
+    return [value, setValue] as [
+      typeof defaultValue,
+      React.Dispatch<React.SetStateAction<typeof defaultValue>>,
+    ]
   }),
 }))
 
@@ -57,7 +60,7 @@ describe('useContestData', () => {
     const initialPostCount = result.current.contestPosts.length
     const initialUserCount =
       result.current.contestUsers.find(u => u.userId === mockCurrentUserId)
-        ?.totalCount || 0
+        ?.totalCount ?? 0
 
     act(() => {
       result.current.addPost(3, 'Great hotdogs!', 'image-url.jpg')
@@ -117,7 +120,7 @@ describe('useContestData', () => {
 
     const originalUsertotalCount =
       result.current.contestUsers.find(u => u.userId === mockCurrentUserId)
-        ?.totalCount || 0
+        ?.totalCount ?? 0
 
     // Edit the post
     act(() => {
@@ -154,7 +157,7 @@ describe('useContestData', () => {
 
     const originalUserTotalCount =
       result.current.contestUsers.find(u => u.userId === mockCurrentUserId)
-        ?.totalCount || 0
+        ?.totalCount ?? 0
 
     // Edit the post to have a count
     act(() => {
@@ -182,7 +185,7 @@ describe('useContestData', () => {
     )
 
     expect(newPost?.timestamp).toBeInstanceOf(Date)
-    expect(new Date(newPost?.timestamp || 0).getTime()).toBeCloseTo(
+    expect(new Date(newPost?.timestamp ?? 0).getTime()).toBeCloseTo(
       Date.now(),
       -3 // Within 1 second
     )
@@ -232,7 +235,7 @@ describe('useContestData', () => {
     const initialUser = result.current.contestUsers.find(
       u => u.userId === mockCurrentUserId
     )
-    const initialTotalCount = initialUser?.totalCount || 0
+    const initialTotalCount = initialUser?.totalCount ?? 0
     const initialPostCount = result.current.contestPosts.length
 
     // Add a post
@@ -272,7 +275,9 @@ describe('useContestData', () => {
   })
 
   it('should not add post with negative count', () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => void 0)
     const { result } = renderHook(() =>
       useContestData(mockContestId, mockCurrentUserId)
     )
@@ -296,7 +301,9 @@ describe('useContestData', () => {
   })
 
   it('should not edit post with negative count', () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => void 0)
     const { result } = renderHook(() =>
       useContestData(mockContestId, mockCurrentUserId)
     )
@@ -332,7 +339,9 @@ describe('useContestData', () => {
   })
 
   it('should not edit non-existent post', () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => void 0)
     const { result } = renderHook(() =>
       useContestData(mockContestId, mockCurrentUserId)
     )
@@ -357,7 +366,9 @@ describe('useContestData', () => {
   })
 
   it('should handle general errors gracefully', () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => void 0)
     const { result } = renderHook(() =>
       useContestData(mockContestId, mockCurrentUserId)
     )

@@ -1,7 +1,8 @@
 import '@testing-library/jest-dom'
+import { vi, beforeEach } from 'vitest'
 
 // Mock localStorage for tests
-const localStorageMock = {
+export const localStorageMock = {
   getItem: vi.fn(),
   setItem: vi.fn(),
   removeItem: vi.fn(),

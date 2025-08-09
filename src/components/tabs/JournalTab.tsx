@@ -30,20 +30,20 @@ function JournalTab({ posts, currentUserId, onEditPost }: JournalTabProps) {
     post => post.userId === currentUserId && post.type === 'entry'
   )
   const totalHotDogs = userPosts.reduce(
-    (sum, post) => sum + (post.count || 0),
+    (sum, post) => sum + (post.count ?? 0),
     0
   )
   const averagePerPost =
     userPosts.length > 0 ? (totalHotDogs / userPosts.length).toFixed(1) : 0
   const bestDay =
     userPosts.length > 0
-      ? Math.max(...userPosts.map(post => post.count || 0))
+      ? Math.max(...userPosts.map(post => post.count ?? 0))
       : 0
 
   const groupedByDate = userPosts.reduce(
     (groups: Record<string, ContestPost[]>, post) => {
       const date = post.timestamp.toLocaleDateString()
-      if (!groups[date]) groups[date] = []
+      groups[date] ??= []
       groups[date].push(post)
       return groups
     },
@@ -78,7 +78,7 @@ function JournalTab({ posts, currentUserId, onEditPost }: JournalTabProps) {
           .sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime())
           .map(([date, dayPosts]) => {
             const dayTotal = dayPosts.reduce(
-              (sum, post) => sum + (post.count || 0),
+              (sum, post) => sum + (post.count ?? 0),
               0
             )
             return (
@@ -162,7 +162,7 @@ function JournalTab({ posts, currentUserId, onEditPost }: JournalTabProps) {
                               </div>
                               <div className="journal-post-actions">
                                 <div className="journal-post-count">
-                                  📝 {post.count || 0}
+                                  📝 {post.count ?? 0}
                                 </div>
                                 <button
                                   onClick={() => startEditing(post)}

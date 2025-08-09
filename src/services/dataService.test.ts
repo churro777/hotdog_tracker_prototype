@@ -4,8 +4,8 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
-import type { ContestPost, ContestUser } from '@types'
 import { POST_TYPES, CONTEST_IDS, USER_IDS } from '@constants'
+import type { ContestPost, ContestUser } from '@types'
 
 import { LocalStorageDataService } from './dataService'
 
@@ -23,7 +23,7 @@ Object.defineProperty(window, 'localStorage', {
 
 describe('LocalStorageDataService', () => {
   let service: LocalStorageDataService
-  
+
   const mockPost: ContestPost = {
     id: 'test-post-1',
     contestId: CONTEST_IDS.DEFAULT,
@@ -34,7 +34,7 @@ describe('LocalStorageDataService', () => {
     description: 'Test post',
     type: POST_TYPES.ENTRY,
   }
-  
+
   const mockUser: ContestUser = {
     id: 'test-user-1',
     contestId: CONTEST_IDS.DEFAULT,
@@ -55,7 +55,9 @@ describe('LocalStorageDataService', () => {
 
       const posts = await service.getPosts()
 
-      expect(localStorageMock.getItem).toHaveBeenCalledWith('hotdog-contest-posts')
+      expect(localStorageMock.getItem).toHaveBeenCalledWith(
+        'hotdog-contest-posts'
+      )
       expect(posts).toEqual(mockPosts)
     })
 
@@ -72,12 +74,16 @@ describe('LocalStorageDataService', () => {
         ...mockPost,
         timestamp: '2023-01-01T00:00:00.000Z',
       }
-      localStorageMock.getItem.mockReturnValue(JSON.stringify([postWithStringTimestamp]))
+      localStorageMock.getItem.mockReturnValue(
+        JSON.stringify([postWithStringTimestamp])
+      )
 
       const posts = await service.getPosts()
 
       expect(posts[0]?.timestamp).toBeInstanceOf(Date)
-      expect(posts[0]?.timestamp?.toISOString()).toBe('2023-01-01T00:00:00.000Z')
+      expect(posts[0]?.timestamp?.toISOString()).toBe(
+        '2023-01-01T00:00:00.000Z'
+      )
     })
 
     it('should add a new post', async () => {
@@ -136,9 +142,9 @@ describe('LocalStorageDataService', () => {
     it('should throw error when deleting non-existent post', async () => {
       localStorageMock.getItem.mockReturnValue(JSON.stringify([]))
 
-      await expect(
-        service.deletePost('non-existent')
-      ).rejects.toThrow('Post with id non-existent not found')
+      await expect(service.deletePost('non-existent')).rejects.toThrow(
+        'Post with id non-existent not found'
+      )
     })
   })
 
@@ -149,7 +155,9 @@ describe('LocalStorageDataService', () => {
 
       const users = await service.getUsers()
 
-      expect(localStorageMock.getItem).toHaveBeenCalledWith('hotdog-contest-contest-users')
+      expect(localStorageMock.getItem).toHaveBeenCalledWith(
+        'hotdog-contest-contest-users'
+      )
       expect(users).toEqual(mockUsers)
     })
 
@@ -241,13 +249,14 @@ describe('LocalStorageDataService', () => {
         {
           type: 'update' as const,
           collection: 'posts' as const,
-          // Missing required id for update operation
+          // Non-existent id for update operation
+          id: 'non-existent-post-id',
           data: { count: 5 },
         },
       ]
 
       await expect(service.batchUpdate(operations)).rejects.toThrow(
-        'Update operation requires id'
+        'Post with id non-existent-post-id not found'
       )
     })
   })

@@ -66,7 +66,10 @@ function parseEnvBoolean(value: string | undefined): boolean {
  */
 export const env = {
   // App Information
-  APP_NAME: validateRequiredEnv('VITE_APP_NAME', import.meta.env['VITE_APP_NAME'] as string),
+  APP_NAME: validateRequiredEnv(
+    'VITE_APP_NAME',
+    import.meta.env['VITE_APP_NAME'] as string
+  ),
   APP_VERSION: validateRequiredEnv(
     'VITE_APP_VERSION',
     import.meta.env['VITE_APP_VERSION'] as string
@@ -79,10 +82,14 @@ export const env = {
 
   // Development Settings
   IS_DEV_MODE: parseEnvBoolean(import.meta.env['VITE_DEV_MODE'] as string),
-  IS_DEBUG_ENABLED: parseEnvBoolean(import.meta.env['VITE_DEBUG_ENABLED'] as string),
+  IS_DEBUG_ENABLED: parseEnvBoolean(
+    import.meta.env['VITE_DEBUG_ENABLED'] as string
+  ),
 
   // Feature Flags
-  IS_ANALYTICS_ENABLED: parseEnvBoolean(import.meta.env['VITE_ENABLE_ANALYTICS'] as string),
+  IS_ANALYTICS_ENABLED: parseEnvBoolean(
+    import.meta.env['VITE_ENABLE_ANALYTICS'] as string
+  ),
   IS_ERROR_REPORTING_ENABLED: parseEnvBoolean(
     import.meta.env['VITE_ENABLE_ERROR_REPORTING'] as string
   ),

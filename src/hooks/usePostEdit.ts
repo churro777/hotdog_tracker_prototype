@@ -22,15 +22,15 @@ function usePostEdit(
 
   const startEditing = (post: ContestPost) => {
     setEditingPostId(post.id)
-    setEditCount((post.count || 1).toString())
-    setEditDescription(post.description || '')
+    setEditCount((post.count ?? 1).toString())
+    setEditDescription(post.description ?? '')
 
     // Focus and select the input after state updates
     setTimeout(() => {
       const input = document.querySelector('.edit-count-input')!
       if (input) {
-        input.focus()
-        input.select()
+        ;(input as HTMLInputElement).focus()
+        ;(input as HTMLInputElement).select()
       }
     }, 0)
   }
