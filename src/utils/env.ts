@@ -109,17 +109,21 @@ export const env = {
 } as const
 
 /**
- * Firebase environment variables (optional, for future use)
- * These will be uncommented when Firebase is integrated
+ * Firebase environment variables
  */
 export const firebaseEnv = {
-  // API_KEY: import.meta.env.VITE_FIREBASE_API_KEY,
-  // AUTH_DOMAIN: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  // PROJECT_ID: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  // STORAGE_BUCKET: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  // MESSAGING_SENDER_ID: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  // APP_ID: import.meta.env.VITE_FIREBASE_APP_ID,
-  // USE_EMULATOR: parseEnvBoolean(import.meta.env.VITE_FIREBASE_USE_EMULATOR),
+  API_KEY: import.meta.env['VITE_FIREBASE_API_KEY'] as string,
+  AUTH_DOMAIN: import.meta.env['VITE_FIREBASE_AUTH_DOMAIN'] as string,
+  PROJECT_ID: import.meta.env['VITE_FIREBASE_PROJECT_ID'] as string,
+  STORAGE_BUCKET: import.meta.env['VITE_FIREBASE_STORAGE_BUCKET'] as string,
+  MESSAGING_SENDER_ID: import.meta.env[
+    'VITE_FIREBASE_MESSAGING_SENDER_ID'
+  ] as string,
+  APP_ID: import.meta.env['VITE_FIREBASE_APP_ID'] as string,
+  USE_EMULATOR: parseEnvBoolean(
+    import.meta.env['VITE_FIREBASE_USE_EMULATOR'] as string
+  ),
+  USE_FIREBASE: parseEnvBoolean(import.meta.env['VITE_USE_FIREBASE'] as string),
 } as const
 
 /**

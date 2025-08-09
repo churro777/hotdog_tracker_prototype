@@ -27,7 +27,8 @@
       "@constants/*": ["src/constants/*"],
       "@constants": ["src/constants"],
       "@assets/*": ["src/assets/*"],
-      "@test/*": ["src/test/*"]
+      "@test/*": ["src/test/*"],
+      "@config/*": ["src/config/*"]
     },
 
     /* Linting - Enhanced Strict Mode */
@@ -37,7 +38,7 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    
+
     /* Additional strict checks */
     "noImplicitReturns": true,
     "noImplicitOverride": true,

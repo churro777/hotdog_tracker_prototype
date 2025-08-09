@@ -32,6 +32,7 @@ export default defineConfig(({ mode }) => {
         '@constants': resolve(__dirname, 'src/constants'),
         '@assets': resolve(__dirname, 'src/assets'),
         '@test': resolve(__dirname, 'src/test'),
+        '@config': resolve(__dirname, 'src/config'),
       },
     },
 
