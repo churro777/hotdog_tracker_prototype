@@ -246,6 +246,7 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: Comment deployment status
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
           script: |
