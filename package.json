@@ -73,7 +73,7 @@
       "markdownlint-cli2 --fix",
       "prettier --write"
     ],
-    "*.{js,jsx,json,css}": [
+    "*.{js,jsx,json,css,yml,yaml}": [
       "prettier --write"
     ]
   }
