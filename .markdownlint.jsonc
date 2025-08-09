@@ -1,52 +1,56 @@
 {
   // Markdownlint configuration for Hot Dog Tracker
   // Reference: https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
-  
+
   // Disable rules that conflict with our documentation style
   "MD013": false, // Line length - allow longer lines for readability
   "MD033": false, // Allow HTML in markdown (for better formatting)
   "MD041": false, // First line in file should be a top level header (conflicts with our structure)
-  
+
   // Configure specific rules
   "MD007": {
-    "indent": 2  // Unordered list indentation - use 2 spaces
+    "indent": 2, // Unordered list indentation - use 2 spaces
   },
   "MD024": {
-    "siblings_only": true  // Allow duplicate headers in different sections
+    "siblings_only": true, // Allow duplicate headers in different sections
   },
   "MD029": {
-    "style": "ordered"  // Ordered list item prefix - use 1. 2. 3. style
+    "style": "ordered", // Ordered list item prefix - use 1. 2. 3. style
   },
-  
+
   // Enforce good practices
-  "MD001": true,  // Header levels should only increment by one level at a time
-  "MD003": {      // Header style
-    "style": "atx" // Use # style headers (not underlined)
+  "MD001": true, // Header levels should only increment by one level at a time
+  "MD003": {
+    // Header style
+    "style": "atx", // Use # style headers (not underlined)
   },
-  "MD022": true,  // Headers should be surrounded by blank lines
-  "MD025": true,  // Multiple top level headers in the same document
-  "MD026": true,  // Trailing punctuation in header
-  "MD030": {      // Spaces after list markers
+  "MD022": true, // Headers should be surrounded by blank lines
+  "MD025": true, // Multiple top level headers in the same document
+  "MD026": true, // Trailing punctuation in header
+  "MD030": {
+    // Spaces after list markers
     "ul_single": 1,
     "ol_single": 1,
     "ul_multi": 1,
-    "ol_multi": 1
+    "ol_multi": 1,
   },
-  "MD031": true,  // Fenced code blocks should be surrounded by blank lines
-  "MD032": true,  // Lists should be surrounded by blank lines
-  "MD034": true,  // Bare URL used
-  "MD036": true,  // Emphasis used instead of a header
-  "MD037": true,  // Spaces inside emphasis markers
-  "MD038": true,  // Spaces inside code span elements
-  "MD039": true,  // Spaces inside link text
-  "MD040": true,  // Fenced code blocks should have a language specified
-  "MD042": true,  // No empty links
-  "MD045": true,  // Images should have alternate text (alt text)
-  "MD046": {      // Code block style
-    "style": "fenced" // Use ``` style code blocks
+  "MD031": true, // Fenced code blocks should be surrounded by blank lines
+  "MD032": true, // Lists should be surrounded by blank lines
+  "MD034": true, // Bare URL used
+  "MD036": true, // Emphasis used instead of a header
+  "MD037": true, // Spaces inside emphasis markers
+  "MD038": true, // Spaces inside code span elements
+  "MD039": true, // Spaces inside link text
+  "MD040": true, // Fenced code blocks should have a language specified
+  "MD042": true, // No empty links
+  "MD045": true, // Images should have alternate text (alt text)
+  "MD046": {
+    // Code block style
+    "style": "fenced", // Use ``` style code blocks
   },
-  "MD047": true,  // Files should end with a single newline character
-  "MD048": {      // Code fence style
-    "style": "backtick" // Use ``` not ~~~
-  }
+  "MD047": true, // Files should end with a single newline character
+  "MD048": {
+    // Code fence style
+    "style": "backtick", // Use ``` not ~~~
+  },
 }

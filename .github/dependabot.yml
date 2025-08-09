@@ -1,41 +1,41 @@
 version: 2
 updates:
   # Enable version updates for npm
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "04:00"
+      interval: 'weekly'
+      day: 'monday'
+      time: '04:00'
     open-pull-requests-limit: 10
     reviewers:
-      - "churro777"  # Replace with your GitHub username
+      - 'churro777' # Replace with your GitHub username
     assignees:
-      - "churro777"  # Replace with your GitHub username
+      - 'churro777' # Replace with your GitHub username
     commit-message:
-      prefix: "chore(deps)"
-      include: "scope"
+      prefix: 'chore(deps)'
+      include: 'scope'
     groups:
       development-dependencies:
-        dependency-type: "development"
+        dependency-type: 'development'
         patterns:
-          - "@types/*"
-          - "@testing-library/*"
-          - "eslint*"
-          - "prettier"
-          - "typescript*"
-          - "vite*"
-          - "vitest*"
+          - '@types/*'
+          - '@testing-library/*'
+          - 'eslint*'
+          - 'prettier'
+          - 'typescript*'
+          - 'vite*'
+          - 'vitest*'
       production-dependencies:
-        dependency-type: "production"
+        dependency-type: 'production'
         patterns:
-          - "react*"
+          - 'react*'
 
   # Enable version updates for GitHub Actions
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     commit-message:
-      prefix: "ci"
-      include: "scope"
+      prefix: 'ci'
+      include: 'scope'
