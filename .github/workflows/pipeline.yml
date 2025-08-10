@@ -190,10 +190,10 @@ jobs:
           sarif_file: 'trivy-results.sarif'
 
   # ============================================================================
-  # DEPLOYMENT - Deploy to GitHub Pages only after all checks pass
+  # DEPLOYMENT - Deploy to Firebase Hosting only after all checks pass
   # ============================================================================
   deploy:
-    name: Deploy to GitHub Pages
+    name: Deploy to Firebase Hosting
     runs-on: ubuntu-latest
     # Only run on push to main (not PRs) and only after all other jobs succeed
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -206,14 +206,12 @@ jobs:
       - security-vulnerability-scan
 
     environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      name: production
+      url: https://hotdog-tracker-def59.web.app
 
     permissions:
       contents: read
-      pages: write
-      id-token: write
-      statuses: write # Add permission to create commit statuses
+      statuses: write
 
     steps:
       - name: Checkout code
@@ -234,17 +232,12 @@ jobs:
       - name: Generate bundle analysis
         run: npm run build:analyze
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          path: ./dist
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_HOTDOG_TRACKER_DEF59 }}'
+          projectId: hotdog-tracker-def59
 
       - name: Comment deployment status
         uses: actions/github-script@v7
@@ -255,8 +248,8 @@ jobs:
               repo: context.repo.repo,
               sha: context.sha,
               state: 'success',
-              target_url: '${{ steps.deployment.outputs.page_url }}',
-              description: 'Deployed to GitHub Pages',
+              target_url: 'https://hotdog-tracker-def59.web.app',
+              description: 'Deployed to Firebase Hosting',
               context: 'deployment'
             })
 

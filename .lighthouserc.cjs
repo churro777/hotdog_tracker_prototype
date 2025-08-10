@@ -1,10 +1,7 @@
 module.exports = {
   ci: {
     collect: {
-      url: ['http://localhost:4173/hotdog_tracker_prototype/'],
-      startServerCommand: 'npm run preview',
-      startServerReadyPattern: 'Local:.*4173',
-      startServerReadyTimeout: 30000,
+      url: ['https://hotdog-tracker-def59.web.app/'],
       numberOfRuns: 1, // Reduce runs for faster CI
       settings: {
         chromeFlags: [

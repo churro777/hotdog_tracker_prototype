@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
   loadEnv(mode, process.cwd(), '')
 
   return {
-    base: '/hotdog_tracker_prototype/',
+    base: '/',
     plugins: [
       react(),
       // Bundle analyzer - generates stats.html after build

@@ -105,6 +105,16 @@ export default tseslint.config([
     },
   },
   {
+    // Vite config file - use node tsconfig
+    files: ['vite.config.ts'],
+    languageOptions: {
+      parserOptions: {
+        project: './tsconfig.node.json',
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
+  {
     // Test files - less strict rules
     files: [
       '**/*.test.{ts,tsx}',
