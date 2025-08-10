@@ -268,14 +268,21 @@ jobs:
       - name: Build application
         run: npm run build
         env:
+          VITE_APP_NAME: 'Hot Dog Tracker'
+          VITE_APP_VERSION: '1.0.0'
+          VITE_APP_ENVIRONMENT: 'production'
+          VITE_DEV_MODE: 'false'
+          VITE_DEBUG_ENABLED: 'false'
+          VITE_ENABLE_ANALYTICS: 'true'
+          VITE_ENABLE_ERROR_REPORTING: 'true'
+          VITE_USE_FIREBASE: 'true'
+          VITE_FIREBASE_USE_EMULATOR: 'false'
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
           VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
           VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
           VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
           VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
-          VITE_USE_FIREBASE: 'true'
-          VITE_APP_ENVIRONMENT: 'production'
 
       - name: Generate bundle analysis
         run: npm run build:analyze
