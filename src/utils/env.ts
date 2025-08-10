@@ -63,36 +63,47 @@ function parseEnvBoolean(value: string | undefined): boolean {
 
 /**
  * Validated environment variables with proper types
+ * Uses lazy getters to avoid validation during module initialization
  */
 export const env = {
   // App Information
-  APP_NAME: validateRequiredEnv(
-    'VITE_APP_NAME',
-    import.meta.env['VITE_APP_NAME'] as string
-  ),
-  APP_VERSION: validateRequiredEnv(
-    'VITE_APP_VERSION',
-    import.meta.env['VITE_APP_VERSION'] as string
-  ),
-  APP_ENVIRONMENT: validateEnumEnv(
-    'VITE_APP_ENVIRONMENT',
-    import.meta.env['VITE_APP_ENVIRONMENT'] as string,
-    ['development', 'production', 'test'] as const
-  ),
+  get APP_NAME() {
+    return validateRequiredEnv(
+      'VITE_APP_NAME',
+      import.meta.env['VITE_APP_NAME'] as string
+    )
+  },
+  get APP_VERSION() {
+    return validateRequiredEnv(
+      'VITE_APP_VERSION',
+      import.meta.env['VITE_APP_VERSION'] as string
+    )
+  },
+  get APP_ENVIRONMENT() {
+    return validateEnumEnv(
+      'VITE_APP_ENVIRONMENT',
+      import.meta.env['VITE_APP_ENVIRONMENT'] as string,
+      ['development', 'production', 'test'] as const
+    )
+  },
 
   // Development Settings
-  IS_DEV_MODE: parseEnvBoolean(import.meta.env['VITE_DEV_MODE'] as string),
-  IS_DEBUG_ENABLED: parseEnvBoolean(
-    import.meta.env['VITE_DEBUG_ENABLED'] as string
-  ),
+  get IS_DEV_MODE() {
+    return parseEnvBoolean(import.meta.env['VITE_DEV_MODE'] as string)
+  },
+  get IS_DEBUG_ENABLED() {
+    return parseEnvBoolean(import.meta.env['VITE_DEBUG_ENABLED'] as string)
+  },
 
   // Feature Flags
-  IS_ANALYTICS_ENABLED: parseEnvBoolean(
-    import.meta.env['VITE_ENABLE_ANALYTICS'] as string
-  ),
-  IS_ERROR_REPORTING_ENABLED: parseEnvBoolean(
-    import.meta.env['VITE_ENABLE_ERROR_REPORTING'] as string
-  ),
+  get IS_ANALYTICS_ENABLED() {
+    return parseEnvBoolean(import.meta.env['VITE_ENABLE_ANALYTICS'] as string)
+  },
+  get IS_ERROR_REPORTING_ENABLED() {
+    return parseEnvBoolean(
+      import.meta.env['VITE_ENABLE_ERROR_REPORTING'] as string
+    )
+  },
 
   // Environment Checks
   get isDevelopment() {
@@ -110,20 +121,35 @@ export const env = {
 
 /**
  * Firebase environment variables
+ * Uses lazy getters to avoid evaluation during module initialization
  */
 export const firebaseEnv = {
-  API_KEY: import.meta.env['VITE_FIREBASE_API_KEY'] as string,
-  AUTH_DOMAIN: import.meta.env['VITE_FIREBASE_AUTH_DOMAIN'] as string,
-  PROJECT_ID: import.meta.env['VITE_FIREBASE_PROJECT_ID'] as string,
-  STORAGE_BUCKET: import.meta.env['VITE_FIREBASE_STORAGE_BUCKET'] as string,
-  MESSAGING_SENDER_ID: import.meta.env[
-    'VITE_FIREBASE_MESSAGING_SENDER_ID'
-  ] as string,
-  APP_ID: import.meta.env['VITE_FIREBASE_APP_ID'] as string,
-  USE_EMULATOR: parseEnvBoolean(
-    import.meta.env['VITE_FIREBASE_USE_EMULATOR'] as string
-  ),
-  USE_FIREBASE: parseEnvBoolean(import.meta.env['VITE_USE_FIREBASE'] as string),
+  get API_KEY() {
+    return import.meta.env['VITE_FIREBASE_API_KEY'] as string
+  },
+  get AUTH_DOMAIN() {
+    return import.meta.env['VITE_FIREBASE_AUTH_DOMAIN'] as string
+  },
+  get PROJECT_ID() {
+    return import.meta.env['VITE_FIREBASE_PROJECT_ID'] as string
+  },
+  get STORAGE_BUCKET() {
+    return import.meta.env['VITE_FIREBASE_STORAGE_BUCKET'] as string
+  },
+  get MESSAGING_SENDER_ID() {
+    return import.meta.env['VITE_FIREBASE_MESSAGING_SENDER_ID'] as string
+  },
+  get APP_ID() {
+    return import.meta.env['VITE_FIREBASE_APP_ID'] as string
+  },
+  get USE_EMULATOR() {
+    return parseEnvBoolean(
+      import.meta.env['VITE_FIREBASE_USE_EMULATOR'] as string
+    )
+  },
+  get USE_FIREBASE() {
+    return parseEnvBoolean(import.meta.env['VITE_USE_FIREBASE'] as string)
+  },
 } as const
 
 /**
