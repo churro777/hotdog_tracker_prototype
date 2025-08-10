@@ -1,6 +1,23 @@
 import '@testing-library/jest-dom'
 import { vi, beforeEach } from 'vitest'
 
+// Mock environment variables for tests
+Object.defineProperty(import.meta, 'env', {
+  value: {
+    VITE_APP_NAME: 'Hotdog Tracker Test',
+    VITE_APP_VERSION: '0.0.0',
+    VITE_APP_ENVIRONMENT: 'test',
+    VITE_DEV_MODE: 'false',
+    VITE_DEBUG_ENABLED: 'false',
+    VITE_ENABLE_ANALYTICS: 'false',
+    VITE_ENABLE_ERROR_REPORTING: 'false',
+    VITE_USE_FIREBASE: 'false',
+    VITE_FIREBASE_USE_EMULATOR: 'false',
+    ...import.meta.env,
+  },
+  writable: true,
+})
+
 // Mock localStorage for tests
 export const localStorageMock = {
   getItem: vi.fn<(key: string) => string | null>(),
