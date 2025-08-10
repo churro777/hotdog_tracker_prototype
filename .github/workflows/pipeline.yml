@@ -266,47 +266,29 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Debug environment variables
+      - name: Create .env.production with secrets
         run: |
-          echo "Checking environment variables..."
-          echo "VITE_APP_NAME: ${VITE_APP_NAME:-'NOT SET'}"
-          echo "VITE_FIREBASE_API_KEY: ${VITE_FIREBASE_API_KEY:0:10}..."
-          echo "VITE_FIREBASE_PROJECT_ID: ${VITE_FIREBASE_PROJECT_ID:-'NOT SET'}"
-        env:
-          VITE_APP_NAME: 'Hot Dog Tracker'
-          VITE_APP_VERSION: '1.0.0'
-          VITE_APP_ENVIRONMENT: 'production'
-          VITE_DEV_MODE: 'false'
-          VITE_DEBUG_ENABLED: 'false'
-          VITE_ENABLE_ANALYTICS: 'true'
-          VITE_ENABLE_ERROR_REPORTING: 'true'
-          VITE_USE_FIREBASE: 'true'
-          VITE_FIREBASE_USE_EMULATOR: 'false'
-          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
-          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          cat > .env.production << EOF
+          # Production environment variables
+          VITE_APP_NAME="Hot Dog Tracker"
+          VITE_APP_VERSION="1.0.0"
+          VITE_APP_ENVIRONMENT="production"
+          VITE_DEV_MODE="false"
+          VITE_DEBUG_ENABLED="false"
+          VITE_ENABLE_ANALYTICS="true"
+          VITE_ENABLE_ERROR_REPORTING="true"
+          VITE_USE_FIREBASE="true"
+          VITE_FIREBASE_USE_EMULATOR="false"
+          VITE_FIREBASE_API_KEY="${{ secrets.VITE_FIREBASE_API_KEY }}"
+          VITE_FIREBASE_AUTH_DOMAIN="${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}"
+          VITE_FIREBASE_PROJECT_ID="${{ secrets.VITE_FIREBASE_PROJECT_ID }}"
+          VITE_FIREBASE_STORAGE_BUCKET="${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}"
+          VITE_FIREBASE_MESSAGING_SENDER_ID="${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}"
+          VITE_FIREBASE_APP_ID="${{ secrets.VITE_FIREBASE_APP_ID }}"
+          EOF
 
       - name: Build application
         run: npm run build
-        env:
-          VITE_APP_NAME: 'Hot Dog Tracker'
-          VITE_APP_VERSION: '1.0.0'
-          VITE_APP_ENVIRONMENT: 'production'
-          VITE_DEV_MODE: 'false'
-          VITE_DEBUG_ENABLED: 'false'
-          VITE_ENABLE_ANALYTICS: 'true'
-          VITE_ENABLE_ERROR_REPORTING: 'true'
-          VITE_USE_FIREBASE: 'true'
-          VITE_FIREBASE_USE_EMULATOR: 'false'
-          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
-          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
 
       - name: Check built files
         run: |

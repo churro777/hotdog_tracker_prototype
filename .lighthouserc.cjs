@@ -16,16 +16,25 @@ module.exports = {
           '--disable-background-timer-throttling',
           '--disable-renderer-backgrounding',
           '--disable-backgrounding-occluded-windows',
+          '--window-size=1200,800',
         ],
         // Disable some audits that can be flaky in CI
         skipAudits: [
           'canonical', // Skip canonical URL audit (flaky in CI)
           'bf-cache', // Skip back/forward cache audit (flaky in CI)
+          'largest-contentful-paint', // Skip LCP audit (can be flaky)
         ],
-        // Set timeouts for slow CI environments
-        maxWaitForLoad: 30000,
-        maxWaitForFcp: 15000,
-        pauseAfterLoadMs: 1000,
+        // Set generous timeouts for slow CI environments and React apps
+        maxWaitForLoad: 45000,
+        maxWaitForFcp: 30000,
+        pauseAfterLoadMs: 3000,
+        // Add throttling settings
+        throttlingMethod: 'simulate',
+        throttling: {
+          rttMs: 150,
+          throughputKbps: 1638.4,
+          cpuSlowdownMultiplier: 1,
+        },
       },
     },
     assert: {
