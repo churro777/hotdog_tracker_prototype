@@ -46,7 +46,7 @@ jobs:
       - name: Run tests
         run: npm run test:run
         env:
-          VITE_APP_NAME: 'Hotdog Tracker'
+          VITE_APP_NAME: 'Hot Dog Tracker'
           VITE_APP_VERSION: '0.0.0'
           VITE_APP_ENVIRONMENT: 'test'
           VITE_DEV_MODE: 'false'
@@ -59,7 +59,7 @@ jobs:
       - name: Run tests with coverage
         run: npm run test:coverage
         env:
-          VITE_APP_NAME: 'Hotdog Tracker'
+          VITE_APP_NAME: 'Hot Dog Tracker'
           VITE_APP_VERSION: '0.0.0'
           VITE_APP_ENVIRONMENT: 'test'
           VITE_DEV_MODE: 'false'
