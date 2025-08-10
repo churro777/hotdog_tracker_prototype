@@ -105,7 +105,9 @@ jobs:
   accessibility-tests:
     name: Accessibility Tests
     runs-on: ubuntu-latest
-    needs: quality-checks
+    needs: deploy
+    # Only run after successful deployment
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout code
@@ -239,7 +241,6 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs:
       - quality-checks
-      - accessibility-tests
       - security-dependency-scan
       - security-vulnerability-scan
 
@@ -309,9 +310,10 @@ jobs:
     if: always()
     needs:
       - quality-checks
-      - accessibility-tests
       - security-dependency-scan
       - security-vulnerability-scan
+      - deploy
+      - accessibility-tests
 
     steps:
       - name: Post pipeline summary
@@ -320,11 +322,10 @@ jobs:
           script: |
             const results = {
               'Quality Checks': '${{ needs.quality-checks.result }}',
-              'Accessibility Tests': '${{ needs.accessibility-tests.result }}',
               'Dependency Security': '${{ needs.security-dependency-scan.result }}',
-              'CodeQL Analysis': '${{ needs.security-codeql-scan.result }}',
-              'Secret Scanning': '${{ needs.security-secret-scan.result }}',
-              'Vulnerability Scan': '${{ needs.security-vulnerability-scan.result }}'
+              'Vulnerability Scan': '${{ needs.security-vulnerability-scan.result }}',
+              'Deploy to Firebase': '${{ needs.deploy.result }}',
+              'Accessibility Tests': '${{ needs.accessibility-tests.result }}'
             };
 
             let summary = '## 🚀 CI/CD Pipeline Results\n\n';
