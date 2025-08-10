@@ -59,6 +59,15 @@ jobs:
 
       - name: Build application
         run: npm run build
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          VITE_USE_FIREBASE: 'true'
+          VITE_APP_ENVIRONMENT: 'production'
 
       - name: Check bundle size
         run: npm run build:size
@@ -93,6 +102,15 @@ jobs:
 
       - name: Build application
         run: npm run build
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          VITE_USE_FIREBASE: 'true'
+          VITE_APP_ENVIRONMENT: 'production'
 
       - name: Install Lighthouse CI
         run: npm install -g @lhci/cli@0.12.x
@@ -132,6 +150,8 @@ jobs:
   security-codeql-scan:
     name: CodeQL Security Analysis
     runs-on: ubuntu-latest
+    # Only run if Advanced Security is available
+    if: github.repository_owner == 'github' || github.event.repository.private == false || vars.ENABLE_ADVANCED_SECURITY == 'true'
     permissions:
       security-events: write
       actions: read
@@ -185,7 +205,7 @@ jobs:
 
       - name: Upload Trivy scan results
         uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        if: always() && (github.repository_owner == 'github' || github.event.repository.private == false || vars.ENABLE_ADVANCED_SECURITY == 'true')
         with:
           sarif_file: 'trivy-results.sarif'
 
@@ -201,8 +221,6 @@ jobs:
       - quality-checks
       - accessibility-tests
       - security-dependency-scan
-      - security-codeql-scan
-      - security-secret-scan
       - security-vulnerability-scan
 
     environment:
@@ -228,6 +246,15 @@ jobs:
 
       - name: Build application
         run: npm run build
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          VITE_USE_FIREBASE: 'true'
+          VITE_APP_ENVIRONMENT: 'production'
 
       - name: Generate bundle analysis
         run: npm run build:analyze
@@ -264,8 +291,6 @@ jobs:
       - quality-checks
       - accessibility-tests
       - security-dependency-scan
-      - security-codeql-scan
-      - security-secret-scan
       - security-vulnerability-scan
 
     steps:

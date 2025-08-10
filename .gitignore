@@ -13,10 +13,13 @@ dist-ssr
 
 # Environment files
 *.local
+.env
 .env.local
+.env.*
 .env.*.local
 
 # Sensitive environment files (production secrets)
+.env.production
 .env.production.local
 
 # Editor directories and files
