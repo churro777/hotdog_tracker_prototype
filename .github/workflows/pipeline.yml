@@ -45,9 +45,29 @@ jobs:
 
       - name: Run tests
         run: npm run test:run
+        env:
+          VITE_APP_NAME: 'Hotdog Tracker'
+          VITE_APP_VERSION: '0.0.0'
+          VITE_APP_ENVIRONMENT: 'test'
+          VITE_DEV_MODE: 'false'
+          VITE_DEBUG_ENABLED: 'false'
+          VITE_ENABLE_ANALYTICS: 'false'
+          VITE_ENABLE_ERROR_REPORTING: 'false'
+          VITE_USE_FIREBASE: 'false'
+          VITE_FIREBASE_USE_EMULATOR: 'false'
 
       - name: Run tests with coverage
         run: npm run test:coverage
+        env:
+          VITE_APP_NAME: 'Hotdog Tracker'
+          VITE_APP_VERSION: '0.0.0'
+          VITE_APP_ENVIRONMENT: 'test'
+          VITE_DEV_MODE: 'false'
+          VITE_DEBUG_ENABLED: 'false'
+          VITE_ENABLE_ANALYTICS: 'false'
+          VITE_ENABLE_ERROR_REPORTING: 'false'
+          VITE_USE_FIREBASE: 'false'
+          VITE_FIREBASE_USE_EMULATOR: 'false'
 
       - name: Upload coverage to Codecov
         if: matrix.node-version == '20.x'
