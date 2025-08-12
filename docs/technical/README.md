@@ -6,9 +6,15 @@ This folder contains technical implementation documentation for engineers and de
 
 ### [Architecture Overview](./architecture.md)
 
-- System architecture and technology stack
-- Database design and data models
-- Security considerations and patterns
+- Target system architecture and technology stack
+- Final database design and data models
+- Security considerations and performance patterns
+
+### [Current State](./current-state.md)
+
+- Existing implementation and data structures
+- Migration strategy from current to target state
+- Known issues and technical debt
 
 ### [Authentication Implementation](./authentication.md)
 

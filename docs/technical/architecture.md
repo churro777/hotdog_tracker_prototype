@@ -1,39 +1,27 @@
-# Data Model Architecture
+# System Architecture
 
-## Current Collections
+This document defines the target system architecture and data model for the Hot Dog Tracker application.
 
-### `contest-posts`
+## 🎯 Architecture Overview
 
-```typescript
-interface ContestPost {
-  id: string                    // Firestore auto-generated ID
-  contestId: string            // "default" (hardcoded)
-  userId: string               // Hardcoded user IDs (1, 2, 3, etc.)
-  userName: string             // Display name
-  count?: number               // Hot dogs eaten (optional for join/invite posts)
-  image?: string               // Image URL
-  timestamp: Date              // When posted
-  description?: string         // Optional comment
-  type: 'entry' | 'join' | 'invite'  // Post type
-  invitedUsers?: string[]      // For invite posts
-}
-```
+### Technology Stack
 
-### `contest-users`
+- **Frontend**: React 19 + TypeScript + Vite
+- **Database**: Firebase Firestore (NoSQL, real-time)
+- **Authentication**: Firebase Auth (email/password)
+- **Hosting**: Firebase Hosting (global CDN)
+- **State Management**: React hooks + Context API
 
-```typescript
-interface ContestUser {
-  id: string                   // Firestore auto-generated ID
-  contestId: string           // "default" (hardcoded)
-  userId: string              // Hardcoded user IDs (1, 2, 3, etc.)
-  userName: string            // Display name
-  totalCount: number          // Running total of hot dogs consumed
-}
-```
+### Core Principles
 
-## Proposed Data Model (With Authentication)
+- **Single Contest Focus**: All data belongs to one contest
+- **Real-time Updates**: Live leaderboard and feed updates
+- **Atomic Operations**: Consistent data updates using Firebase batch operations
+- **User-Centric Security**: Users can only modify their own data
 
-### `users` (NEW COLLECTION)
+## 📊 Data Model
+
+### `users` Collection
 
 ```typescript
 interface User {
@@ -54,7 +42,7 @@ interface User {
 }
 ```
 
-### `contest-users` (UPDATED)
+### `contest-users` Collection
 
 ```typescript
 interface ContestUser {
@@ -74,18 +62,17 @@ interface ContestUser {
 }
 ```
 
-### `contest-posts` (MINIMAL UPDATES)
+### `contest-posts` Collection
 
 ```typescript
 interface ContestPost {
-  id: string                   // Same as before
-  userId: string               // Now Firebase Auth UID instead of hardcoded
-  userName: string             // Same as before
-  count?: number               // Hot dogs eaten (required for 'entry' type)
-  image?: string               // Same as before
-  timestamp: Date              // Same as before
-  description?: string         // Same as before
-  type: 'entry' | 'join'       // Simplified: just entry or join posts
+  id: string                   // Firestore auto-generated ID
+  userId: string               // Firebase Auth UID
+  userName: string             // Display name
+  count: number                // Hot dogs eaten (always required)
+  image?: string               // Optional image URL
+  timestamp: Date              // When posted
+  description?: string         // Optional comment
   
   // Future fields
   reactions?: {               // User reactions to posts
@@ -99,7 +86,7 @@ interface ContestPost {
 }
 ```
 
-### `contest-info` (SINGLE DOCUMENT - Optional)
+### `contest-info` Document (Optional)
 
 ```typescript
 // Single document at: contest-info/default
@@ -120,7 +107,7 @@ interface ContestInfo {
 }
 ```
 
-## Data Relationships
+## 🔄 Data Relationships
 
 ```text
 users (1) ──── hasJoinedContest ──→ contest-users
@@ -130,58 +117,132 @@ users (1) ──── hasJoinedContest ──→ contest-users
                            └── userId (FK) ──→ contest-posts
 ```
 
-**Simplified Structure:**
+**Key Design Decisions:**
 
-- One contest, no `contestId` needed in collections
-- Users either joined the contest or haven't
-- All posts and users belong to the same contest
+- Single contest: no `contestId` fields needed
+- Users either joined or haven't: simple boolean flag
+- All collections share the same contest scope
 
-## Key Changes Needed
+## 🔍 Core Queries
 
-### 1. Migration Strategy
-
-- **Phase 1**: Add authentication, keep hardcoded users working
-- **Phase 2**: Allow new user registration alongside existing users  
-- **Phase 3**: Migrate hardcoded users to real accounts (optional)
-
-### 2. User ID Updates
+### Leaderboard
 
 ```typescript
-// BEFORE: Hardcoded user IDs
-userId: "1" | "2" | "3" | "4" | "5"
-
-// AFTER: Firebase Auth UIDs  
-userId: "abc123xyz789" // Firebase Auth UID
-```
-
-### 3. Query Updates
-
-```typescript
-// Get user's posts (simplified - no contestId needed)
-const userPosts = query(
-  collection(db, 'contest-posts'),
-  where('userId', '==', currentUser.uid),
-  orderBy('timestamp', 'desc')
-)
-
-// Get contest leaderboard (simplified - all users in same contest)
+// Get top 10 participants ordered by total count
 const leaderboard = query(
   collection(db, 'contest-users'),
   orderBy('totalCount', 'desc'),
   limit(10)
 )
 
-// Get all recent posts
-const allPosts = query(
+// Real-time leaderboard updates
+onSnapshot(leaderboard, (snapshot) => {
+  const rankings = snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }))
+  setLeaderboard(rankings)
+})
+```
+
+### Activity Feed
+
+```typescript
+// Get recent posts from all users
+const recentPosts = query(
   collection(db, 'contest-posts'),
   orderBy('timestamp', 'desc'),
   limit(20)
 )
+
+// Real-time feed updates
+onSnapshot(recentPosts, (snapshot) => {
+  const posts = snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }))
+  setFeed(posts)
+})
 ```
 
-## Security Considerations
+### User Posts
 
-### Firestore Security Rules
+```typescript
+// Get specific user's posting history
+const userPosts = query(
+  collection(db, 'contest-posts'),
+  where('userId', '==', currentUser.uid),
+  orderBy('timestamp', 'desc')
+)
+```
+
+## ⚡ Atomic Operations
+
+### Creating a Post
+
+```typescript
+const createPost = async (count: number, description?: string, image?: string) => {
+  const batch = writeBatch(db)
+  
+  // 1. Add the post
+  const postRef = doc(collection(db, 'contest-posts'))
+  batch.set(postRef, {
+    userId: currentUser.uid,
+    userName: currentUser.displayName,
+    count,
+    description,
+    image,
+    timestamp: Timestamp.now()
+  })
+  
+  // 2. Update user's total count atomically
+  const userRef = doc(db, 'contest-users', userDocId)
+  batch.update(userRef, {
+    totalCount: increment(count)
+  })
+  
+  // 3. Update contest statistics
+  const contestRef = doc(db, 'contest-info', 'default')
+  batch.update(contestRef, {
+    totalHotDogs: increment(count)
+  })
+  
+  await batch.commit() // All operations succeed or fail together
+}
+```
+
+### Joining Contest
+
+```typescript
+const joinContest = async (userId: string, userName: string) => {
+  const batch = writeBatch(db)
+  
+  // 1. Create contest-users entry
+  const contestUserRef = doc(collection(db, 'contest-users'))
+  batch.set(contestUserRef, {
+    userId,
+    userName,
+    totalCount: 0,
+    joinedAt: Timestamp.now()
+  })
+  
+  // 2. Update user's contest status
+  const userRef = doc(db, 'users', userId)
+  batch.update(userRef, {
+    hasJoinedContest: true
+  })
+  
+  // 3. Update contest participant count
+  const contestRef = doc(db, 'contest-info', 'default')
+  batch.update(contestRef, {
+    totalParticipants: increment(1)
+  })
+  
+  await batch.commit()
+}
+```
+
+## 🔐 Security Rules
 
 ```javascript
 rules_version = '2';
@@ -192,7 +253,7 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
     
-    // Contest users - read all in contest, write own only
+    // Contest users - read all, write own only
     match /contest-users/{document} {
       allow read: if request.auth != null;
       allow create: if request.auth != null && 
@@ -201,7 +262,7 @@ service cloud.firestore {
         request.auth.uid == resource.data.userId;
     }
     
-    // Contest posts - read all in contest, write own only
+    // Contest posts - read all, write own only
     match /contest-posts/{document} {
       allow read: if request.auth != null;
       allow create: if request.auth != null && 
@@ -210,42 +271,100 @@ service cloud.firestore {
         request.auth.uid == resource.data.userId;
     }
     
-    // Contest info - read all, write admin only (optional)
+    // Contest info - read all, admin write only
     match /contest-info/{document} {
       allow read: if request.auth != null;
-      // Only specific admin users can update contest info
-      allow write: if false; // Set to admin-only in future
+      allow write: if false; // Admin only in future
     }
   }
 }
 ```
 
-### Data Validation
+## 🚀 Performance Considerations
 
-- Ensure `userId` matches authenticated user
-- Validate contest participation before allowing posts
-- Prevent negative counts or unrealistic values
-- Rate limit post creation
+### Indexing Strategy
 
-## Implementation Priority
+```javascript
+// Firestore indexes (firestore.indexes.json)
+{
+  "indexes": [
+    {
+      "collectionGroup": "contest-users",
+      "fields": [
+        { "fieldPath": "totalCount", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "contest-posts", 
+      "fields": [
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "contest-posts",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    }
+  ]
+}
+```
 
-### Phase 1 (MVP Authentication)
+### Caching Strategy
 
-1. Add `users` collection
-2. Update `userId` fields to use Firebase Auth UIDs
-3. Implement user registration/login
-4. Basic contest joining flow
+- **Real-time listeners** for leaderboard and feed (automatic caching)
+- **Optimistic updates** for user actions (immediate UI feedback)
+- **Offline support** via Firebase's built-in offline persistence
 
-### Phase 2 (Enhanced Features)  
+### Scaling Limits
 
-1. Add optional `contest-info` document for contest details
-2. Enhanced user profiles with avatars
-3. Improved leaderboards with rankings
-4. Personal statistics (best day, streaks, etc.)
+- **Firestore**: 10K writes/second, 1M reads/second
+- **Authentication**: 1M active users included
+- **Hosting**: Unlimited bandwidth, global CDN
+- **Real-time listeners**: Up to 100 concurrent per collection
 
-### Phase 3 (Social Features)
+## 📱 Client Architecture
 
-1. Post reactions (like, fire, wow)
-2. Achievement badges (milestones, streaks)
-3. User statistics and personal bests
-4. Optional admin features for contest management
+### State Management
+
+```typescript
+// AuthContext - User authentication state
+interface AuthContextType {
+  user: User | null
+  loading: boolean
+  signUp: (email: string, password: string, displayName: string) => Promise<void>
+  signIn: (email: string, password: string) => Promise<void>
+  signOut: () => Promise<void>
+  joinContest: () => Promise<void>
+}
+
+// ContestContext - Contest data and actions
+interface ContestContextType {
+  leaderboard: ContestUser[]
+  recentPosts: ContestPost[]
+  userPosts: ContestPost[]
+  loading: boolean
+  error: string | null
+  createPost: (count: number, description?: string, image?: string) => Promise<void>
+  refreshData: () => Promise<void>
+}
+```
+
+### Component Structure
+
+```text
+App
+├── AuthProvider
+│   ├── LandingPage (unauthenticated)
+│   └── MainApp (authenticated)
+│       ├── ContestProvider
+│       ├── Leaderboard
+│       ├── ActivityFeed
+│       └── PostForm
+└── ErrorBoundary
+```
+
+## 🔄 Migration Strategy
+
+See [Current State](./current-state.md) for details on migrating from the existing implementation to this target architecture.
