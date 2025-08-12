@@ -539,17 +539,30 @@ body.dark-mode .contest-status.inactive {
 .guest-content {
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 120px); /* Adjust for header height */
+  min-height: 100vh;
+  padding-bottom: 120px; /* Space for sticky header at bottom */
+}
+
+/* Make header sticky at bottom for guest users */
+.app.guest-mode .app-header {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: auto;
+  z-index: 200;
 }
 
 .join-contest-banner {
+  position: sticky;
+  top: 0;
   text-align: center;
   padding: 2rem;
-  margin: 2rem 1rem;
+  margin: 0;
   background: linear-gradient(135deg, #ff6b35, #f7931e);
-  border-radius: 16px;
   color: white;
   box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+  z-index: 100;
   order: 1;
 }
 
@@ -595,20 +608,25 @@ body.dark-mode .contest-status.inactive {
 /* Mobile adjustments for guest banner */
 @media (max-width: 768px) {
   .join-contest-banner {
-    margin: 1rem 0.5rem;
-    padding: 1.5rem 1rem;
+    padding: 1rem;
   }
 
   .join-contest-banner h2 {
     font-size: 1.5rem;
+    margin-bottom: 0.5rem;
   }
 
   .join-contest-banner p {
     font-size: 1rem;
+    margin-bottom: 1rem;
   }
 
   .join-contest-btn {
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
+  }
+
+  .guest-content {
+    padding-bottom: 100px; /* Smaller space for mobile header */
   }
 }

@@ -228,7 +228,7 @@ function AppContent() {
   }
 
   return (
-    <div className="app">
+    <div className={`app ${!currentUser ? 'guest-mode' : ''}`}>
       <header className="app-header">{getHeaderContent()}</header>
 
       <ErrorBoundary>{renderContent()}</ErrorBoundary>
