@@ -49,7 +49,7 @@ function AppContent() {
     if (isLoading) {
       const messages = UI_TEXT.LOADING_MESSAGES
       const randomMessage =
-        messages[Math.floor(Math.random() * messages.length)]
+        messages[Math.floor(Math.random() * messages.length)] ?? 'Loading...'
       setLoadingMessage(randomMessage)
     }
   }, [isLoading])
