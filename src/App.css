@@ -534,3 +534,81 @@ body.dark-mode .contest-status.inactive {
     height: 36px;
   }
 }
+
+/* Guest experience styling */
+.guest-content {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 120px); /* Adjust for header height */
+}
+
+.join-contest-banner {
+  text-align: center;
+  padding: 2rem;
+  margin: 2rem 1rem;
+  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  border-radius: 16px;
+  color: white;
+  box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+  order: 1;
+}
+
+.join-contest-banner h2 {
+  margin: 0 0 1rem 0;
+  font-size: 2rem;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.join-contest-banner p {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.1rem;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.join-contest-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid white;
+  border-radius: 8px;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.join-contest-btn:hover {
+  background: white;
+  color: #ff6b35;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.guest-content .tab-content {
+  order: 2;
+  flex: 1;
+}
+
+/* Mobile adjustments for guest banner */
+@media (max-width: 768px) {
+  .join-contest-banner {
+    margin: 1rem 0.5rem;
+    padding: 1.5rem 1rem;
+  }
+
+  .join-contest-banner h2 {
+    font-size: 1.5rem;
+  }
+
+  .join-contest-banner p {
+    font-size: 1rem;
+  }
+
+  .join-contest-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+}
