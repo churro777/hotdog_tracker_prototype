@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 
 import './App.css'
+
 import ErrorBoundary from '@components/ErrorBoundary'
+import AuthModal from '@components/modals/AuthModal'
 import SettingsModal from '@components/modals/SettingsModal'
 import FeedTab from '@components/tabs/FeedTab'
 import JournalTab from '@components/tabs/JournalTab'
@@ -10,11 +12,12 @@ import LogTab from '@components/tabs/LogTab'
 import {
   STORAGE_KEYS,
   CONTEST_IDS,
-  USER_IDS,
   UI_TEXT,
   CONFIG,
   TAB_TYPES,
 } from '@constants'
+import { AuthProvider } from '@contexts/AuthContext'
+import { useAuth } from '@hooks/useAuth'
 import useContestDataV2 from '@hooks/useContestDataV2'
 import useTheme from '@hooks/useTheme'
 import type { Tab } from '@types'
@@ -26,13 +29,15 @@ import type { Tab } from '@types'
  *
  * @returns {JSX.Element} The main application component
  */
-function App() {
+function AppContent() {
   const [activeTab, setActiveTab] = useState<Tab>('leaderboard')
   const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false)
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false)
   const { isDarkMode, toggleTheme } = useTheme()
+  const { currentUser, logout } = useAuth()
 
-  const currentUserId = USER_IDS.CURRENT_USER // This would come from auth in a real app
-  const contestId = CONTEST_IDS.DEFAULT // Fixed contest ID
+  const currentUserId = currentUser?.uid
+  const contestId = CONTEST_IDS.DEFAULT
 
   const { contestPosts, contestUsers, addPost, editPost, isLoading, error } =
     useContestDataV2(contestId, currentUserId)
@@ -89,7 +94,7 @@ function App() {
           <FeedTab
             posts={contestPosts}
             onEditPost={editPost}
-            currentUserId={currentUserId}
+            currentUserId={currentUserId!}
           />
         )
       case TAB_TYPES.LOG:
@@ -98,7 +103,7 @@ function App() {
         return (
           <JournalTab
             posts={contestPosts}
-            currentUserId={currentUserId}
+            currentUserId={currentUserId!}
             onEditPost={editPost}
           />
         )
@@ -129,6 +134,31 @@ function App() {
       )
     }
 
+    // Guest experience: only show leaderboard with join button
+    if (!currentUser) {
+      return (
+        <div className="guest-content">
+          <div className="join-contest-banner">
+            <h2>🌭 Hot Dog Eating Contest Leaderboard</h2>
+            <p>See who's leading the competition!</p>
+            <button
+              className="join-contest-btn"
+              onClick={() => setShowAuthModal(true)}
+            >
+              🏆 Join Contest
+            </button>
+          </div>
+          <main className="tab-content">
+            <LeaderboardTab
+              contestUsers={contestUsers}
+              isDarkMode={isDarkMode}
+            />
+          </main>
+        </div>
+      )
+    }
+
+    // Authenticated user experience: full app with tabs
     return (
       <>
         <nav className="tab-nav">
@@ -172,12 +202,27 @@ function App() {
     return (
       <div className="header-content">
         <h1>{UI_TEXT.APP_TITLE}</h1>
-        <button
-          className="settings-btn"
-          onClick={() => setShowSettingsModal(true)}
-        >
-          {UI_TEXT.TABS.SETTINGS}
-        </button>
+        <div className="header-actions">
+          {currentUser && (
+            <div className="user-info">
+              <span>Welcome, {currentUser.displayName ?? 'User'}!</span>
+              <button
+                className="logout-btn"
+                onClick={() => {
+                  void logout()
+                }}
+              >
+                Sign Out
+              </button>
+            </div>
+          )}
+          <button
+            className="settings-btn"
+            onClick={() => setShowSettingsModal(true)}
+          >
+            {UI_TEXT.TABS.SETTINGS}
+          </button>
+        </div>
       </div>
     )
   }
@@ -198,7 +243,20 @@ function App() {
           />
         </ErrorBoundary>
       )}
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+      />
     </div>
+  )
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   )
 }
 

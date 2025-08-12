@@ -56,7 +56,7 @@ interface UseContestDataV2Return {
  */
 function useContestDataV2(
   contestId: string,
-  currentUserId: string
+  currentUserId: string | undefined
 ): UseContestDataV2Return {
   const {
     posts: allPosts,
@@ -90,6 +90,16 @@ function useContestDataV2(
       image?: string
     ): Promise<boolean> => {
       try {
+        // Check if user is authenticated
+        if (!currentUserId) {
+          logValidationError(
+            'Cannot add post: user not authenticated',
+            {},
+            'auth-validation'
+          )
+          return false
+        }
+
         // Validation
         if (count < 0) {
           logValidationError(
@@ -224,6 +234,8 @@ function useContestDataV2(
    * Get statistics for the current user
    */
   const getCurrentUserStats = useCallback(() => {
+    if (!currentUserId) return null
+
     const currentUser = contestUsers.find(u => u.userId === currentUserId)
     if (!currentUser) return null
 

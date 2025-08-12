@@ -4,6 +4,60 @@ import { render, screen } from '@test/test-utils'
 
 import App from './App'
 
+// Mock Firebase config
+vi.mock('@config/firebase', () => ({
+  auth: {},
+  db: {},
+}))
+
+// Mock Firebase auth functions
+vi.mock('firebase/auth', () => ({
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  onAuthStateChanged: vi.fn((auth, callback: (user: any) => void) => {
+    // Simulate authenticated user
+    callback({
+      uid: '1',
+      email: 'test@example.com',
+      displayName: 'Test User',
+    })
+    return vi.fn() // unsubscribe function
+  }),
+  updateProfile: vi.fn(),
+  signInWithPopup: vi.fn(),
+  GoogleAuthProvider: vi.fn(),
+  TwitterAuthProvider: vi.fn(),
+  OAuthProvider: vi.fn(),
+}))
+
+// Mock Firebase firestore functions
+vi.mock('firebase/firestore', () => ({
+  doc: vi.fn(),
+  setDoc: vi.fn(),
+  getDoc: vi.fn(() => ({
+    exists: () => false,
+  })),
+}))
+
+// Mock useAuth hook
+vi.mock('@hooks/useAuth', () => ({
+  useAuth: () => ({
+    currentUser: {
+      uid: '1',
+      email: 'test@example.com',
+      displayName: 'Test User',
+    },
+    loading: false,
+    signup: vi.fn(),
+    login: vi.fn(),
+    loginWithGoogle: vi.fn(),
+    loginWithTwitter: vi.fn(),
+    loginWithApple: vi.fn(),
+    logout: vi.fn(),
+  }),
+}))
+
 // Mock all the hooks with simple implementations
 vi.mock('@hooks/useContestDataV2', () => ({
   default: () => ({

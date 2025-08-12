@@ -26,6 +26,7 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': resolve(__dirname, 'src'),
         '@components': resolve(__dirname, 'src/components'),
+        '@contexts': resolve(__dirname, 'src/contexts'),
         '@hooks': resolve(__dirname, 'src/hooks'),
         '@types': resolve(__dirname, 'src/types'),
         '@utils': resolve(__dirname, 'src/utils'),

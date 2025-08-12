@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection - authenticated users can read/write their own data
+    // Everyone can read to see leaderboard
+    match /users/{userId} {
+      // Anyone can read user data (for leaderboard display)
+      allow read: if true;
+      
+      // Only authenticated users can create/update their own user document
+      allow create, update: if request.auth != null && request.auth.uid == userId;
+      
+      // Users cannot delete their account data
+      allow delete: if false;
+    }
+    
+    // Contest posts - authenticated users can read all, write their own
+    match /contest-posts/{postId} {
+      // Anyone can read posts (for guest leaderboard and feed display)
+      allow read: if true;
+      
+      // Only authenticated users can create posts
+      allow create: if request.auth != null 
+        && request.auth.uid == resource.data.userId;
+      
+      // Only post owners can update their posts
+      allow update: if request.auth != null 
+        && request.auth.uid == resource.data.userId;
+      
+      // Only post owners can delete their posts
+      allow delete: if request.auth != null 
+        && request.auth.uid == resource.data.userId;
+    }
+    
+    // Contest info/metadata - read-only for all users
+    match /contest-info/{contestId} {
+      allow read: if true;
+      allow write: if false; // Only admins should modify contest info
+    }
+    
+    // Deny all other paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
