@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import { CSS_CLASSES, FORM_CONFIG } from '@constants'
 import { useAuth } from '@hooks/useAuth'
+import './AuthModal.css'
 
 interface AuthModalProps {
   isOpen: boolean
