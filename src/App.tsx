@@ -220,7 +220,15 @@ function AppContent() {
         <div className="header-actions">
           {currentUser && (
             <div className="user-info">
-              <span>Welcome, {currentUser.displayName ?? 'User'}!</span>
+              <span className="user-greeting">
+                Signed in as {currentUser.displayName ?? 'User'}
+              </span>
+              <button
+                className="settings-btn"
+                onClick={() => setShowSettingsModal(true)}
+              >
+                {UI_TEXT.TABS.SETTINGS}
+              </button>
               <button
                 className="logout-btn"
                 onClick={() => {
@@ -231,12 +239,6 @@ function AppContent() {
               </button>
             </div>
           )}
-          <button
-            className="settings-btn"
-            onClick={() => setShowSettingsModal(true)}
-          >
-            {UI_TEXT.TABS.SETTINGS}
-          </button>
         </div>
       </div>
     )
