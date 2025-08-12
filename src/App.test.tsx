@@ -15,7 +15,7 @@ vi.mock('firebase/auth', () => ({
   signInWithEmailAndPassword: vi.fn(),
   createUserWithEmailAndPassword: vi.fn(),
   signOut: vi.fn(),
-  onAuthStateChanged: vi.fn((auth, callback: (user: any) => void) => {
+  onAuthStateChanged: vi.fn((_auth, callback: (user: any) => void) => {
     // Simulate authenticated user
     callback({
       uid: '1',
