@@ -6,14 +6,6 @@
 
 Create an engaging, real-time competitive eating contest app that encourages participation and builds community around hot dog consumption tracking.
 
-### Success Metrics
-
-- **50+ active participants** within first month
-- **5+ entries per user per day** average engagement
-- **90% user retention** after first successful post
-- **Sub-3 second** app load times
-- **99.9% uptime** during contest periods
-
 ## 👥 Target Audience
 
 ### Primary Users: Contest Participants
@@ -49,7 +41,7 @@ Create an engaging, real-time competitive eating contest app that encourages par
 
 #### Behaviors
 
-- Check in periodically to see standings
+- Check in periodically to see standings without needing to join or login
 - Share interesting moments from contest
 - May convert to participants
 
@@ -74,9 +66,9 @@ Create an engaging, real-time competitive eating contest app that encourages par
 #### Leaderboard System
 
 - **R3.1**: System must maintain real-time leaderboard of all participants
-- **R3.2**: System must show user's current rank and total count
-- **R3.3**: System must update leaderboard within 5 seconds of new posts
-- **R3.4**: System must display top 10 participants prominently
+- **R3.2**: System must display top 10 participants prominently
+- **R3.3**: System must show user's current rank and total count
+- **R3.4**: System must update leaderboard within 5 seconds of new posts
 
 #### Social Feed
 
@@ -104,6 +96,7 @@ Create an engaging, real-time competitive eating contest app that encourages par
 - **R7.1**: System should track contest statistics (total participants, total hot dogs)
 - **R7.2**: System should provide contest history and milestones
 - **R7.3**: System should support contest rules and prize information
+- **R7.4**: System should show user their current winner at all times and time left in contest
 
 ## 🚫 Non-Functional Requirements
 
@@ -148,7 +141,6 @@ Create an engaging, real-time competitive eating contest app that encourages par
 
 ### Out of Scope (Future Phases)
 
-❌ **Multiple contests** - single contest only
 ❌ **Advanced social features** - comments, following, messaging
 ❌ **Mobile native apps** - web app only
 ❌ **Complex achievements** - basic functionality first

@@ -88,20 +88,6 @@ Welcome to the Hot Dog Tracker documentation hub. This documentation is organize
 - **Batch Operations**: Atomic updates to ensure data consistency
 - **Progressive Enhancement**: Works offline, syncs when online
 
-## 📊 Success Metrics
-
-### User Engagement
-
-- **50+ active participants** within first month
-- **5+ entries per user per day** average activity
-- **90% user retention** after successful onboarding
-
-### Technical Performance
-
-- **Sub-3 second load times** on average connections
-- **99.9% uptime** during active contest periods
-- **Real-time updates** propagate within 5 seconds
-
 ## 🤝 Contributing
 
 ### Documentation Updates

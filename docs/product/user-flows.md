@@ -152,26 +152,6 @@
 - **Contest Insights**: Overall contest statistics
 - **Progress Tracking**: Visual progress over time
 
-## 🎯 Success Metrics
-
-### User Engagement
-
-- **Daily Active Users**: Users posting at least once per day
-- **Post Frequency**: Average posts per user per day
-- **Session Duration**: Time spent in app per visit
-
-### Competition Health
-
-- **Participation Rate**: % of signed users who post entries
-- **Leaderboard Movement**: How often rankings change
-- **Contest Duration**: Average user participation time
-
-### Social Features
-
-- **Content Quality**: Posts with photos vs. text-only
-- **User Interaction**: Engagement with feed content
-- **Sharing**: External social media sharing (future)
-
 ## 🚨 Edge Cases & Error Scenarios
 
 ### User Error Scenarios
