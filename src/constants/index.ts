@@ -100,6 +100,21 @@ export const UI_TEXT = {
       'Are you sure you want to clear all data? This cannot be undone.',
   },
 
+  LOADING_MESSAGES: [
+    'Loading championship data... 🏆',
+    'And the winner is... 🥇',
+    'Counting hot dogs... 🌭',
+    'Preparing the leaderboard... 📊',
+    'Warming up the competition... 🔥',
+    'Fetching contest results... 🎯',
+    'Gathering the champions... 👑',
+    'Loading the hall of fame... 🏛️',
+    'Preparing for battle... ⚔️',
+    'Crunching the numbers... 🔢',
+    'Summoning the data... ✨',
+    'Building the scoreboard... 📈',
+  ],
+
   EMPTY_STATES: {
     NO_CONTESTANTS:
       'No contestants yet! Start logging to get on the leaderboard.',

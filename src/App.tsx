@@ -42,6 +42,18 @@ function AppContent() {
   const { contestPosts, contestUsers, addPost, editPost, isLoading, error } =
     useContestDataV2(contestId, currentUserId)
 
+  // Get a random loading message when loading starts
+  const [loadingMessage, setLoadingMessage] = useState('')
+
+  useEffect(() => {
+    if (isLoading) {
+      const messages = UI_TEXT.LOADING_MESSAGES
+      const randomMessage =
+        messages[Math.floor(Math.random() * messages.length)]
+      setLoadingMessage(randomMessage)
+    }
+  }, [isLoading])
+
   // Set page title based on environment
   useEffect(() => {
     const isLocal = (CONFIG.DEV_HOSTNAMES as readonly string[]).includes(
@@ -121,7 +133,10 @@ function AppContent() {
     if (isLoading) {
       return (
         <div className="loading-container">
-          <p>Loading contest data...</p>
+          <div className="loading-content">
+            <div className="loading-spinner"></div>
+            <p className="loading-message">{loadingMessage}</p>
+          </div>
         </div>
       )
     }
