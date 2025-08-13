@@ -19,7 +19,7 @@ function LeaderboardTab({
     (a, b) => b.totalCount - a.totalCount
   )
 
-  // Calculate ranks with special tie handling (no ties for 1st place)
+  // Calculate ranks with proper tie handling
   const usersWithRanks: (User & { rank: number })[] = []
 
   for (let i = 0; i < sortedUsers.length; i++) {
@@ -49,8 +49,11 @@ function LeaderboardTab({
           })
         }
       } else {
-        // Different score - new rank is current index + 1
-        usersWithRanks.push({ ...user, rank: i + 1 } as User & { rank: number })
+        // Different score - calculate proper rank with gaps for ties
+        const rank =
+          sortedUsers.filter(u => u && u.totalCount > user.totalCount).length +
+          1
+        usersWithRanks.push({ ...user, rank } as User & { rank: number })
       }
     }
   }
