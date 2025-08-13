@@ -36,10 +36,7 @@ interface UseDataServiceReturn {
     updates: Partial<ContestPost>
   ) => Promise<ContestPost | null>
   deletePost: (id: string) => Promise<boolean>
-  updateUser: (
-    id: string,
-    updates: Partial<User>
-  ) => Promise<User | null>
+  updateUser: (id: string, updates: Partial<User>) => Promise<User | null>
   addUser: (userData: Omit<User, 'id'>) => Promise<User | null>
 }
 
@@ -196,10 +193,7 @@ export function useDataService(): UseDataServiceReturn {
    * Update an existing user
    */
   const updateUser = useCallback(
-    async (
-      id: string,
-      updates: Partial<User>
-    ): Promise<User | null> => {
+    async (id: string, updates: Partial<User>): Promise<User | null> => {
       try {
         const updatedUser = await dataService.updateUser(id, updates)
 

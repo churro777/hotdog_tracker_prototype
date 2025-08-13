@@ -9,12 +9,7 @@ import FeedTab from '@components/tabs/FeedTab'
 import JournalTab from '@components/tabs/JournalTab'
 import LeaderboardTab from '@components/tabs/LeaderboardTab'
 import LogTab from '@components/tabs/LogTab'
-import {
-  STORAGE_KEYS,
-  UI_TEXT,
-  CONFIG,
-  TAB_TYPES,
-} from '@constants'
+import { STORAGE_KEYS, UI_TEXT, CONFIG, TAB_TYPES } from '@constants'
 import { AuthProvider } from '@contexts/AuthContext'
 import { useAuth } from '@hooks/useAuth'
 import useContestDataV2 from '@hooks/useContestDataV2'

@@ -20,40 +20,47 @@ We've created utilities to safely remove demo data while preserving any real use
 ### Option 1: Browser Console (Recommended)
 
 1. **Start the dev server:**
+
    ```bash
    npm run dev
    ```
 
-2. **Open browser at http://localhost:5173**
+2. **Open browser at <http://localhost:5173>**
 
 3. **Open browser console and run one of these commands:**
 
    **Check what data exists:**
+
    ```javascript
    import('./src/utils/clearFirebaseData.js').then(m => m.checkFirestoreData())
    ```
 
    **Remove only demo data (safe):**
+
    ```javascript
    import('./src/utils/clearFirebaseData.js').then(m => m.cleanupDemoData())
    ```
 
    **Interactive cleanup with options:**
+
    ```javascript
    import('./src/utils/clearFirebaseData.js').then(m => m.interactiveCleanup())
    ```
 
    **⚠️ Remove ALL data (dangerous!):**
+
    ```javascript
    import('./src/utils/clearFirebaseData.js').then(m => m.clearAllFirestoreData())
    ```
 
    **🔧 Fix missing contest users (for existing Firebase Auth users):**
+
    ```javascript
    import('./src/utils/clearFirebaseData.js').then(m => m.fixMissingContestUsers())
    ```
 
    **🔧 Fix missing fields in existing user data:**
+
    ```javascript
    import('./src/utils/clearFirebaseData.js').then(m => m.fixUserDataIntegrity())
    ```
@@ -61,6 +68,7 @@ We've created utilities to safely remove demo data while preserving any real use
 ### Option 2: Quick Helper Script
 
 Run the helper script for instructions:
+
 ```bash
 node scripts/dev/database-cleanup.js
 ```
@@ -68,6 +76,7 @@ node scripts/dev/database-cleanup.js
 ## 🎯 What Gets Removed
 
 The cleanup will remove data for these demo user IDs:
+
 - `joey-chestnut-demo`
 - `takeru-kobayashi-demo`  
 - `matt-stonie-demo`
@@ -80,7 +89,8 @@ The cleanup will remove data for these demo user IDs:
 ## ✅ Verification
 
 After cleanup:
-1. Check the Firestore console: https://console.firebase.google.com/project/hotdog-tracker-def59/firestore
+
+1. Check the Firestore console: <https://console.firebase.google.com/project/hotdog-tracker-def59/firestore>
 2. Run the check command to see remaining data
 3. Test the app to ensure it works with clean data
 
@@ -94,6 +104,7 @@ After cleanup:
 ## 🚀 Going Forward
 
 After cleanup:
+
 - New users will create their own authentic contest data
 - No more fake/demo data cluttering the database
 - Clean slate for production use
@@ -107,19 +118,23 @@ After cleanup:
 ## 🛡️ Security Features
 
 ### Environment Protection
+
 - **Development Mode**: `npm run dev` → All cleanup functions available
 - **Production Mode**: `npm run build` → All cleanup functions blocked with security errors
 - **Check Function**: `isDevelopmentEnvironment()` validates environment
 - **Guard Function**: `checkDevelopmentOnly()` blocks production usage
 
 ### Error Messages in Production
+
 If someone tries to use cleanup functions in production:
+
 ```text
 🚨 Security Error: cleanupDemoData is only available in development environment. 
 Current environment: production
 ```
 
 ### Safe Deployment
+
 - Cleanup utilities are included in source but protected by environment checks
 - No risk of accidental execution in production
 - Functions throw errors immediately if called in production environment

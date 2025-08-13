@@ -10,7 +10,6 @@ import App from './App.tsx'
 // Validate environment variables on startup
 validateEnvironment()
 
-
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />

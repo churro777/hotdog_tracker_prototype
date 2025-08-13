@@ -1,7 +1,7 @@
 /**
  * Database cleanup script
  * Run with: node scripts/database-cleanup.js [action]
- * 
+ *
  * Actions:
  * - check: Show current database contents
  * - clean: Remove demo data only (safe)
@@ -25,27 +25,39 @@ console.log('2. Open browser console on http://localhost:5173')
 console.log('3. Run one of these commands:')
 console.log('')
 console.log('📊 Check current data:')
-console.log('import("./src/utils/clearFirebaseData.js").then(m => m.checkFirestoreData())')
+console.log(
+  'import("./src/utils/clearFirebaseData.js").then(m => m.checkFirestoreData())'
+)
 console.log('')
 console.log('🧹 Clean demo data only (safe):')
-console.log('import("./src/utils/clearFirebaseData.js").then(m => m.cleanupDemoData())')
+console.log(
+  'import("./src/utils/clearFirebaseData.js").then(m => m.cleanupDemoData())'
+)
 console.log('')
 console.log('⚠️ Clear ALL data (dangerous):')
-console.log('import("./src/utils/clearFirebaseData.js").then(m => m.clearAllFirestoreData())')
+console.log(
+  'import("./src/utils/clearFirebaseData.js").then(m => m.clearAllFirestoreData())'
+)
 console.log('')
 console.log('🎛️ Interactive cleanup:')
-console.log('import("./src/utils/clearFirebaseData.js").then(m => m.interactiveCleanup())')
+console.log(
+  'import("./src/utils/clearFirebaseData.js").then(m => m.interactiveCleanup())'
+)
 console.log('')
 
 switch (action) {
   case 'check':
-    console.log('✅ Use the browser console commands above to check database contents')
+    console.log(
+      '✅ Use the browser console commands above to check database contents'
+    )
     break
   case 'clean':
     console.log('✅ Use the browser console commands above to clean demo data')
     break
   case 'clear':
-    console.log('⚠️ Use the browser console commands above to clear ALL data (be careful!)')
+    console.log(
+      '⚠️ Use the browser console commands above to clear ALL data (be careful!)'
+    )
     break
   default:
     console.log(`❌ Unknown action: ${action}`)

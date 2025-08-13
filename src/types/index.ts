@@ -58,9 +58,7 @@ export interface ContestPost {
   /** Optional description or comment for the post */
   description?: string
   /** User reactions to posts */
-  reactions?: {
-    [userId: string]: 'like' | 'fire' | 'wow'
-  }
+  reactions?: Record<string, 'like' | 'fire' | 'wow'>
   /** Optional location data */
   location?: {
     lat: number

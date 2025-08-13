@@ -27,9 +27,7 @@ function JournalTab({ posts, currentUserId, onEditPost }: JournalTabProps) {
     cancelEdit,
   } = usePostEdit(onEditPost)
 
-  const userPosts = posts.filter(
-    post => post.userId === currentUserId
-  )
+  const userPosts = posts.filter(post => post.userId === currentUserId)
   const totalHotDogs = userPosts.reduce(
     (sum, post) => sum + (post.count ?? 0),
     0

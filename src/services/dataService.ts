@@ -45,7 +45,6 @@ export type BatchOperation =
     }
   | { type: 'delete'; collection: 'posts'; id: string }
 
-
 /**
  * Firebase-based data service implementation
  * Provides real-time data synchronization with Firestore
@@ -158,7 +157,9 @@ class FirebaseDataService implements DataService {
 
   async getUsers(): Promise<User[]> {
     try {
-      const { collection, getDocs, orderBy, query } = await import('firebase/firestore')
+      const { collection, getDocs, orderBy, query } = await import(
+        'firebase/firestore'
+      )
       const { db } = await import('@config/firebase')
 
       const usersRef = collection(db, this.usersCollection)
@@ -169,7 +170,7 @@ class FirebaseDataService implements DataService {
         const data = doc.data() as Record<string, unknown>
         const createdAt = data['createdAt'] as { toDate(): Date } | undefined
         const lastActive = data['lastActive'] as { toDate(): Date } | undefined
-        
+
         return {
           id: doc.id,
           ...data,
@@ -183,12 +184,11 @@ class FirebaseDataService implements DataService {
     }
   }
 
-  async updateUser(
-    id: string,
-    updates: Partial<User>
-  ): Promise<User> {
+  async updateUser(id: string, updates: Partial<User>): Promise<User> {
     try {
-      const { doc, updateDoc, getDoc, Timestamp } = await import('firebase/firestore')
+      const { doc, updateDoc, getDoc, Timestamp } = await import(
+        'firebase/firestore'
+      )
       const { db } = await import('@config/firebase')
 
       const userRef = doc(db, this.usersCollection, id)
@@ -201,7 +201,7 @@ class FirebaseDataService implements DataService {
           lastActive: Timestamp.fromDate(updates.lastActive),
         }),
       }
-      
+
       await updateDoc(userRef, updatesWithTimestamp)
 
       const updatedDoc = await getDoc(userRef)
@@ -227,7 +227,9 @@ class FirebaseDataService implements DataService {
 
   async addUser(userData: Omit<User, 'id'>): Promise<User> {
     try {
-      const { collection, addDoc, Timestamp } = await import('firebase/firestore')
+      const { collection, addDoc, Timestamp } = await import(
+        'firebase/firestore'
+      )
       const { db } = await import('@config/firebase')
 
       const usersRef = collection(db, this.usersCollection)
@@ -236,7 +238,7 @@ class FirebaseDataService implements DataService {
         createdAt: Timestamp.fromDate(userData.createdAt),
         lastActive: Timestamp.fromDate(userData.lastActive),
       }
-      
+
       const docRef = await addDoc(usersRef, dataWithTimestamp)
 
       return {

@@ -13,6 +13,7 @@ import {
   TwitterAuthProvider,
   OAuthProvider,
 } from 'firebase/auth'
+import type { UpdateData } from 'firebase/firestore'
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore'
 
 import { auth, db } from '@config/firebase'
@@ -100,28 +101,34 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } else {
       // Verify and update existing user document with any missing fields
       const userData = userDoc.data()
-      const updates: Record<string, unknown> = {}
+      const updates: UpdateData<{
+        displayName?: string
+        email?: string | null
+        totalCount?: number
+        createdAt?: Date
+        updatedAt?: Date
+      }> = {}
 
       // Check for missing required fields and add them
       if (!userData?.['displayName']) {
-        updates['displayName'] = displayName
+        updates.displayName = displayName
       }
       if (!userData?.['email']) {
-        updates['email'] = user.email
+        updates.email = user.email
       }
       if (!userData?.['totalCount'] && userData?.['totalCount'] !== 0) {
-        updates['totalCount'] = 0
+        updates.totalCount = 0
       }
       if (!userData?.['createdAt']) {
-        updates['createdAt'] = new Date()
+        updates.createdAt = new Date()
       }
 
       // Always update updatedAt timestamp
-      updates['updatedAt'] = new Date()
+      updates.updatedAt = new Date()
 
       // Apply updates if any fields are missing or need updating
       if (Object.keys(updates).length > 0) {
-        await updateDoc(userDocRef, updates as Record<string, any>)
+        await updateDoc(userDocRef, updates)
         console.log(
           `Updated user document for ${displayName} with missing fields:`,
           Object.keys(updates)

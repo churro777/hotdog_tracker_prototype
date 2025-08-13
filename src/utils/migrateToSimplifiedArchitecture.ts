@@ -4,6 +4,7 @@
  * 🚨 DEVELOPMENT ONLY - Blocked in production
  */
 
+import type { UpdateData } from 'firebase/firestore'
 import { collection, getDocs, doc, writeBatch } from 'firebase/firestore'
 
 import { db } from '@config/firebase'
@@ -73,20 +74,23 @@ export async function migrateToSimplifiedArchitecture(): Promise<void> {
 
       if (contestData) {
         const userRef = doc(db, 'users', userId)
-        const updates: Record<string, unknown> = {}
+        const updates: UpdateData<{
+          totalCount?: number
+          displayName?: string
+        }> = {}
 
         // Migrate totalCount if it doesn't exist or is different
         const userCount = userData['totalCount'] as number
         const contestCount = contestData['totalCount'] as number
         if (typeof userCount !== 'number') {
-          updates['totalCount'] =
+          updates.totalCount =
             typeof contestCount === 'number' ? contestCount : 0
         } else if (
           userCount !== contestCount &&
           typeof contestCount === 'number'
         ) {
           // Use the higher count (in case of discrepancy)
-          updates['totalCount'] = Math.max(userCount, contestCount)
+          updates.totalCount = Math.max(userCount, contestCount)
         }
 
         // Ensure other required fields exist
@@ -94,11 +98,11 @@ export async function migrateToSimplifiedArchitecture(): Promise<void> {
           !userData['displayName'] &&
           typeof contestData['userName'] === 'string'
         ) {
-          updates['displayName'] = contestData['userName']
+          updates.displayName = contestData['userName']
         }
 
         if (Object.keys(updates).length > 0) {
-          batch.update(userRef, updates as Record<string, any>)
+          batch.update(userRef, updates)
           updateCount++
           const displayName =
             typeof userData['displayName'] === 'string'

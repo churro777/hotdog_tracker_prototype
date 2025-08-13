@@ -4,6 +4,7 @@
  * 🚨 DEVELOPMENT ONLY - Blocked in production
  */
 
+import type { UpdateData } from 'firebase/firestore'
 import {
   collection,
   getDocs,
@@ -345,25 +346,30 @@ async function fixUserDataIntegrity(): Promise<void> {
 
     for (const userDoc of usersSnapshot.docs) {
       const userData = userDoc.data()
-      const updates: Record<string, unknown> = {}
+      const updates: UpdateData<{
+        displayName?: string
+        totalCount?: number
+        createdAt?: Date
+        updatedAt?: Date
+      }> = {}
 
       // Check for missing required fields
       if (!userData['displayName']) {
-        updates['displayName'] =
+        updates.displayName =
           (userData['email'] as string)?.split('@')[0] ?? 'Anonymous'
       }
       if (!userData['totalCount'] && userData['totalCount'] !== 0) {
-        updates['totalCount'] = 0
+        updates.totalCount = 0
       }
       if (!userData['createdAt']) {
-        updates['createdAt'] = new Date()
+        updates.createdAt = new Date()
       }
       if (!userData['updatedAt']) {
-        updates['updatedAt'] = new Date()
+        updates.updatedAt = new Date()
       }
 
       if (Object.keys(updates).length > 0) {
-        await updateDoc(doc(db, 'users', userDoc.id), updates as Record<string, any>)
+        await updateDoc(doc(db, 'users', userDoc.id), updates)
         console.log(
           `Fixed user ${(userData['displayName'] as string) ?? (userData['email'] as string)}: ${Object.keys(updates).join(', ')}`
         )
@@ -377,21 +383,25 @@ async function fixUserDataIntegrity(): Promise<void> {
 
     for (const contestUserDoc of contestUsersSnapshot.docs) {
       const userData = contestUserDoc.data()
-      const updates: Record<string, unknown> = {}
+      const updates: UpdateData<{
+        contestId?: string
+        userName?: string
+        totalCount?: number
+      }> = {}
 
       // Check for missing required fields
       if (!userData['contestId']) {
-        updates['contestId'] = CONTEST_IDS.DEFAULT
+        updates.contestId = CONTEST_IDS.DEFAULT
       }
       if (!userData['userName']) {
-        updates['userName'] = (userData['userId'] as string) ?? 'Anonymous'
+        updates.userName = (userData['userId'] as string) ?? 'Anonymous'
       }
       if (!userData['totalCount'] && userData['totalCount'] !== 0) {
-        updates['totalCount'] = 0
+        updates.totalCount = 0
       }
 
       if (Object.keys(updates).length > 0) {
-        await updateDoc(doc(db, 'contest-users', contestUserDoc.id), updates as Record<string, any>)
+        await updateDoc(doc(db, 'contest-users', contestUserDoc.id), updates)
         console.log(
           `Fixed contest user ${(userData['userName'] as string) ?? (userData['userId'] as string)}: ${Object.keys(updates).join(', ')}`
         )

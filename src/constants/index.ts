@@ -27,7 +27,6 @@ export const CONTEST_IDS = {
   DEFAULT: 'hotdog-contest',
 } as const
 
-
 /**
  * Post type constants for different kinds of contest posts
  */
@@ -201,7 +200,6 @@ export const CSS_CLASSES = {
     BUTTON_SECONDARY: 'btn-secondary',
   },
 } as const
-
 
 // Statistics Labels
 export const STATS_LABELS = {
