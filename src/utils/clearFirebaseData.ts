@@ -4,7 +4,14 @@
  * 🚨 DEVELOPMENT ONLY - Blocked in production
  */
 
-import { collection, getDocs, deleteDoc, doc, addDoc, updateDoc } from 'firebase/firestore'
+import {
+  collection,
+  getDocs,
+  deleteDoc,
+  doc,
+  addDoc,
+  updateDoc,
+} from 'firebase/firestore'
 
 import { db } from '@config/firebase'
 import { CONTEST_IDS } from '@constants'
@@ -13,7 +20,10 @@ import { CONTEST_IDS } from '@constants'
  * Check if we're in development environment
  */
 function isDevelopmentEnvironment(): boolean {
-  return import.meta.env.DEV || import.meta.env['VITE_APP_ENVIRONMENT'] === 'development'
+  return (
+    import.meta.env.DEV ||
+    import.meta.env['VITE_APP_ENVIRONMENT'] === 'development'
+  )
 }
 
 /**
@@ -23,7 +33,7 @@ function checkDevelopmentOnly(functionName: string): void {
   if (!isDevelopmentEnvironment()) {
     throw new Error(
       `🚨 Security Error: ${functionName} is only available in development environment. ` +
-      `Current environment: ${import.meta.env['VITE_APP_ENVIRONMENT'] ?? 'production'}`
+        `Current environment: ${import.meta.env['VITE_APP_ENVIRONMENT'] ?? 'production'}`
     )
   }
 }
@@ -33,7 +43,7 @@ function checkDevelopmentOnly(functionName: string): void {
  */
 const DEMO_USER_IDS = [
   'joey-chestnut-demo',
-  'takeru-kobayashi-demo', 
+  'takeru-kobayashi-demo',
   'matt-stonie-demo',
   // Legacy IDs from old seed data
   '2', // Joey Chestnut
@@ -45,11 +55,17 @@ const DEMO_USER_IDS = [
  * Check what data currently exists in Firestore
  */
 async function checkFirestoreData(): Promise<{
-  users: Array<{ id: string; userId: string; userName: string; totalCount: number }>
-  posts: Array<{ id: string; userId: string; userName: string; count: number; description?: string }>
+  users: { id: string; userId: string; userName: string; totalCount: number }[]
+  posts: {
+    id: string
+    userId: string
+    userName: string
+    count: number
+    description?: string
+  }[]
 }> {
   checkDevelopmentOnly('checkFirestoreData')
-  
+
   try {
     console.log('🔍 Checking Firestore data...')
 
@@ -62,21 +78,38 @@ async function checkFirestoreData(): Promise<{
         userId: data['userId'] as string,
         userName: data['userName'] as string,
         totalCount: (data['totalCount'] as number) ?? 0,
-      }
+      } as { id: string; userId: string; userName: string; totalCount: number }
     })
 
     // Get posts
     const postsSnapshot = await getDocs(collection(db, 'contest-posts'))
-    const posts = postsSnapshot.docs.map(doc => {
-      const data = doc.data()
-      return {
+    const posts: {
+      id: string
+      userId: string
+      userName: string
+      count: number
+      description?: string
+    }[] = postsSnapshot.docs.map(doc => {
+      const data = doc.data() as Record<string, unknown>
+      const post: {
+        id: string
+        userId: string
+        userName: string
+        count: number
+        description?: string
+      } = {
         id: doc.id,
         userId: data['userId'] as string,
         userName: data['userName'] as string,
         count: (data['count'] as number) ?? 0,
-        ...(data['description'] && { description: data['description'] as string }),
       }
-    }) as Array<{ id: string; userId: string; userName: string; count: number; description?: string }>
+
+      if (data['description']) {
+        post.description = data['description'] as string
+      }
+
+      return post
+    })
 
     console.log(`📊 Found ${users.length} users and ${posts.length} posts`)
     console.log('Users:', users)
@@ -85,7 +118,9 @@ async function checkFirestoreData(): Promise<{
     return { users, posts }
   } catch (error) {
     console.error('❌ Error checking Firestore data:', error)
-    throw new Error(error instanceof Error ? error.message : 'Unknown error occurred')
+    throw new Error(
+      error instanceof Error ? error.message : 'Unknown error occurred'
+    )
   }
 }
 
@@ -94,7 +129,7 @@ async function checkFirestoreData(): Promise<{
  */
 async function clearDemoUsers(): Promise<number> {
   checkDevelopmentOnly('clearDemoUsers')
-  
+
   try {
     console.log('🧹 Clearing demo users...')
 
@@ -105,7 +140,9 @@ async function clearDemoUsers(): Promise<number> {
       const userData = userDoc.data()
       if (DEMO_USER_IDS.includes(userData['userId'] as string)) {
         await deleteDoc(doc(db, 'contest-users', userDoc.id))
-        console.log(`🗑️ Deleted demo user: ${userData['userName']} (${userData['userId']})`)
+        console.log(
+          `🗑️ Deleted demo user: ${userData['userName']} (${userData['userId']})`
+        )
         deletedCount++
       }
     }
@@ -123,7 +160,7 @@ async function clearDemoUsers(): Promise<number> {
  */
 async function clearDemoPosts(): Promise<number> {
   checkDevelopmentOnly('clearDemoPosts')
-  
+
   try {
     console.log('🧹 Clearing demo posts...')
 
@@ -134,7 +171,9 @@ async function clearDemoPosts(): Promise<number> {
       const postData = postDoc.data()
       if (DEMO_USER_IDS.includes(postData['userId'] as string)) {
         await deleteDoc(doc(db, 'contest-posts', postDoc.id))
-        console.log(`🗑️ Deleted demo post: ${postData['userName']} - ${postData['count']} hot dogs`)
+        console.log(
+          `🗑️ Deleted demo post: ${postData['userName']} - ${postData['count']} hot dogs`
+        )
         deletedCount++
       }
     }
@@ -150,9 +189,12 @@ async function clearDemoPosts(): Promise<number> {
 /**
  * Clear ALL data from Firestore (use with caution!)
  */
-async function clearAllFirestoreData(): Promise<{ users: number; posts: number }> {
+async function clearAllFirestoreData(): Promise<{
+  users: number
+  posts: number
+}> {
   checkDevelopmentOnly('clearAllFirestoreData')
-  
+
   try {
     console.log('⚠️ CLEARING ALL FIRESTORE DATA...')
 
@@ -175,7 +217,9 @@ async function clearAllFirestoreData(): Promise<{ users: number; posts: number }
       posts: postsSnapshot.size,
     }
 
-    console.log(`🗑️ Deleted ${deletedCounts.users} users and ${deletedCounts.posts} posts`)
+    console.log(
+      `🗑️ Deleted ${deletedCounts.users} users and ${deletedCounts.posts} posts`
+    )
     return deletedCounts
   } catch (error) {
     console.error('❌ Error clearing all Firestore data:', error)
@@ -188,7 +232,7 @@ async function clearAllFirestoreData(): Promise<{ users: number; posts: number }
  */
 async function cleanupDemoData(): Promise<void> {
   checkDevelopmentOnly('cleanupDemoData')
-  
+
   try {
     console.log('🧹 Starting demo data cleanup...')
 
@@ -205,7 +249,9 @@ async function cleanupDemoData(): Promise<void> {
     // Then clear demo users
     const deletedUsers = await clearDemoUsers()
 
-    console.log(`✅ Cleanup complete! Removed ${deletedUsers} demo users and ${deletedPosts} demo posts`)
+    console.log(
+      `✅ Cleanup complete! Removed ${deletedUsers} demo users and ${deletedPosts} demo posts`
+    )
 
     // Show remaining data
     console.log('📊 Checking remaining data...')
@@ -221,9 +267,11 @@ async function cleanupDemoData(): Promise<void> {
  */
 async function fixMissingContestUsers(): Promise<void> {
   checkDevelopmentOnly('fixMissingContestUsers')
-  
+
   try {
-    console.log('🔧 Checking for Firebase Auth users missing from contest data...')
+    console.log(
+      '🔧 Checking for Firebase Auth users missing from contest data...'
+    )
 
     // Get all Firebase Auth users from the users collection
     const usersSnapshot = await getDocs(collection(db, 'users'))
@@ -244,15 +292,23 @@ async function fixMissingContestUsers(): Promise<void> {
       contestUsersSnapshot.docs.map(doc => doc.data()['userId'] as string)
     )
 
-    const missingUsers = authUsers.filter(user => !existingContestUserIds.has(user.uid))
+    const missingUsers = authUsers.filter(
+      user => !existingContestUserIds.has(user.uid)
+    )
 
     if (missingUsers.length === 0) {
-      console.log('✅ All Firebase Auth users already have contest user records!')
+      console.log(
+        '✅ All Firebase Auth users already have contest user records!'
+      )
       return
     }
 
-    console.log(`🔧 Found ${missingUsers.length} users missing from contest data:`)
-    missingUsers.forEach(user => console.log(`- ${user.displayName} (${user.email})`))
+    console.log(
+      `🔧 Found ${missingUsers.length} users missing from contest data:`
+    )
+    missingUsers.forEach(user =>
+      console.log(`- ${user.displayName} (${user.email})`)
+    )
 
     // Add missing users to contest
     for (const user of missingUsers) {
@@ -265,7 +321,9 @@ async function fixMissingContestUsers(): Promise<void> {
       console.log(`✅ Added ${user.displayName} to contest`)
     }
 
-    console.log(`🎉 Successfully added ${missingUsers.length} users to contest!`)
+    console.log(
+      `🎉 Successfully added ${missingUsers.length} users to contest!`
+    )
   } catch (error) {
     console.error('❌ Error fixing missing contest users:', error)
     throw error
@@ -277,21 +335,22 @@ async function fixMissingContestUsers(): Promise<void> {
  */
 async function fixUserDataIntegrity(): Promise<void> {
   checkDevelopmentOnly('fixUserDataIntegrity')
-  
+
   try {
     console.log('🔧 Checking for missing fields in existing user data...')
 
     // Fix users collection
     const usersSnapshot = await getDocs(collection(db, 'users'))
     let usersFixed = 0
-    
+
     for (const userDoc of usersSnapshot.docs) {
       const userData = userDoc.data()
-      const updates: Record<string, any> = {}
-      
+      const updates: Record<string, unknown> = {}
+
       // Check for missing required fields
       if (!userData['displayName']) {
-        updates['displayName'] = (userData['email'] as string)?.split('@')[0] ?? 'Anonymous'
+        updates['displayName'] =
+          (userData['email'] as string)?.split('@')[0] ?? 'Anonymous'
       }
       if (!userData['totalCount'] && userData['totalCount'] !== 0) {
         updates['totalCount'] = 0
@@ -302,10 +361,12 @@ async function fixUserDataIntegrity(): Promise<void> {
       if (!userData['updatedAt']) {
         updates['updatedAt'] = new Date()
       }
-      
+
       if (Object.keys(updates).length > 0) {
-        await updateDoc(doc(db, 'users', userDoc.id), updates)
-        console.log(`Fixed user ${(userData['displayName'] as string) ?? (userData['email'] as string)}: ${Object.keys(updates).join(', ')}`)
+        await updateDoc(doc(db, 'users', userDoc.id), updates as Record<string, any>)
+        console.log(
+          `Fixed user ${(userData['displayName'] as string) ?? (userData['email'] as string)}: ${Object.keys(updates).join(', ')}`
+        )
         usersFixed++
       }
     }
@@ -313,11 +374,11 @@ async function fixUserDataIntegrity(): Promise<void> {
     // Fix contest-users collection
     const contestUsersSnapshot = await getDocs(collection(db, 'contest-users'))
     let contestUsersFixed = 0
-    
+
     for (const contestUserDoc of contestUsersSnapshot.docs) {
       const userData = contestUserDoc.data()
-      const updates: Record<string, any> = {}
-      
+      const updates: Record<string, unknown> = {}
+
       // Check for missing required fields
       if (!userData['contestId']) {
         updates['contestId'] = CONTEST_IDS.DEFAULT
@@ -328,15 +389,19 @@ async function fixUserDataIntegrity(): Promise<void> {
       if (!userData['totalCount'] && userData['totalCount'] !== 0) {
         updates['totalCount'] = 0
       }
-      
+
       if (Object.keys(updates).length > 0) {
-        await updateDoc(doc(db, 'contest-users', contestUserDoc.id), updates)
-        console.log(`Fixed contest user ${(userData['userName'] as string) ?? (userData['userId'] as string)}: ${Object.keys(updates).join(', ')}`)
+        await updateDoc(doc(db, 'contest-users', contestUserDoc.id), updates as Record<string, any>)
+        console.log(
+          `Fixed contest user ${(userData['userName'] as string) ?? (userData['userId'] as string)}: ${Object.keys(updates).join(', ')}`
+        )
         contestUsersFixed++
       }
     }
 
-    console.log(`🎉 Fixed ${usersFixed} user records and ${contestUsersFixed} contest user records!`)
+    console.log(
+      `🎉 Fixed ${usersFixed} user records and ${contestUsersFixed} contest user records!`
+    )
   } catch (error) {
     console.error('❌ Error fixing user data integrity:', error)
     throw error
@@ -348,7 +413,7 @@ async function fixUserDataIntegrity(): Promise<void> {
  */
 async function interactiveCleanup(): Promise<void> {
   checkDevelopmentOnly('interactiveCleanup')
-  
+
   try {
     const { users, posts } = await checkFirestoreData()
 
@@ -368,7 +433,9 @@ async function interactiveCleanup(): Promise<void> {
     console.log('• cleanupDemoData() - Remove only demo users/posts')
     console.log('• clearAllFirestoreData() - Remove everything (careful!)')
     console.log('• checkFirestoreData() - Just check what exists')
-    console.log('• fixMissingContestUsers() - Add Firebase Auth users to contest')
+    console.log(
+      '• fixMissingContestUsers() - Add Firebase Auth users to contest'
+    )
   } catch (error) {
     console.error('❌ Interactive cleanup failed:', error)
     throw error
@@ -389,9 +456,9 @@ export {
 }
 
 // Export migration functions
-export { 
-  migrateToSimplifiedArchitecture, 
-  verifyMigration, 
+export {
+  migrateToSimplifiedArchitecture,
+  verifyMigration,
   removeContestUsersCollection,
-  interactiveMigration 
+  interactiveMigration,
 } from './migrateToSimplifiedArchitecture'

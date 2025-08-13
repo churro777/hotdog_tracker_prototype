@@ -11,7 +11,6 @@ import LeaderboardTab from '@components/tabs/LeaderboardTab'
 import LogTab from '@components/tabs/LogTab'
 import {
   STORAGE_KEYS,
-  CONTEST_IDS,
   UI_TEXT,
   CONFIG,
   TAB_TYPES,
@@ -37,10 +36,9 @@ function AppContent() {
   const { currentUser, logout } = useAuth()
 
   const currentUserId = currentUser?.uid
-  const contestId = CONTEST_IDS.DEFAULT
 
   const { contestPosts, contestUsers, addPost, editPost, isLoading, error } =
-    useContestDataV2(contestId, currentUserId)
+    useContestDataV2(currentUserId)
 
   // Get a random loading message when loading starts
   const [loadingMessage, setLoadingMessage] = useState('')

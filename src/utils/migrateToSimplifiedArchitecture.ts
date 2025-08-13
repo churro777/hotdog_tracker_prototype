@@ -12,7 +12,10 @@ import { db } from '@config/firebase'
  * Check if we're in development environment
  */
 function isDevelopmentEnvironment(): boolean {
-  return import.meta.env.DEV || import.meta.env['VITE_APP_ENVIRONMENT'] === 'development'
+  return (
+    import.meta.env.DEV ||
+    import.meta.env['VITE_APP_ENVIRONMENT'] === 'development'
+  )
 }
 
 /**
@@ -22,7 +25,7 @@ function checkDevelopmentOnly(functionName: string): void {
   if (!isDevelopmentEnvironment()) {
     throw new Error(
       `🚨 Security Error: ${functionName} is only available in development environment. ` +
-      `Current environment: ${import.meta.env['VITE_APP_ENVIRONMENT'] ?? 'production'}`
+        `Current environment: ${import.meta.env['VITE_APP_ENVIRONMENT'] ?? 'production'}`
     )
   }
 }
@@ -33,28 +36,32 @@ function checkDevelopmentOnly(functionName: string): void {
  */
 export async function migrateToSimplifiedArchitecture(): Promise<void> {
   checkDevelopmentOnly('migrateToSimplifiedArchitecture')
-  
+
   try {
     console.log('🔄 Starting migration to simplified architecture...')
 
     // Get all users and contest-users data
     const [usersSnapshot, contestUsersSnapshot] = await Promise.all([
       getDocs(collection(db, 'users')),
-      getDocs(collection(db, 'contest-users'))
+      getDocs(collection(db, 'contest-users')),
     ])
 
-    const users = new Map()
+    const users = new Map<string, Record<string, unknown>>()
     usersSnapshot.forEach(doc => {
       users.set(doc.id, { id: doc.id, ...doc.data() })
     })
 
-    const contestUsers = new Map()
+    const contestUsers = new Map<string, Record<string, unknown>>()
     contestUsersSnapshot.forEach(doc => {
       const data = doc.data()
-      contestUsers.set(data['userId'] as string, { id: doc.id, ...data })
+      if (typeof data['userId'] === 'string') {
+        contestUsers.set(data['userId'], { id: doc.id, ...data })
+      }
     })
 
-    console.log(`📊 Found ${users.size} users and ${contestUsers.size} contest-users records`)
+    console.log(
+      `📊 Found ${users.size} users and ${contestUsers.size} contest-users records`
+    )
 
     // Migrate data using batch operations
     const batch = writeBatch(db)
@@ -63,36 +70,59 @@ export async function migrateToSimplifiedArchitecture(): Promise<void> {
     // Update users collection with contest data
     for (const [userId, userData] of users) {
       const contestData = contestUsers.get(userId)
-      
+
       if (contestData) {
         const userRef = doc(db, 'users', userId)
-        const updates: Record<string, any> = {}
-        
+        const updates: Record<string, unknown> = {}
+
         // Migrate totalCount if it doesn't exist or is different
-        if (!userData['totalCount'] && userData['totalCount'] !== 0) {
-          updates['totalCount'] = contestData['totalCount'] || 0
-        } else if (userData['totalCount'] !== contestData['totalCount']) {
+        const userCount = userData['totalCount'] as number
+        const contestCount = contestData['totalCount'] as number
+        if (typeof userCount !== 'number') {
+          updates['totalCount'] =
+            typeof contestCount === 'number' ? contestCount : 0
+        } else if (
+          userCount !== contestCount &&
+          typeof contestCount === 'number'
+        ) {
           // Use the higher count (in case of discrepancy)
-          updates['totalCount'] = Math.max(userData['totalCount'] || 0, contestData['totalCount'] || 0)
+          updates['totalCount'] = Math.max(userCount, contestCount)
         }
-        
+
         // Ensure other required fields exist
-        if (!userData['displayName'] && contestData['userName']) {
+        if (
+          !userData['displayName'] &&
+          typeof contestData['userName'] === 'string'
+        ) {
           updates['displayName'] = contestData['userName']
         }
-        
+
         if (Object.keys(updates).length > 0) {
-          batch.update(userRef, updates)
+          batch.update(userRef, updates as Record<string, any>)
           updateCount++
-          console.log(`📝 Updating user ${userData['displayName'] || userData['email']}: ${Object.keys(updates).join(', ')}`)
+          const displayName =
+            typeof userData['displayName'] === 'string'
+              ? userData['displayName']
+              : typeof userData['email'] === 'string'
+                ? userData['email']
+                : 'Unknown User'
+          console.log(
+            `📝 Updating user ${displayName}: ${Object.keys(updates).join(', ')}`
+          )
         }
       } else {
         // User exists but no contest-users record - ensure they have totalCount
-        if (!userData['totalCount'] && userData['totalCount'] !== 0) {
+        if (typeof userData['totalCount'] !== 'number') {
           const userRef = doc(db, 'users', userId)
           batch.update(userRef, { totalCount: 0 })
           updateCount++
-          console.log(`📝 Adding totalCount to user ${userData['displayName'] || userData['email']}`)
+          const displayName =
+            typeof userData['displayName'] === 'string'
+              ? userData['displayName']
+              : typeof userData['email'] === 'string'
+                ? userData['email']
+                : 'Unknown User'
+          console.log(`📝 Adding totalCount to user ${displayName}`)
         }
       }
     }
@@ -110,7 +140,6 @@ export async function migrateToSimplifiedArchitecture(): Promise<void> {
     console.log('1. Verify users collection has all required data')
     console.log('2. Update application code to use simplified model')
     console.log('3. Remove contest-users collection when ready')
-    
   } catch (error) {
     console.error('❌ Migration failed:', error)
     throw error
@@ -122,13 +151,13 @@ export async function migrateToSimplifiedArchitecture(): Promise<void> {
  */
 export async function verifyMigration(): Promise<void> {
   checkDevelopmentOnly('verifyMigration')
-  
+
   try {
     console.log('🔍 Verifying migration...')
 
     const [usersSnapshot, contestUsersSnapshot] = await Promise.all([
       getDocs(collection(db, 'users')),
-      getDocs(collection(db, 'contest-users'))
+      getDocs(collection(db, 'contest-users')),
     ])
 
     let usersValid = 0
@@ -136,18 +165,24 @@ export async function verifyMigration(): Promise<void> {
 
     console.log('\n📊 Users Collection Status:')
     usersSnapshot.forEach(doc => {
-      const data = doc.data()
-      const hasRequiredFields = 
-        data['id'] && 
-        data['email'] && 
-        data['displayName'] && 
-        (data['totalCount'] || data['totalCount'] === 0)
-      
+      const data = doc.data() as Record<string, unknown>
+      const hasRequiredFields =
+        data['id'] &&
+        data['email'] &&
+        data['displayName'] &&
+        typeof data['totalCount'] === 'number'
+
       if (hasRequiredFields) {
         usersValid++
       } else {
         usersMissingData++
-        console.log(`⚠️  User ${data['displayName'] || data['email']} missing fields`)
+        const displayName =
+          typeof data['displayName'] === 'string'
+            ? data['displayName']
+            : typeof data['email'] === 'string'
+              ? data['email']
+              : 'Unknown User'
+        console.log(`⚠️  User ${displayName} missing fields`)
       }
     })
 
@@ -156,9 +191,12 @@ export async function verifyMigration(): Promise<void> {
       console.log(`⚠️  ${usersMissingData} users missing required data`)
     }
 
-    console.log(`\n📋 Contest-users collection: ${contestUsersSnapshot.size} records`)
-    console.log('💡 After verification, you can remove contest-users collection')
-
+    console.log(
+      `\n📋 Contest-users collection: ${contestUsersSnapshot.size} records`
+    )
+    console.log(
+      '💡 After verification, you can remove contest-users collection'
+    )
   } catch (error) {
     console.error('❌ Verification failed:', error)
     throw error
@@ -171,32 +209,33 @@ export async function verifyMigration(): Promise<void> {
  */
 export async function removeContestUsersCollection(): Promise<void> {
   checkDevelopmentOnly('removeContestUsersCollection')
-  
+
   try {
     console.log('🗑️  Removing contest-users collection...')
-    
+
     const contestUsersSnapshot = await getDocs(collection(db, 'contest-users'))
-    
+
     if (contestUsersSnapshot.empty) {
       console.log('✅ Contest-users collection is already empty')
       return
     }
 
-    console.log(`📊 Found ${contestUsersSnapshot.size} contest-users documents to delete`)
-    
+    console.log(
+      `📊 Found ${contestUsersSnapshot.size} contest-users documents to delete`
+    )
+
     // Delete in batches to avoid timeout
     const batch = writeBatch(db)
     let deleteCount = 0
-    
+
     contestUsersSnapshot.forEach(doc => {
       batch.delete(doc.ref)
       deleteCount++
     })
-    
+
     await batch.commit()
     console.log(`🗑️  Deleted ${deleteCount} contest-users documents`)
     console.log('✅ Contest-users collection removed successfully')
-    
   } catch (error) {
     console.error('❌ Failed to remove contest-users collection:', error)
     throw error
@@ -206,17 +245,20 @@ export async function removeContestUsersCollection(): Promise<void> {
 /**
  * Interactive migration with prompts and verification steps
  */
-export async function interactiveMigration(): Promise<void> {
+export function interactiveMigration(): void {
   checkDevelopmentOnly('interactiveMigration')
-  
+
   try {
     console.log('🚀 Interactive Migration to Simplified Architecture')
     console.log('\n📋 Steps:')
-    console.log('1. migrateToSimplifiedArchitecture() - Consolidate data into users collection')
+    console.log(
+      '1. migrateToSimplifiedArchitecture() - Consolidate data into users collection'
+    )
     console.log('2. verifyMigration() - Check migration was successful')
-    console.log('3. removeContestUsersCollection() - Remove old collection (after code update)')
+    console.log(
+      '3. removeContestUsersCollection() - Remove old collection (after code update)'
+    )
     console.log('\n💡 Run each step manually to ensure safe migration')
-    
   } catch (error) {
     console.error('❌ Interactive migration failed:', error)
     throw error

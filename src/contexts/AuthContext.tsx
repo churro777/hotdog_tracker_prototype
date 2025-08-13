@@ -83,8 +83,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const ensureUserDocument = useCallback(async (user: User) => {
     const userDocRef = doc(db, 'users', user.uid)
     const userDoc = await getDoc(userDocRef)
-    const displayName = user.displayName ?? user.email?.split('@')[0] ?? 'Anonymous'
-    
+    const displayName =
+      user.displayName ?? user.email?.split('@')[0] ?? 'Anonymous'
+
     if (!userDoc.exists()) {
       // Create new user document
       await setDoc(userDocRef, {
@@ -99,8 +100,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } else {
       // Verify and update existing user document with any missing fields
       const userData = userDoc.data()
-      const updates: Record<string, any> = {}
-      
+      const updates: Record<string, unknown> = {}
+
       // Check for missing required fields and add them
       if (!userData?.['displayName']) {
         updates['displayName'] = displayName
@@ -114,20 +115,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (!userData?.['createdAt']) {
         updates['createdAt'] = new Date()
       }
-      
+
       // Always update updatedAt timestamp
       updates['updatedAt'] = new Date()
-      
+
       // Apply updates if any fields are missing or need updating
       if (Object.keys(updates).length > 0) {
-        await updateDoc(userDocRef, updates)
-        console.log(`Updated user document for ${displayName} with missing fields:`, Object.keys(updates))
+        await updateDoc(userDocRef, updates as Record<string, any>)
+        console.log(
+          `Updated user document for ${displayName} with missing fields:`,
+          Object.keys(updates)
+        )
       }
     }
 
     // All user data is now in the users collection (simplified architecture)
   }, [])
-
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, user => {

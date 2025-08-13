@@ -54,7 +54,6 @@ interface UseContestDataV2Return {
  * Provides contest-specific data filtering and operations with proper async handling
  */
 function useContestDataV2(
-  contestId: string,
   currentUserId: string | undefined
 ): UseContestDataV2Return {
   const {
@@ -145,7 +144,7 @@ function useContestDataV2(
         return false
       }
     },
-    [contestId, currentUserId, contestUsers, serviceAddPost, serviceUpdateUser]
+    [currentUserId, contestUsers, serviceAddPost, serviceUpdateUser]
   )
 
   /**
@@ -229,9 +228,7 @@ function useContestDataV2(
     const currentUser = contestUsers.find(u => u.id === currentUserId)
     if (!currentUser) return null
 
-    const userPosts = contestPosts.filter(
-      p => p.userId === currentUserId
-    )
+    const userPosts = contestPosts.filter(p => p.userId === currentUserId)
     const postCount = userPosts.length
     const totalCount = currentUser.totalCount
     const avgPerPost = postCount > 0 ? totalCount / postCount : 0
