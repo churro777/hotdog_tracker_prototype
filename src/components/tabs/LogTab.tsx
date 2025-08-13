@@ -37,6 +37,16 @@ function LogTab({ onAddPost, setActiveTab }: LogTabProps) {
 
     try {
       const count = parseInt(newPostCount) ?? LIMITS.DEFAULT_ITEM_COUNT
+
+      // Log submission details for debugging
+      console.log('🚀 Submitting post:', {
+        count,
+        hasDescription: !!newPostDescription,
+        hasImage: !!imagePreview,
+        imageSize: imagePreview?.length ?? 0,
+        timestamp: new Date().toISOString(),
+      })
+
       const success = await onAddPost(
         count,
         newPostDescription ?? undefined,
@@ -44,6 +54,7 @@ function LogTab({ onAddPost, setActiveTab }: LogTabProps) {
       )
 
       if (success) {
+        console.log('✅ Post submitted successfully')
         // Reset form
         setNewPostCount(LIMITS.DEFAULT_ITEM_COUNT.toString())
         setNewPostDescription('')
@@ -52,7 +63,15 @@ function LogTab({ onAddPost, setActiveTab }: LogTabProps) {
 
         // Switch to Feed tab to show the new post
         setActiveTab(TAB_TYPES.FEED)
+      } else {
+        console.error('❌ Post submission failed - success was false')
+        alert(
+          'Failed to save post. Please check your connection and try again.'
+        )
       }
+    } catch (error) {
+      console.error('❌ Post submission error:', error)
+      alert('An error occurred while saving your post. Please try again.')
     } finally {
       setIsSubmitting(false)
     }

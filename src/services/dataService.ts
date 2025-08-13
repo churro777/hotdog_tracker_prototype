@@ -86,6 +86,17 @@ class FirebaseDataService implements DataService {
       )
       const { db } = await import('@config/firebase')
 
+      // Log Firebase post details for debugging
+      console.log('🔥 Firebase addPost started:', {
+        userId: postData.userId,
+        userName: postData.userName,
+        count: postData.count,
+        hasImage: !!postData.image,
+        imageSize: postData.image?.length ?? 0,
+        hasDescription: !!postData.description,
+        timestamp: postData.timestamp,
+      })
+
       const postsRef = collection(db, this.postsCollection)
       const dataWithTimestamp = {
         ...postData,
@@ -94,12 +105,25 @@ class FirebaseDataService implements DataService {
 
       const docRef = await addDoc(postsRef, dataWithTimestamp)
 
+      console.log('✅ Firebase addPost successful:', {
+        docId: docRef.id,
+        collection: this.postsCollection,
+      })
+
       return {
         id: docRef.id,
         ...postData,
       }
     } catch (error) {
-      console.error('Error adding post to Firebase:', error)
+      console.error('❌ Error adding post to Firebase:', {
+        error,
+        postData: {
+          userId: postData.userId,
+          count: postData.count,
+          hasImage: !!postData.image,
+          imageSize: postData.image?.length ?? 0,
+        },
+      })
       throw error
     }
   }
