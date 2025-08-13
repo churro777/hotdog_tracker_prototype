@@ -101,7 +101,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } else {
       // Verify and update existing user document with any missing fields
       const userData = userDoc.data()
-      const updates: Record<string, unknown> = {}
+      const updates: Record<string, any> = {}
       
       // Check for missing required fields and add them
       if (!userData?.['displayName']) {
@@ -122,7 +122,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       
       // Apply updates if any fields are missing or need updating
       if (Object.keys(updates).length > 0) {
-        await updateDoc(userDocRef, updates as Record<string, unknown>)
+        await updateDoc(userDocRef, updates)
         console.log(`Updated user document for ${displayName} with missing fields:`, Object.keys(updates))
       }
     }
@@ -157,7 +157,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const existingUser = existingUsers.docs[0]
         if (existingUser) {
           const userData = existingUser.data()
-          const updates: Record<string, unknown> = {}
+          const updates: Record<string, any> = {}
           
           // Check for missing required fields and add them
           if (!userData?.['contestId']) {
@@ -175,7 +175,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           
           // Apply updates if any fields are missing
           if (Object.keys(updates).length > 0) {
-            await updateDoc(doc(db, 'contest-users', existingUser.id), updates as Record<string, unknown>)
+            await updateDoc(doc(db, 'contest-users', existingUser.id), updates)
             console.log(`Updated contest user for ${displayName} with missing fields:`, Object.keys(updates))
           } else {
             console.log(`Contest user already exists and is up to date for ${displayName}`)

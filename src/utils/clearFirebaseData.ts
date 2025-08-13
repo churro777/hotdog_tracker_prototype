@@ -287,7 +287,7 @@ async function fixUserDataIntegrity(): Promise<void> {
     
     for (const userDoc of usersSnapshot.docs) {
       const userData = userDoc.data()
-      const updates: Record<string, unknown> = {}
+      const updates: Record<string, any> = {}
       
       // Check for missing required fields
       if (!userData['displayName']) {
@@ -304,7 +304,7 @@ async function fixUserDataIntegrity(): Promise<void> {
       }
       
       if (Object.keys(updates).length > 0) {
-        await updateDoc(doc(db, 'users', userDoc.id), updates as Record<string, unknown>)
+        await updateDoc(doc(db, 'users', userDoc.id), updates)
         console.log(`Fixed user ${(userData['displayName'] as string) ?? (userData['email'] as string)}: ${Object.keys(updates).join(', ')}`)
         usersFixed++
       }
@@ -316,7 +316,7 @@ async function fixUserDataIntegrity(): Promise<void> {
     
     for (const contestUserDoc of contestUsersSnapshot.docs) {
       const userData = contestUserDoc.data()
-      const updates: Record<string, unknown> = {}
+      const updates: Record<string, any> = {}
       
       // Check for missing required fields
       if (!userData['contestId']) {
@@ -330,7 +330,7 @@ async function fixUserDataIntegrity(): Promise<void> {
       }
       
       if (Object.keys(updates).length > 0) {
-        await updateDoc(doc(db, 'contest-users', contestUserDoc.id), updates as Record<string, unknown>)
+        await updateDoc(doc(db, 'contest-users', contestUserDoc.id), updates)
         console.log(`Fixed contest user ${(userData['userName'] as string) ?? (userData['userId'] as string)}: ${Object.keys(updates).join(', ')}`)
         contestUsersFixed++
       }

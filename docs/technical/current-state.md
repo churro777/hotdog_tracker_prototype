@@ -96,7 +96,6 @@ Currently **no authentication system** - users are selected from hardcoded list 
 - `src/services/dataService.ts` - Data abstraction layer
 - `src/hooks/useContestData.ts` - Data fetching hooks (current)
 - `src/hooks/useContestDataV2.ts` - Firebase-specific hooks (newer)
-- `src/utils/seedData.ts` - Initial data seeding
 - `src/constants/index.ts` - Hardcoded user/contest IDs
 
 ### Environment Configuration

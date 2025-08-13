@@ -101,7 +101,6 @@ After cleanup:
 ## 📝 Files
 
 - `src/utils/clearFirebaseData.ts` - Main cleanup utilities (dev-only)
-- `src/utils/seedData.ts` - Demo seeding (dev-only)  
 - `scripts/dev/database-cleanup.js` - Helper script with instructions
 - `DATABASE_CLEANUP.md` - This documentation
 
