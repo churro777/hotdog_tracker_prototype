@@ -48,6 +48,16 @@ We've created utilities to safely remove demo data while preserving any real use
    import('./src/utils/clearFirebaseData.js').then(m => m.clearAllFirestoreData())
    ```
 
+   **🔧 Fix missing contest users (for existing Firebase Auth users):**
+   ```javascript
+   import('./src/utils/clearFirebaseData.js').then(m => m.fixMissingContestUsers())
+   ```
+
+   **🔧 Fix missing fields in existing user data:**
+   ```javascript
+   import('./src/utils/clearFirebaseData.js').then(m => m.fixUserDataIntegrity())
+   ```
+
 ### Option 2: Quick Helper Script
 
 Run the helper script for instructions:
