@@ -91,9 +91,7 @@ function AppContent() {
   const renderTabContent = () => {
     switch (activeTab) {
       case TAB_TYPES.LEADERBOARD:
-        return (
-          <LeaderboardTab contestUsers={contestUsers} isDarkMode={isDarkMode} />
-        )
+        return <LeaderboardTab contestUsers={contestUsers} />
       case TAB_TYPES.FEED:
         return (
           <FeedTab
@@ -157,10 +155,7 @@ function AppContent() {
             </button>
           </div>
           <main className="tab-content">
-            <LeaderboardTab
-              contestUsers={contestUsers}
-              isDarkMode={isDarkMode}
-            />
+            <LeaderboardTab contestUsers={contestUsers} />
           </main>
         </div>
       )

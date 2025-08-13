@@ -2,19 +2,13 @@ import { memo } from 'react'
 
 import './LeaderboardTab.css'
 import { UI_TEXT, CSS_CLASSES, ICONS } from '@constants'
-import { getThemeColors, COMPONENT_STYLES } from '@constants/theme'
 import type { User } from '@types'
 
 interface LeaderboardTabProps {
   contestUsers: User[]
-  isDarkMode?: boolean
 }
 
-function LeaderboardTab({
-  contestUsers,
-  isDarkMode = false,
-}: LeaderboardTabProps) {
-  const themeColors = getThemeColors(isDarkMode)
+function LeaderboardTab({ contestUsers }: LeaderboardTabProps) {
   const sortedUsers = [...contestUsers].sort(
     (a, b) => b.totalCount - a.totalCount
   )
@@ -83,25 +77,23 @@ function LeaderboardTab({
       <div className="leaderboard">
         {usersWithRanks.map((user, _index) => {
           const { rank } = user
-          const isTopThree = rank <= 3
-          const dynamicStyle = isTopThree
-            ? {
-                background: `linear-gradient(135deg, ${themeColors.primary}, ${themeColors.primaryEnd})`,
-                color: 'white',
-                boxShadow: COMPONENT_STYLES.SHADOWS.LARGE,
-                borderRadius: COMPONENT_STYLES.BORDER_RADIUS.LARGE,
-                transition: COMPONENT_STYLES.TRANSITIONS.FAST,
-              }
-            : {
-                borderRadius: COMPONENT_STYLES.BORDER_RADIUS.LARGE,
-                transition: COMPONENT_STYLES.TRANSITIONS.FAST,
-              }
+          const getRankClass = (rank: number) => {
+            switch (rank) {
+              case 1:
+                return 'first-place'
+              case 2:
+                return 'second-place'
+              case 3:
+                return 'third-place'
+              default:
+                return ''
+            }
+          }
 
           return (
             <div
               key={user.id}
-              className={`leaderboard-item ${rank <= 3 ? 'top-three' : ''}`}
-              style={dynamicStyle}
+              className={`leaderboard-item ${getRankClass(rank)} ${rank <= 3 ? 'top-three' : ''}`}
             >
               <div className="rank">{getRankEmoji(rank)}</div>
               <div className="user-info">
