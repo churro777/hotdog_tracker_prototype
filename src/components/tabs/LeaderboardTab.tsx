@@ -19,6 +19,39 @@ function LeaderboardTab({
     (a, b) => b.totalCount - a.totalCount
   )
 
+  // Calculate ranks with special tie handling (no ties for 1st place)
+  const usersWithRanks: (User & { rank: number })[] = []
+
+  for (let i = 0; i < sortedUsers.length; i++) {
+    const user = sortedUsers[i]
+
+    if (i === 0) {
+      // First user: check if tied with others
+      const tiedCount = sortedUsers.filter(
+        u => u.totalCount === user.totalCount
+      ).length
+      if (tiedCount === 1) {
+        // Only one person with this score - gets rank 1
+        usersWithRanks.push({ ...user, rank: 1 })
+      } else {
+        // Multiple people tied - they get rank 2 (no ties for 1st place)
+        usersWithRanks.push({ ...user, rank: 2 })
+      }
+    } else {
+      // Check if same score as previous user
+      if (sortedUsers[i - 1]?.totalCount === user.totalCount) {
+        // Same score as previous user - same rank
+        const previousUser = usersWithRanks[i - 1]
+        if (previousUser) {
+          usersWithRanks.push({ ...user, rank: previousUser.rank })
+        }
+      } else {
+        // Different score - new rank is current index + 1
+        usersWithRanks.push({ ...user, rank: i + 1 })
+      }
+    }
+  }
+
   const getRankEmoji = (rank: number) => {
     switch (rank) {
       case 1:
@@ -36,8 +69,8 @@ function LeaderboardTab({
     <div className={CSS_CLASSES.TAB_PANEL}>
       <h2>{UI_TEXT.TABS.LEADERBOARD}</h2>
       <div className="leaderboard">
-        {sortedUsers.map((user, index) => {
-          const rank = index + 1
+        {usersWithRanks.map((user, _index) => {
+          const { rank } = user
           const isTopThree = rank <= 3
           const dynamicStyle = isTopThree
             ? {
@@ -70,7 +103,7 @@ function LeaderboardTab({
           )
         })}
       </div>
-      {sortedUsers.length === 0 && (
+      {usersWithRanks.length === 0 && (
         <p className={CSS_CLASSES.EMPTY_STATE}>
           {UI_TEXT.EMPTY_STATES.NO_CONTESTANTS}
         </p>
