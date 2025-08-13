@@ -91,6 +91,14 @@ export const UI_TEXT = {
     'Crunching the numbers... 🔢',
     'Summoning the data... ✨',
     'Building the scoreboard... 📈',
+    'Can you ketchup? 🍅',
+    'Relish this victory 🥒',
+    'Wurst-case scenario, we eat them all 🌭',
+    'Bun voyage 🍞',
+    'Weiner takes all 🏆',
+    'Suns out, buns out ☀️',
+    "Frankly, we're on a roll 🌭",
+    'The wurst is yet to come 😈',
   ],
 
   EMPTY_STATES: {
