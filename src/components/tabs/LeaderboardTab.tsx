@@ -3,10 +3,10 @@ import { memo } from 'react'
 import './LeaderboardTab.css'
 import { UI_TEXT, CSS_CLASSES, ICONS } from '@constants'
 import { getThemeColors, COMPONENT_STYLES } from '@constants/theme'
-import type { ContestUser } from '@types'
+import type { User } from '@types'
 
 interface LeaderboardTabProps {
-  contestUsers: ContestUser[]
+  contestUsers: User[]
   isDarkMode?: boolean
 }
 
@@ -60,7 +60,7 @@ function LeaderboardTab({
             >
               <div className="rank">{getRankEmoji(rank)}</div>
               <div className="user-info">
-                <div className="user-name">{user.userName}</div>
+                <div className="user-name">{user.displayName}</div>
                 <div className="user-score">{user.totalCount} hot dogs</div>
               </div>
               <div className="hot-dog-count">

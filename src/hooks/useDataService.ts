@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 
-import type { ContestPost, ContestUser } from '@types'
+import type { ContestPost, User } from '@types'
 import { logError, logUserError } from '@utils/errorLogger'
 
 import { dataService } from '../services/dataService'
@@ -16,7 +16,7 @@ import { dataService } from '../services/dataService'
 interface UseDataServiceReturn {
   // Data state
   posts: ContestPost[]
-  users: ContestUser[]
+  users: User[]
 
   // Loading states
   isLoading: boolean
@@ -38,9 +38,9 @@ interface UseDataServiceReturn {
   deletePost: (id: string) => Promise<boolean>
   updateUser: (
     id: string,
-    updates: Partial<ContestUser>
-  ) => Promise<ContestUser | null>
-  addUser: (userData: Omit<ContestUser, 'id'>) => Promise<ContestUser | null>
+    updates: Partial<User>
+  ) => Promise<User | null>
+  addUser: (userData: Omit<User, 'id'>) => Promise<User | null>
 }
 
 /**
@@ -50,7 +50,7 @@ interface UseDataServiceReturn {
 export function useDataService(): UseDataServiceReturn {
   // Data state
   const [posts, setPosts] = useState<ContestPost[]>([])
-  const [users, setUsers] = useState<ContestUser[]>([])
+  const [users, setUsers] = useState<User[]>([])
 
   // Loading states
   const [isPostsLoading, setIsPostsLoading] = useState(true)
@@ -198,8 +198,8 @@ export function useDataService(): UseDataServiceReturn {
   const updateUser = useCallback(
     async (
       id: string,
-      updates: Partial<ContestUser>
-    ): Promise<ContestUser | null> => {
+      updates: Partial<User>
+    ): Promise<User | null> => {
       try {
         const updatedUser = await dataService.updateUser(id, updates)
 
@@ -227,7 +227,7 @@ export function useDataService(): UseDataServiceReturn {
    * Add a new user
    */
   const addUser = useCallback(
-    async (userData: Omit<ContestUser, 'id'>): Promise<ContestUser | null> => {
+    async (userData: Omit<User, 'id'>): Promise<User | null> => {
       try {
         const newUser = await dataService.addUser(userData)
 
@@ -237,7 +237,7 @@ export function useDataService(): UseDataServiceReturn {
         return newUser
       } catch (error) {
         const errorMessage = 'Failed to add user'
-        logUserError(errorMessage, error as Error, userData.userId, 'add-user')
+        logUserError(errorMessage, error as Error, userData.email, 'add-user')
         return null
       }
     },

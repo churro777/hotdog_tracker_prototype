@@ -43,41 +43,11 @@ function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
   } = usePostEdit(onEditPost)
 
   /**
-   * Renders the content of a post based on its type.
-   * Different rendering for entry, join, and invite posts.
-   *
+   * Renders the content of a post (simplified architecture - all posts are consumption entries)
    * @param {ContestPost} post - The post to render
    * @returns {JSX.Element} The rendered post content
    */
   const renderPostContent = (post: ContestPost) => {
-    if (post.type === 'join') {
-      return (
-        <div className="post-content join-post">
-          <div className="join-notification">
-            🎉 <strong>{post.userName}</strong> joined the contest!
-          </div>
-          {post.description && (
-            <div className="post-description">{post.description}</div>
-          )}
-        </div>
-      )
-    }
-
-    if (post.type === 'invite') {
-      return (
-        <div className="post-content invite-post">
-          <div className="invite-notification">
-            📧 <strong>{post.userName}</strong> invited new participants to the
-            contest
-          </div>
-          {post.description && (
-            <div className="post-description">{post.description}</div>
-          )}
-        </div>
-      )
-    }
-
-    // Default entry post
     return (
       <div className="post-content">
         <div className="post-count">
@@ -86,6 +56,11 @@ function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
         </div>
         {post.description && (
           <div className="post-description">{post.description}</div>
+        )}
+        {post.image && (
+          <div className="post-image">
+            <img src={post.image} alt="Contest item" />
+          </div>
         )}
       </div>
     )
@@ -100,8 +75,8 @@ function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
       <div className="posts-section">
         <div className="posts-list">
           {posts.map(post => (
-            <div key={post.id} className={`post-item ${post.type}`}>
-              {editingPostId === post.id && post.type === 'entry' ? (
+            <div key={post.id} className="post-item">
+              {editingPostId === post.id ? (
                 <div className="edit-form">
                   <div className="post-header">
                     <div className="post-user">{post.userName}</div>
@@ -167,15 +142,14 @@ function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
                           minute: '2-digit',
                         })}
                       </div>
-                      {post.userId === currentUserId &&
-                        post.type === 'entry' && (
-                          <button
-                            onClick={() => startEditing(post)}
-                            className="edit-post-btn"
-                          >
-                            ✏️
-                          </button>
-                        )}
+                      {post.userId === currentUserId && (
+                        <button
+                          onClick={() => startEditing(post)}
+                          className="edit-post-btn"
+                        >
+                          ✏️
+                        </button>
+                      )}
                     </div>
                   </div>
 

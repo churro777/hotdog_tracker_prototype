@@ -387,3 +387,11 @@ export {
   interactiveCleanup,
   DEMO_USER_IDS,
 }
+
+// Export migration functions
+export { 
+  migrateToSimplifiedArchitecture, 
+  verifyMigration, 
+  removeContestUsersCollection,
+  interactiveMigration 
+} from './migrateToSimplifiedArchitecture'

@@ -2,13 +2,35 @@ import React from 'react'
 
 import { render, type RenderOptions } from '@testing-library/react'
 
-import { CONTEST_IDS, POST_TYPES } from '@constants'
-import type { ContestPost, ContestUser } from '@types'
+import { CONTEST_IDS } from '@constants'
+import type { ContestPost, User, ContestUser } from '@types'
 
 /**
- * Mock data for testing components
+ * Mock data for testing components (simplified architecture)
  */
-export const mockContestUsers: ContestUser[] = [
+export const mockContestUsers: User[] = [
+  {
+    id: 'joey-chestnut',
+    email: 'joey@example.com',
+    displayName: 'Joey Chestnut',
+    totalCount: 23,
+    createdAt: new Date('2024-01-01'),
+    lastActive: new Date('2024-01-02'),
+  },
+  {
+    id: 'current-user',
+    email: 'user@example.com',
+    displayName: 'You',
+    totalCount: 5,
+    createdAt: new Date('2024-01-01'),
+    lastActive: new Date('2024-01-02'),
+  },
+]
+
+/**
+ * Legacy mock data for migration compatibility
+ */
+export const mockLegacyContestUsers: ContestUser[] = [
   {
     id: 'cu-1',
     contestId: CONTEST_IDS.DEFAULT,
@@ -28,32 +50,27 @@ export const mockContestUsers: ContestUser[] = [
 export const mockContestPosts: ContestPost[] = [
   {
     id: '1',
-    contestId: CONTEST_IDS.DEFAULT,
     userId: 'current-user',
     userName: 'You',
     count: 3,
     timestamp: new Date('2024-01-01T12:00:00Z'),
     description: 'First post!',
-    type: POST_TYPES.ENTRY,
   },
   {
     id: '2',
-    contestId: CONTEST_IDS.DEFAULT,
     userId: 'joey-chestnut',
     userName: 'Joey Chestnut',
     count: 5,
     timestamp: new Date('2024-01-01T13:00:00Z'),
     description: 'Champion performance',
-    type: POST_TYPES.ENTRY,
   },
   {
     id: '3',
-    contestId: CONTEST_IDS.DEFAULT,
     userId: 'current-user',
     userName: 'You',
+    count: 1,
     timestamp: new Date('2024-01-01T14:00:00Z'),
     description: 'Welcome message',
-    type: POST_TYPES.JOIN,
   },
 ]
 

@@ -4,10 +4,9 @@
  * Uses the service layer abstraction for better Firebase integration preparation
  */
 
-import { useMemo, useCallback } from 'react'
+import { useCallback } from 'react'
 
-import { POST_TYPES } from '@constants'
-import type { ContestPost, ContestUser } from '@types'
+import type { ContestPost, User } from '@types'
 import { logError, logValidationError } from '@utils/errorLogger'
 
 import useDataService from './useDataService'
@@ -18,11 +17,11 @@ import useDataService from './useDataService'
 interface UseContestDataV2Return {
   // Filtered data for current contest
   contestPosts: ContestPost[]
-  contestUsers: ContestUser[]
+  contestUsers: User[]
 
   // All data (for global operations)
   allPosts: ContestPost[]
-  allUsers: ContestUser[]
+  allUsers: User[]
 
   // Loading and error states
   isLoading: boolean
@@ -69,16 +68,9 @@ function useContestDataV2(
     refreshData,
   } = useDataService()
 
-  // Filter data for current contest
-  const contestPosts = useMemo(
-    () => allPosts.filter(post => post.contestId === contestId),
-    [allPosts, contestId]
-  )
-
-  const contestUsers = useMemo(
-    () => allUsers.filter(user => user.contestId === contestId),
-    [allUsers, contestId]
-  )
+  // In simplified architecture, all posts and users are in the single contest
+  const contestPosts = allPosts
+  const contestUsers = allUsers
 
   /**
    * Add a new contest post with user total count update
@@ -112,12 +104,12 @@ function useContestDataV2(
 
         // Find current user
         const currentContestUser = contestUsers.find(
-          u => u.userId === currentUserId
+          u => u.id === currentUserId
         )
         if (!currentContestUser) {
           logValidationError(
             `Current user ${currentUserId} not found in contest users`,
-            { currentUserId, availableUsers: contestUsers.map(u => u.userId) },
+            { currentUserId, availableUsers: contestUsers.map(u => u.id) },
             'user-validation'
           )
           return false
@@ -125,12 +117,10 @@ function useContestDataV2(
 
         // Create new post data
         const postData: Omit<ContestPost, 'id'> = {
-          contestId,
           userId: currentUserId,
-          userName: currentContestUser.userName,
+          userName: currentContestUser.displayName,
           count,
           timestamp: new Date(),
-          type: POST_TYPES.ENTRY,
           ...(image !== undefined && { image }),
           ...(description !== undefined && { description }),
         }
@@ -190,7 +180,7 @@ function useContestDataV2(
         }
 
         // Find the user who owns this post
-        const postUser = contestUsers.find(u => u.userId === postToEdit.userId)
+        const postUser = contestUsers.find(u => u.id === postToEdit.userId)
         if (!postUser) {
           logValidationError(
             `User ${postToEdit.userId} not found in contest users`,
@@ -236,11 +226,11 @@ function useContestDataV2(
   const getCurrentUserStats = useCallback(() => {
     if (!currentUserId) return null
 
-    const currentUser = contestUsers.find(u => u.userId === currentUserId)
+    const currentUser = contestUsers.find(u => u.id === currentUserId)
     if (!currentUser) return null
 
     const userPosts = contestPosts.filter(
-      p => p.userId === currentUserId && p.type === POST_TYPES.ENTRY
+      p => p.userId === currentUserId
     )
     const postCount = userPosts.length
     const totalCount = currentUser.totalCount

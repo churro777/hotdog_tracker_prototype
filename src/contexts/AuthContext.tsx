@@ -13,10 +13,9 @@ import {
   TwitterAuthProvider,
   OAuthProvider,
 } from 'firebase/auth'
-import { doc, setDoc, getDoc, collection, addDoc, query, where, getDocs, updateDoc } from 'firebase/firestore'
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore'
 
 import { auth, db } from '@config/firebase'
-import { CONTEST_IDS } from '@constants'
 
 import { AuthContext, type AuthContextType } from './AuthContext.types'
 
@@ -52,8 +51,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       updatedAt: new Date(),
     })
 
-    // Create contest user record
-    await ensureContestUser(user.uid, displayName)
+    // User is automatically in the contest (simplified architecture)
   }
 
   const login = async (email: string, password: string) => {
@@ -127,66 +125,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
     }
 
-    // Ensure contest user document exists and is up to date
-    await ensureContestUser(user.uid, displayName)
+    // All user data is now in the users collection (simplified architecture)
   }, [])
 
-  const ensureContestUser = async (userId: string, displayName: string) => {
-    try {
-      // Check if user already exists in the contest
-      const contestUsersRef = collection(db, 'contest-users')
-      const q = query(
-        contestUsersRef, 
-        where('contestId', '==', CONTEST_IDS.DEFAULT),
-        where('userId', '==', userId)
-      )
-      const existingUsers = await getDocs(q)
-      
-      if (existingUsers.empty) {
-        // Create new contest user record
-        await addDoc(contestUsersRef, {
-          contestId: CONTEST_IDS.DEFAULT,
-          userId: userId,
-          userName: displayName,
-          totalCount: 0,
-        })
-        
-        console.log(`Created contest user for ${displayName} in contest ${CONTEST_IDS.DEFAULT}`)
-      } else {
-        // Verify and update existing contest user with any missing fields
-        const existingUser = existingUsers.docs[0]
-        if (existingUser) {
-          const userData = existingUser.data()
-          const updates: Record<string, any> = {}
-          
-          // Check for missing required fields and add them
-          if (!userData?.['contestId']) {
-            updates['contestId'] = CONTEST_IDS.DEFAULT
-          }
-          if (!userData?.['userId']) {
-            updates['userId'] = userId
-          }
-          if (!userData?.['userName']) {
-            updates['userName'] = displayName
-          }
-          if (!userData?.['totalCount'] && userData?.['totalCount'] !== 0) {
-            updates['totalCount'] = 0
-          }
-          
-          // Apply updates if any fields are missing
-          if (Object.keys(updates).length > 0) {
-            await updateDoc(doc(db, 'contest-users', existingUser.id), updates)
-            console.log(`Updated contest user for ${displayName} with missing fields:`, Object.keys(updates))
-          } else {
-            console.log(`Contest user already exists and is up to date for ${displayName}`)
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error ensuring contest user:', error)
-      // Don't throw error to avoid breaking authentication flow
-    }
-  }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, user => {

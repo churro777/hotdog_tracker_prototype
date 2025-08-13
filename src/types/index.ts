@@ -4,50 +4,75 @@
 export type Tab = 'leaderboard' | 'feed' | 'log' | 'journal'
 
 /**
- * Represents a user in the system
+ * Represents a user in the system (simplified architecture - includes contest data)
  * @interface User
  */
 export interface User {
-  /** Unique identifier for the user */
+  /** Unique identifier for the user (Firebase Auth UID) */
   id: string
-  /** Display name of the user */
-  name: string
-  /** Optional avatar URL for the user */
+  /** User's email from Firebase Auth */
+  email: string
+  /** User-chosen display name */
+  displayName: string
+  /** Optional profile picture URL */
   avatar?: string
-  /** Array of user IDs representing the user's contacts */
-  contacts?: string[]
+  /** Account creation timestamp */
+  createdAt: Date
+  /** Last app usage */
+  lastActive: Date
+  /** Running total of hot dogs consumed */
+  totalCount: number
+  /** Optional user bio */
+  bio?: string
+  /** Personal best single day */
+  bestDay?: {
+    count: number
+    date: Date
+  }
+  /** Array of achievement IDs */
+  achievements?: string[]
+  /** User settings */
+  preferences?: {
+    notifications: boolean
+    theme: 'light' | 'dark'
+  }
 }
 
 /**
- * Represents a post in a contest
+ * Represents a post in a contest (simplified architecture - single contest)
  * @interface ContestPost
  */
 export interface ContestPost {
   /** Unique identifier for the post */
   id: string
-  /** ID of the contest this post belongs to */
-  contestId: string
-  /** ID of the user who created the post */
+  /** ID of the user who created the post (Firebase Auth UID) */
   userId: string
   /** Display name of the user who created the post */
   userName: string
-  /** Number of items consumed (optional for join/invite posts) */
-  count?: number
+  /** Number of hot dogs consumed (always required) */
+  count: number
   /** Optional image URL for the post */
   image?: string
   /** Timestamp when the post was created */
   timestamp: Date
   /** Optional description or comment for the post */
   description?: string
-  /** Type of post - entry for consumption tracking, join for joining contest, invite for inviting others */
-  type: 'entry' | 'join' | 'invite'
-  /** Array of user IDs for invite posts */
-  invitedUsers?: string[]
+  /** User reactions to posts */
+  reactions?: {
+    [userId: string]: 'like' | 'fire' | 'wow'
+  }
+  /** Optional location data */
+  location?: {
+    lat: number
+    lng: number
+    name?: string
+  }
 }
 
 /**
- * Represents a user's participation in a specific contest
- * @interface ContestUser
+ * @deprecated ContestUser is deprecated in simplified architecture
+ * Use User interface instead - contest data is now part of the User
+ * This interface remains for migration compatibility only
  */
 export interface ContestUser {
   /** Unique identifier for the contest user record */

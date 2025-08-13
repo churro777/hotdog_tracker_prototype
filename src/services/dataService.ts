@@ -4,7 +4,7 @@
  * between localStorage (current) and Firebase (future) implementations
  */
 
-import type { ContestPost, ContestUser } from '@types'
+import type { ContestPost, User } from '@types'
 
 /**
  * Generic data service interface
@@ -16,10 +16,10 @@ export interface DataService {
   updatePost(id: string, updates: Partial<ContestPost>): Promise<ContestPost>
   deletePost(id: string): Promise<void>
 
-  // Contest Users
-  getUsers(): Promise<ContestUser[]>
-  updateUser(id: string, updates: Partial<ContestUser>): Promise<ContestUser>
-  addUser(user: Omit<ContestUser, 'id'>): Promise<ContestUser>
+  // Users (simplified architecture - includes contest data)
+  getUsers(): Promise<User[]>
+  updateUser(id: string, updates: Partial<User>): Promise<User>
+  addUser(user: Omit<User, 'id'>): Promise<User>
 
   // Batch operations
   batchUpdate(operations: BatchOperation[]): Promise<void>
@@ -30,7 +30,7 @@ export interface DataService {
  */
 export type BatchOperation =
   | { type: 'create'; collection: 'posts'; data: Omit<ContestPost, 'id'> }
-  | { type: 'create'; collection: 'users'; data: Omit<ContestUser, 'id'> }
+  | { type: 'create'; collection: 'users'; data: Omit<User, 'id'> }
   | {
       type: 'update'
       collection: 'posts'
@@ -41,7 +41,7 @@ export type BatchOperation =
       type: 'update'
       collection: 'users'
       id: string
-      data: Partial<ContestUser>
+      data: Partial<User>
     }
   | { type: 'delete'; collection: 'posts'; id: string }
 
@@ -52,7 +52,7 @@ export type BatchOperation =
  */
 class FirebaseDataService implements DataService {
   private readonly postsCollection = 'contest-posts'
-  private readonly usersCollection = 'contest-users'
+  private readonly usersCollection = 'users'
 
   async getPosts(): Promise<ContestPost[]> {
     try {
@@ -156,18 +156,27 @@ class FirebaseDataService implements DataService {
     }
   }
 
-  async getUsers(): Promise<ContestUser[]> {
+  async getUsers(): Promise<User[]> {
     try {
-      const { collection, getDocs } = await import('firebase/firestore')
+      const { collection, getDocs, orderBy, query } = await import('firebase/firestore')
       const { db } = await import('@config/firebase')
 
       const usersRef = collection(db, this.usersCollection)
-      const snapshot = await getDocs(usersRef)
+      const q = query(usersRef, orderBy('totalCount', 'desc'))
+      const snapshot = await getDocs(q)
 
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as ContestUser[]
+      return snapshot.docs.map(doc => {
+        const data = doc.data() as Record<string, unknown>
+        const createdAt = data['createdAt'] as { toDate(): Date } | undefined
+        const lastActive = data['lastActive'] as { toDate(): Date } | undefined
+        
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: createdAt?.toDate() ?? new Date(),
+          lastActive: lastActive?.toDate() ?? new Date(),
+        }
+      }) as User[]
     } catch (error) {
       console.error('Error fetching users from Firebase:', error)
       throw error
@@ -176,37 +185,59 @@ class FirebaseDataService implements DataService {
 
   async updateUser(
     id: string,
-    updates: Partial<ContestUser>
-  ): Promise<ContestUser> {
+    updates: Partial<User>
+  ): Promise<User> {
     try {
-      const { doc, updateDoc, getDoc } = await import('firebase/firestore')
+      const { doc, updateDoc, getDoc, Timestamp } = await import('firebase/firestore')
       const { db } = await import('@config/firebase')
 
       const userRef = doc(db, this.usersCollection, id)
-      await updateDoc(userRef, updates)
+      const updatesWithTimestamp = {
+        ...updates,
+        ...(updates.createdAt && {
+          createdAt: Timestamp.fromDate(updates.createdAt),
+        }),
+        ...(updates.lastActive && {
+          lastActive: Timestamp.fromDate(updates.lastActive),
+        }),
+      }
+      
+      await updateDoc(userRef, updatesWithTimestamp)
 
       const updatedDoc = await getDoc(userRef)
       if (!updatedDoc.exists()) {
         throw new Error(`User with id ${id} not found`)
       }
 
+      const data = updatedDoc.data() as Record<string, unknown>
+      const createdAt = data['createdAt'] as { toDate(): Date } | undefined
+      const lastActive = data['lastActive'] as { toDate(): Date } | undefined
+
       return {
         id: updatedDoc.id,
-        ...updatedDoc.data(),
-      } as ContestUser
+        ...data,
+        createdAt: createdAt?.toDate() ?? new Date(),
+        lastActive: lastActive?.toDate() ?? new Date(),
+      } as User
     } catch (error) {
       console.error('Error updating user in Firebase:', error)
       throw error
     }
   }
 
-  async addUser(userData: Omit<ContestUser, 'id'>): Promise<ContestUser> {
+  async addUser(userData: Omit<User, 'id'>): Promise<User> {
     try {
-      const { collection, addDoc } = await import('firebase/firestore')
+      const { collection, addDoc, Timestamp } = await import('firebase/firestore')
       const { db } = await import('@config/firebase')
 
       const usersRef = collection(db, this.usersCollection)
-      const docRef = await addDoc(usersRef, userData)
+      const dataWithTimestamp = {
+        ...userData,
+        createdAt: Timestamp.fromDate(userData.createdAt),
+        lastActive: Timestamp.fromDate(userData.lastActive),
+      }
+      
+      const docRef = await addDoc(usersRef, dataWithTimestamp)
 
       return {
         id: docRef.id,
