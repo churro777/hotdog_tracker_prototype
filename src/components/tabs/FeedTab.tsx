@@ -180,12 +180,6 @@ function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
                     </div>
                   </div>
 
-                  {post.image && (
-                    <div className="post-image">
-                      <img src={post.image} alt="Contest item" />
-                    </div>
-                  )}
-
                   {renderPostContent(post)}
                 </>
               )}
