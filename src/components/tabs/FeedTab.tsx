@@ -1,6 +1,7 @@
 import { memo } from 'react'
 
 import './FeedTab.css'
+import { FORM_CONFIG, BUTTON_TEXT, ICONS } from '@constants'
 import usePostEdit from '@hooks/usePostEdit'
 import type { ContestPost } from '@types'
 
@@ -15,7 +16,8 @@ interface FeedTabProps {
   onEditPost: (
     postId: string,
     newCount: number,
-    newDescription?: string
+    newDescription?: string,
+    newImage?: string
   ) => Promise<boolean>
   /** ID of the current user (used to determine edit permissions) */
   currentUserId: string
@@ -34,9 +36,12 @@ function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
     editingPostId,
     editCount,
     editDescription,
+    editImage,
     isSaving,
     setEditCount,
     setEditDescription,
+    handleImageUpload,
+    clearImage,
     startEditing,
     saveEdit,
     cancelEdit,
@@ -100,9 +105,16 @@ function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
                     </div>
                   </div>
 
-                  {post.image && (
+                  {editImage && (
                     <div className="post-image">
-                      <img src={post.image} alt="Contest item" />
+                      <img src={editImage} alt="Contest item" />
+                      <button
+                        type="button"
+                        onClick={clearImage}
+                        className="remove-image"
+                      >
+                        {BUTTON_TEXT.REMOVE}
+                      </button>
                     </div>
                   )}
 
@@ -126,6 +138,21 @@ function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
                         placeholder="How was it? Any comments?"
                         className="edit-description-input"
                         rows={2}
+                      />
+                    </div>
+                    <div className="edit-image">
+                      <label
+                        htmlFor={`feed-edit-image-upload-${post.id}`}
+                        className="image-upload-label"
+                      >
+                        {ICONS.CAMERA} {FORM_CONFIG.LABELS.UPLOAD_PICTURE}
+                      </label>
+                      <input
+                        id={`feed-edit-image-upload-${post.id}`}
+                        type="file"
+                        accept={FORM_CONFIG.INPUT_TYPES.IMAGE_ACCEPT}
+                        onChange={handleImageUpload}
+                        className="image-upload-input"
                       />
                     </div>
                   </div>

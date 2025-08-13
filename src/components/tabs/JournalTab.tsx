@@ -1,6 +1,7 @@
 import { memo } from 'react'
 
 import './JournalTab.css'
+import { FORM_CONFIG, BUTTON_TEXT, ICONS } from '@constants'
 import usePostEdit from '@hooks/usePostEdit'
 import type { ContestPost } from '@types'
 
@@ -10,7 +11,8 @@ interface JournalTabProps {
   onEditPost: (
     postId: string,
     newCount: number,
-    newDescription?: string
+    newDescription?: string,
+    newImage?: string
   ) => Promise<boolean>
 }
 
@@ -19,9 +21,12 @@ function JournalTab({ posts, currentUserId, onEditPost }: JournalTabProps) {
     editingPostId,
     editCount,
     editDescription,
+    editImage,
     isSaving,
     setEditCount,
     setEditDescription,
+    handleImageUpload,
+    clearImage,
     startEditing,
     saveEdit,
     cancelEdit,
@@ -122,9 +127,16 @@ function JournalTab({ posts, currentUserId, onEditPost }: JournalTabProps) {
                               </div>
                             </div>
 
-                            {post.image && (
+                            {editImage && (
                               <div className="journal-post-image">
-                                <img src={post.image} alt="Contest item" />
+                                <img src={editImage} alt="Contest item" />
+                                <button
+                                  type="button"
+                                  onClick={clearImage}
+                                  className="remove-image"
+                                >
+                                  {BUTTON_TEXT.REMOVE}
+                                </button>
                               </div>
                             )}
 
@@ -150,6 +162,22 @@ function JournalTab({ posts, currentUserId, onEditPost }: JournalTabProps) {
                                   placeholder="How was it? Any comments?"
                                   className="edit-description-input"
                                   rows={2}
+                                />
+                              </div>
+                              <div className="edit-image">
+                                <label
+                                  htmlFor={`edit-image-upload-${post.id}`}
+                                  className="image-upload-label"
+                                >
+                                  {ICONS.CAMERA}{' '}
+                                  {FORM_CONFIG.LABELS.UPLOAD_PICTURE}
+                                </label>
+                                <input
+                                  id={`edit-image-upload-${post.id}`}
+                                  type="file"
+                                  accept={FORM_CONFIG.INPUT_TYPES.IMAGE_ACCEPT}
+                                  onChange={handleImageUpload}
+                                  className="image-upload-input"
                                 />
                               </div>
                             </div>

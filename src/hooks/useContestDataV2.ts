@@ -36,7 +36,8 @@ interface UseContestDataV2Return {
   editPost: (
     postId: string,
     newCount: number,
-    newDescription?: string
+    newDescription?: string,
+    newImage?: string
   ) => Promise<boolean>
   refreshData: () => Promise<void>
 
@@ -154,7 +155,8 @@ function useContestDataV2(
     async (
       postId: string,
       newCount: number,
-      newDescription?: string
+      newDescription?: string,
+      newImage?: string
     ): Promise<boolean> => {
       try {
         // Validation
@@ -196,6 +198,7 @@ function useContestDataV2(
         const updateData: Partial<ContestPost> = {
           count: newCount,
           ...(newDescription !== undefined && { description: newDescription }),
+          ...(newImage !== undefined && { image: newImage }),
         }
         const updatedPost = await serviceUpdatePost(postId, updateData)
         if (!updatedPost) return false
