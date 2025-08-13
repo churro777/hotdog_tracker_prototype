@@ -27,27 +27,6 @@ export const CONTEST_IDS = {
   DEFAULT: 'hotdog-contest',
 } as const
 
-/**
- * User identifier constants for mock users and current user
- */
-export const USER_IDS = {
-  /** ID representing the current logged-in user */
-  CURRENT_USER: '1',
-  /** Famous competitive eater Joey Chestnut */
-  JOEY_CHESTNUT: '2',
-  /** Famous competitive eater Takeru Kobayashi */
-  TAKERU_KOBAYASHI: '3',
-  /** Competitive eater Matt Stonie */
-  MATT_STONIE: '4',
-  /** Generic friend user for testing */
-  FRIEND: '5',
-  /** Mock user Sarah Johnson */
-  SARAH_JOHNSON: '6',
-  /** Mock user Mike Chen */
-  MIKE_CHEN: '7',
-  /** Mock user Emma Wilson */
-  EMMA_WILSON: '8',
-} as const
 
 /**
  * Post type constants for different kinds of contest posts
@@ -223,51 +202,6 @@ export const CSS_CLASSES = {
   },
 } as const
 
-// Default Mock Data
-export const DEFAULT_DATA = {
-  USERS: [
-    {
-      id: 'cu-1',
-      contestId: CONTEST_IDS.DEFAULT,
-      userId: USER_IDS.JOEY_CHESTNUT,
-      userName: 'Joey Chestnut',
-      totalCount: 23,
-    },
-    {
-      id: 'cu-2',
-      contestId: CONTEST_IDS.DEFAULT,
-      userId: USER_IDS.TAKERU_KOBAYASHI,
-      userName: 'Takeru Kobayashi',
-      totalCount: 18,
-    },
-    {
-      id: 'cu-3',
-      contestId: CONTEST_IDS.DEFAULT,
-      userId: USER_IDS.MATT_STONIE,
-      userName: 'Matt Stonie',
-      totalCount: 15,
-    },
-    {
-      id: 'cu-4',
-      contestId: CONTEST_IDS.DEFAULT,
-      userId: USER_IDS.CURRENT_USER,
-      userName: 'You',
-      totalCount: 3,
-    },
-    {
-      id: 'cu-5',
-      contestId: CONTEST_IDS.DEFAULT,
-      userId: USER_IDS.FRIEND,
-      userName: 'Your Friend',
-      totalCount: 7,
-    },
-  ],
-
-  POST: {
-    DESCRIPTION: 'Just crushed 5 more! 🌭',
-    COUNT: 5,
-  },
-} as const
 
 // Statistics Labels
 export const STATS_LABELS = {

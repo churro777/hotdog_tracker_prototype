@@ -1,13 +1,33 @@
 /**
  * Firebase seed data utility
- * Creates initial contest users and posts for testing
+ * Creates initial contest users and posts for demo purposes
+ * 🚨 DEVELOPMENT ONLY - Blocked in production
  */
 
 import { collection, addDoc, getDocs, Timestamp } from 'firebase/firestore'
 
 import { db } from '@config/firebase'
-import { CONTEST_IDS, USER_IDS, POST_TYPES } from '@constants'
+import { CONTEST_IDS, POST_TYPES } from '@constants'
 import type { ContestPost, ContestUser } from '@types'
+
+/**
+ * Check if we're in development environment
+ */
+function isDevelopmentEnvironment(): boolean {
+  return import.meta.env.DEV || import.meta.env['VITE_APP_ENVIRONMENT'] === 'development'
+}
+
+/**
+ * Guard function to prevent usage in production
+ */
+function checkDevelopmentOnly(functionName: string): void {
+  if (!isDevelopmentEnvironment()) {
+    throw new Error(
+      `🚨 Security Error: ${functionName} is only available in development environment. ` +
+      `Current environment: ${import.meta.env['VITE_APP_ENVIRONMENT'] ?? 'production'}`
+    )
+  }
+}
 
 /**
  * Initial contest users for seeding
@@ -15,19 +35,19 @@ import type { ContestPost, ContestUser } from '@types'
 const SEED_USERS: Omit<ContestUser, 'id'>[] = [
   {
     contestId: CONTEST_IDS.DEFAULT,
-    userId: USER_IDS.JOEY_CHESTNUT,
+    userId: 'joey-chestnut-demo',
     userName: 'Joey Chestnut',
     totalCount: 0,
   },
   {
     contestId: CONTEST_IDS.DEFAULT,
-    userId: USER_IDS.TAKERU_KOBAYASHI,
+    userId: 'takeru-kobayashi-demo',
     userName: 'Takeru Kobayashi',
     totalCount: 0,
   },
   {
     contestId: CONTEST_IDS.DEFAULT,
-    userId: USER_IDS.MATT_STONIE,
+    userId: 'matt-stonie-demo',
     userName: 'Matt Stonie',
     totalCount: 0,
   },
@@ -39,7 +59,7 @@ const SEED_USERS: Omit<ContestUser, 'id'>[] = [
 const SEED_POSTS: Omit<ContestPost, 'id'>[] = [
   {
     contestId: CONTEST_IDS.DEFAULT,
-    userId: USER_IDS.JOEY_CHESTNUT,
+    userId: 'joey-chestnut-demo',
     userName: 'Joey Chestnut',
     count: 15,
     timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
@@ -48,7 +68,7 @@ const SEED_POSTS: Omit<ContestPost, 'id'>[] = [
   },
   {
     contestId: CONTEST_IDS.DEFAULT,
-    userId: USER_IDS.TAKERU_KOBAYASHI,
+    userId: 'takeru-kobayashi-demo',
     userName: 'Takeru Kobayashi',
     count: 12,
     timestamp: new Date(Date.now() - 1.5 * 60 * 60 * 1000), // 1.5 hours ago
@@ -57,7 +77,7 @@ const SEED_POSTS: Omit<ContestPost, 'id'>[] = [
   },
   {
     contestId: CONTEST_IDS.DEFAULT,
-    userId: USER_IDS.MATT_STONIE,
+    userId: 'matt-stonie-demo',
     userName: 'Matt Stonie',
     count: 18,
     timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
@@ -149,6 +169,8 @@ async function seedPosts(): Promise<void> {
  * Main seed function - adds initial data to Firebase if it doesn't exist
  */
 export async function seedFirebaseData(): Promise<void> {
+  checkDevelopmentOnly('seedFirebaseData')
+  
   try {
     console.log('🌱 Checking for existing Firebase data...')
 
@@ -180,8 +202,11 @@ export async function seedFirebaseData(): Promise<void> {
 
 /**
  * Dev utility to manually trigger seeding (for console use)
+ * Note: To remove demo data, use clearFirebaseData.ts utilities
  */
 export async function manualSeed(): Promise<void> {
+  checkDevelopmentOnly('manualSeed')
+  
   console.log('🚀 Manual seed triggered')
   await seedFirebaseData()
 }

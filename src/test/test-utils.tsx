@@ -2,7 +2,7 @@ import React from 'react'
 
 import { render, type RenderOptions } from '@testing-library/react'
 
-import { CONTEST_IDS, USER_IDS, POST_TYPES } from '@constants'
+import { CONTEST_IDS, POST_TYPES } from '@constants'
 import type { ContestPost, ContestUser } from '@types'
 
 /**
@@ -12,14 +12,14 @@ export const mockContestUsers: ContestUser[] = [
   {
     id: 'cu-1',
     contestId: CONTEST_IDS.DEFAULT,
-    userId: USER_IDS.JOEY_CHESTNUT,
+    userId: 'joey-chestnut',
     userName: 'Joey Chestnut',
     totalCount: 23,
   },
   {
     id: 'cu-2',
     contestId: CONTEST_IDS.DEFAULT,
-    userId: USER_IDS.CURRENT_USER,
+    userId: 'current-user',
     userName: 'You',
     totalCount: 5,
   },
@@ -29,7 +29,7 @@ export const mockContestPosts: ContestPost[] = [
   {
     id: '1',
     contestId: CONTEST_IDS.DEFAULT,
-    userId: USER_IDS.CURRENT_USER,
+    userId: 'current-user',
     userName: 'You',
     count: 3,
     timestamp: new Date('2024-01-01T12:00:00Z'),
@@ -39,7 +39,7 @@ export const mockContestPosts: ContestPost[] = [
   {
     id: '2',
     contestId: CONTEST_IDS.DEFAULT,
-    userId: USER_IDS.JOEY_CHESTNUT,
+    userId: 'joey-chestnut',
     userName: 'Joey Chestnut',
     count: 5,
     timestamp: new Date('2024-01-01T13:00:00Z'),
@@ -49,7 +49,7 @@ export const mockContestPosts: ContestPost[] = [
   {
     id: '3',
     contestId: CONTEST_IDS.DEFAULT,
-    userId: USER_IDS.CURRENT_USER,
+    userId: 'current-user',
     userName: 'You',
     timestamp: new Date('2024-01-01T14:00:00Z'),
     description: 'Welcome message',
@@ -90,7 +90,7 @@ export const createMockProps = {
   feedTab: {
     posts: mockContestPosts,
     onEditPost: mockFunctions.onEditPost,
-    currentUserId: USER_IDS.CURRENT_USER,
+    currentUserId: 'current-user',
   },
   logTab: {
     onAddPost: mockFunctions.onAddPost,
@@ -107,8 +107,8 @@ export const createMockProps = {
     isDarkMode: false,
   },
   journalTab: {
-    posts: mockContestPosts.filter(p => p.userId === USER_IDS.CURRENT_USER),
-    currentUserId: USER_IDS.CURRENT_USER,
+    posts: mockContestPosts.filter(p => p.userId === 'current-user'),
+    currentUserId: 'current-user',
     onEditPost: mockFunctions.onEditPost,
   },
 }
