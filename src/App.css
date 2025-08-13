@@ -79,6 +79,7 @@ body.dark-mode {
     bottom: 0;
     left: 0;
     right: 0;
+    top: auto;
     z-index: 100;
     background: var(--bg-primary);
     border-top: 1px solid var(--border-color);
@@ -93,6 +94,9 @@ body.dark-mode {
   padding: 1rem;
   text-align: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 101;
 }
 
 .app-header h1 {
@@ -106,6 +110,9 @@ body.dark-mode {
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   overflow-x: auto;
+  position: sticky;
+  top: 4rem;
+  z-index: 100;
 }
 
 .tab-button {
