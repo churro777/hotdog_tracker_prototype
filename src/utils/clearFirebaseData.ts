@@ -81,7 +81,10 @@ async function checkFirestoreData(): Promise<{
     console.log('Users:', users)
     console.log('Posts:', posts)
 
-    return { users, posts }
+    return { users, posts } as {
+      users: Array<{ id: string; userId: string; userName: string; totalCount: number }>
+      posts: Array<{ id: string; userId: string; userName: string; count: number; description?: string }>
+    }
   } catch (error) {
     console.error('❌ Error checking Firestore data:', error)
     throw error
