@@ -1,5 +1,8 @@
 # Run lint-staged (lint & format only changed files)
 npx lint-staged
 
+# Run TypeScript type checking
+npm run typecheck
+
 # Run tests (quick run, not coverage)
 npm run test:run

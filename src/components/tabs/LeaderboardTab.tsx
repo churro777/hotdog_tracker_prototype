@@ -24,18 +24,19 @@ function LeaderboardTab({
 
   for (let i = 0; i < sortedUsers.length; i++) {
     const user = sortedUsers[i]
+    if (!user) continue
 
     if (i === 0) {
       // First user: check if tied with others
       const tiedCount = sortedUsers.filter(
-        u => u.totalCount === user.totalCount
+        u => u?.totalCount === user.totalCount
       ).length
       if (tiedCount === 1) {
         // Only one person with this score - gets rank 1
-        usersWithRanks.push({ ...user, rank: 1 })
+        usersWithRanks.push({ ...user, rank: 1 } as User & { rank: number })
       } else {
         // Multiple people tied - they get rank 2 (no ties for 1st place)
-        usersWithRanks.push({ ...user, rank: 2 })
+        usersWithRanks.push({ ...user, rank: 2 } as User & { rank: number })
       }
     } else {
       // Check if same score as previous user
@@ -43,11 +44,13 @@ function LeaderboardTab({
         // Same score as previous user - same rank
         const previousUser = usersWithRanks[i - 1]
         if (previousUser) {
-          usersWithRanks.push({ ...user, rank: previousUser.rank })
+          usersWithRanks.push({ ...user, rank: previousUser.rank } as User & {
+            rank: number
+          })
         }
       } else {
         // Different score - new rank is current index + 1
-        usersWithRanks.push({ ...user, rank: i + 1 })
+        usersWithRanks.push({ ...user, rank: i + 1 } as User & { rank: number })
       }
     }
   }
