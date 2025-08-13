@@ -105,9 +105,9 @@ describe('LeaderboardTab - Tie Handling', () => {
     expect(screen.getByText('🥇')).toBeInTheDocument()
     expect(screen.getByText('Leader')).toBeInTheDocument()
 
-    // Three users tied for second should have silver medals
-    const silverMedals = screen.getAllByText('🥈')
-    expect(silverMedals).toHaveLength(3)
+    // Three users tied for second should get rank #4 (positional ranking)
+    const rank4Elements = screen.getAllByText('#4')
+    expect(rank4Elements).toHaveLength(3)
 
     // Fifth place user should have rank #5 (not #4)
     expect(screen.getByText('#5')).toBeInTheDocument()

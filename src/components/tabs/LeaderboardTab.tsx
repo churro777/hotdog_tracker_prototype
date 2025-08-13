@@ -49,11 +49,17 @@ function LeaderboardTab({
           })
         }
       } else {
-        // Different score - calculate proper rank with gaps for ties
-        const rank =
-          sortedUsers.filter(u => u && u.totalCount > user.totalCount).length +
-          1
-        usersWithRanks.push({ ...user, rank } as User & { rank: number })
+        // Different score - use "1224" ranking system
+        // Tied users get the rank of their last position
+        const lastOccurrenceIndex =
+          sortedUsers
+            .map((u, idx) => ({ user: u, index: idx }))
+            .filter(({ user: u }) => u && u.totalCount === user.totalCount)
+            .pop()?.index ?? i
+        usersWithRanks.push({
+          ...user,
+          rank: lastOccurrenceIndex + 1,
+        } as User & { rank: number })
       }
     }
   }
