@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import { CSS_CLASSES, FORM_CONFIG } from '@constants'
 import { useAuth } from '@hooks/useAuth'
@@ -7,12 +7,17 @@ import './AuthModal.css'
 interface AuthModalProps {
   isOpen: boolean
   onClose: () => void
+  initialMode?: AuthMode
 }
 
 type AuthMode = 'signin' | 'signup'
 
-const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
-  const [mode, setMode] = useState<AuthMode>('signup')
+const AuthModal = ({
+  isOpen,
+  onClose,
+  initialMode = 'signup',
+}: AuthModalProps) => {
+  const [mode, setMode] = useState<AuthMode>(initialMode)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [displayName, setDisplayName] = useState('')
@@ -21,6 +26,14 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
   const { signup, login, loginWithGoogle, loginWithTwitter, loginWithApple } =
     useAuth()
+
+  // Reset mode when modal opens with new initialMode
+  useEffect(() => {
+    if (isOpen) {
+      setMode(initialMode)
+      resetForm()
+    }
+  }, [isOpen, initialMode])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

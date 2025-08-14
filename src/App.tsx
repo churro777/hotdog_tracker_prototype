@@ -27,6 +27,9 @@ function AppContent() {
   const [activeTab, setActiveTab] = useState<Tab>('leaderboard')
   const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false)
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false)
+  const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup'>(
+    'signup'
+  )
   const { isDarkMode, toggleTheme } = useTheme()
   const { currentUser, logout } = useAuth()
 
@@ -150,13 +153,19 @@ function AppContent() {
             <div className="auth-buttons">
               <button
                 className="join-contest-btn"
-                onClick={() => setShowAuthModal(true)}
+                onClick={() => {
+                  setAuthModalMode('signup')
+                  setShowAuthModal(true)
+                }}
               >
                 🏆 Join
               </button>
               <button
                 className="sign-in-btn"
-                onClick={() => setShowAuthModal(true)}
+                onClick={() => {
+                  setAuthModalMode('signin')
+                  setShowAuthModal(true)
+                }}
               >
                 🔑 Sign In
               </button>
@@ -262,6 +271,7 @@ function AppContent() {
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
+        initialMode={authModalMode}
       />
     </div>
   )
