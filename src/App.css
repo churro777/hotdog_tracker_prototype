@@ -628,10 +628,16 @@ body.dark-mode .contest-status.inactive {
   font-weight: 500;
 }
 
+.auth-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.sign-in-btn,
 .join-contest-btn {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 2px solid white;
   border-radius: 8px;
   padding: 1rem 2rem;
   font-size: 1.1rem;
@@ -639,6 +645,33 @@ body.dark-mode .contest-status.inactive {
   cursor: pointer;
   transition: all 0.2s ease;
   backdrop-filter: blur(10px);
+  min-width: 140px;
+  text-align: center;
+  flex: 1;
+  max-width: 180px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sign-in-btn {
+  background: rgba(255, 255, 255, 0.9);
+  color: #ff6b35;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+}
+
+.sign-in-btn:hover {
+  background: white;
+  color: #ff6b35;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.join-contest-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid white;
 }
 
 .join-contest-btn:hover {
@@ -669,13 +702,43 @@ body.dark-mode .contest-status.inactive {
     margin-bottom: 1rem;
   }
 
+  .auth-buttons {
+    gap: 0.75rem;
+    flex-direction: row;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .sign-in-btn,
   .join-contest-btn {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    flex: 1;
+    max-width: 140px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .guest-content {
     padding-bottom: 100px; /* Smaller space for mobile header */
+  }
+}
+
+/* Desktop adjustments for side-by-side layout */
+@media (min-width: 769px) {
+  .auth-buttons {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .sign-in-btn,
+  .join-contest-btn {
+    flex: 1;
+    max-width: 180px;
+    height: 60px;
   }
 }
 

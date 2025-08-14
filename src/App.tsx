@@ -147,12 +147,20 @@ function AppContent() {
           <div className="join-contest-banner">
             <h2>🌭 Hot Dog Eating Contest Leaderboard</h2>
             <p>See who's leading the competition!</p>
-            <button
-              className="join-contest-btn"
-              onClick={() => setShowAuthModal(true)}
-            >
-              🏆 Join Contest
-            </button>
+            <div className="auth-buttons">
+              <button
+                className="join-contest-btn"
+                onClick={() => setShowAuthModal(true)}
+              >
+                🏆 Join
+              </button>
+              <button
+                className="sign-in-btn"
+                onClick={() => setShowAuthModal(true)}
+              >
+                🔑 Sign In
+              </button>
+            </div>
           </div>
           <main className="tab-content">
             <LeaderboardTab contestUsers={contestUsers} />
