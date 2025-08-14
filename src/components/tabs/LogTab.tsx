@@ -12,6 +12,7 @@ import {
 } from '@constants'
 import useImageUpload from '@hooks/useImageUpload'
 import type { Tab } from '@types'
+import { isMobileDevice } from '@utils/deviceDetection'
 
 interface LogTabProps {
   onAddPost: (
@@ -28,8 +29,16 @@ function LogTab({ onAddPost, setActiveTab }: LogTabProps) {
   )
   const [newPostDescription, setNewPostDescription] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
-  const { imagePreview, handleImageUpload, clearImage, resetFileInput } =
-    useImageUpload()
+  const {
+    imagePreview,
+    handleImageUpload,
+    handleCameraCapture,
+    handlePhotoLibrary,
+    clearImage,
+    resetFileInput,
+  } = useImageUpload()
+
+  const isMobile = isMobileDevice()
 
   const handleSubmitPost = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -88,16 +97,40 @@ function LogTab({ onAddPost, setActiveTab }: LogTabProps) {
         className="post-form"
       >
         <div className="form-section">
-          <label htmlFor="log-image-upload" className="image-upload-label">
-            {ICONS.CAMERA} {FORM_CONFIG.LABELS.UPLOAD_PICTURE}
-          </label>
-          <input
-            id="log-image-upload"
-            type="file"
-            accept={FORM_CONFIG.INPUT_TYPES.IMAGE_ACCEPT}
-            onChange={handleImageUpload}
-            className="image-upload-input"
-          />
+          {isMobile ? (
+            <>
+              <label className="image-upload-label">{ICONS.CAMERA} Photo</label>
+              <div className="mobile-photo-buttons">
+                <button
+                  type="button"
+                  onClick={handleCameraCapture}
+                  className="photo-button camera-button"
+                >
+                  {ICONS.CAMERA} Camera
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePhotoLibrary}
+                  className="photo-button library-button"
+                >
+                  {ICONS.FOLDER} Library
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <label htmlFor="log-image-upload" className="image-upload-label">
+                {ICONS.CAMERA} {FORM_CONFIG.LABELS.UPLOAD_PICTURE}
+              </label>
+              <input
+                id="log-image-upload"
+                type="file"
+                accept={FORM_CONFIG.INPUT_TYPES.IMAGE_ACCEPT}
+                onChange={handleImageUpload}
+                className="image-upload-input"
+              />
+            </>
+          )}
           {imagePreview && (
             <div className="image-preview">
               <img

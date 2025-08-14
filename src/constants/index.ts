@@ -236,6 +236,7 @@ export const ICONS = {
   NOTEBOOK: '📔',
   SETTINGS: '⚙️',
   CAMERA: '📷',
+  FOLDER: '📁',
   PARTY: '🎉',
   MAIL: '📧',
   SAVE: '💾',

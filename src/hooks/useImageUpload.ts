@@ -3,6 +3,8 @@ import { useState } from 'react'
 interface UseImageUploadReturn {
   imagePreview: string | null
   handleImageUpload: (event: React.ChangeEvent<HTMLInputElement>) => void
+  handleCameraCapture: () => void
+  handlePhotoLibrary: () => void
   clearImage: () => void
   resetFileInput: (inputId: string) => void
   setImagePreview: React.Dispatch<React.SetStateAction<string | null>>
@@ -84,65 +86,7 @@ function useImageUpload(): UseImageUploadReturn {
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
-      // Log file details for debugging
-      console.log('📸 Image upload started:', {
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        lastModified: file.lastModified,
-      })
-
-      // Check if image needs compression
-      const maxSize = 750 * 1024 // 750KB to account for base64 overhead
-
-      if (file.size > maxSize) {
-        console.log('📷 Image is large, attempting compression...', {
-          originalSize: Math.round(file.size / 1024) + 'KB',
-          maxSize: Math.round(maxSize / 1024) + 'KB',
-        })
-
-        // Attempt compression
-        compressImage(file)
-          .then(compressedDataUrl => {
-            setImagePreview(compressedDataUrl)
-          })
-          .catch(error => {
-            console.error('❌ Image compression failed:', error)
-            alert(
-              'Unable to compress image. Please try a smaller image or use a different photo.'
-            )
-          })
-      } else {
-        // File is already small enough, process normally
-        const reader = new FileReader()
-
-        reader.onload = e => {
-          const result = e.target?.result as string
-          console.log('✅ Image upload successful (no compression needed):', {
-            fileName: file.name,
-            originalSize: file.size,
-            base64Length: result.length,
-          })
-          setImagePreview(result)
-        }
-
-        reader.onerror = e => {
-          console.error('❌ Image upload failed:', {
-            error: e,
-            fileName: file.name,
-            fileSize: file.size,
-          })
-          alert(
-            'Failed to load image. Please try again or choose a different image.'
-          )
-        }
-
-        reader.onabort = () => {
-          console.warn('⚠️ Image upload aborted:', file.name)
-        }
-
-        reader.readAsDataURL(file)
-      }
+      processFile(file)
     }
   }
 
@@ -157,9 +101,101 @@ function useImageUpload(): UseImageUploadReturn {
     }
   }
 
+  const processFile = (file: File) => {
+    // Log file details for debugging
+    console.log('📸 Image upload started:', {
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      lastModified: file.lastModified,
+    })
+
+    // Check if image needs compression
+    const maxSize = 750 * 1024 // 750KB to account for base64 overhead
+
+    if (file.size > maxSize) {
+      console.log('📷 Image is large, attempting compression...', {
+        originalSize: Math.round(file.size / 1024) + 'KB',
+        maxSize: Math.round(maxSize / 1024) + 'KB',
+      })
+
+      // Attempt compression
+      compressImage(file)
+        .then(compressedDataUrl => {
+          setImagePreview(compressedDataUrl)
+        })
+        .catch(error => {
+          console.error('❌ Image compression failed:', error)
+          alert(
+            'Unable to compress image. Please try a smaller image or use a different photo.'
+          )
+        })
+    } else {
+      // File is already small enough, process normally
+      const reader = new FileReader()
+
+      reader.onload = e => {
+        const result = e.target?.result as string
+        console.log('✅ Image upload successful (no compression needed):', {
+          fileName: file.name,
+          originalSize: file.size,
+          base64Length: result.length,
+        })
+        setImagePreview(result)
+      }
+
+      reader.onerror = e => {
+        console.error('❌ Image upload failed:', {
+          error: e,
+          fileName: file.name,
+          fileSize: file.size,
+        })
+        alert(
+          'Failed to load image. Please try again or choose a different image.'
+        )
+      }
+
+      reader.onabort = () => {
+        console.warn('⚠️ Image upload aborted:', file.name)
+      }
+
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleFileInputChange = (fileInput: HTMLInputElement) => {
+    const file = fileInput.files?.[0]
+    if (file) {
+      processFile(file)
+    }
+  }
+
+  const handleCameraCapture = () => {
+    const fileInput = document.createElement('input')
+    fileInput.type = 'file'
+    fileInput.accept = 'image/*'
+    fileInput.capture = 'environment' // Use rear camera
+    fileInput.addEventListener('change', () => {
+      handleFileInputChange(fileInput)
+    })
+    fileInput.click()
+  }
+
+  const handlePhotoLibrary = () => {
+    const fileInput = document.createElement('input')
+    fileInput.type = 'file'
+    fileInput.accept = 'image/*'
+    fileInput.addEventListener('change', () => {
+      handleFileInputChange(fileInput)
+    })
+    fileInput.click()
+  }
+
   return {
     imagePreview,
     handleImageUpload,
+    handleCameraCapture,
+    handlePhotoLibrary,
     clearImage,
     resetFileInput,
     setImagePreview,
