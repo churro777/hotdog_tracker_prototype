@@ -231,12 +231,8 @@ body.dark-mode .invite-notification {
   }
 
   .post-header {
-    flex-direction: column;
-    align-items: flex-start;
+    justify-content: space-between;
+    align-items: center;
     gap: 0.5rem;
-  }
-
-  .post-timestamp-actions {
-    align-self: flex-end;
   }
 }
