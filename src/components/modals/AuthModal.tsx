@@ -199,7 +199,8 @@ const AuthModal = ({
             Continue with Google
           </button>
 
-          <button
+          {/* Twitter authentication temporarily disabled due to Firebase compatibility issues */}
+          {/* <button
             type="button"
             className="social-btn twitter-btn"
             onClick={() => {
@@ -208,7 +209,7 @@ const AuthModal = ({
             disabled={loading}
           >
             Continue with Twitter
-          </button>
+          </button> */}
 
           <button
             type="button"
