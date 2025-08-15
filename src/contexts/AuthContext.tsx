@@ -9,6 +9,7 @@ import {
   onAuthStateChanged,
   updateProfile,
   signInWithPopup,
+  sendPasswordResetEmail,
   GoogleAuthProvider,
   TwitterAuthProvider,
   OAuthProvider,
@@ -79,6 +80,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const logout = async () => {
     await signOut(auth)
+  }
+
+  const resetPassword = async (email: string) => {
+    await sendPasswordResetEmail(auth, email)
   }
 
   const ensureUserDocument = useCallback(async (user: User) => {
@@ -160,6 +165,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     loginWithTwitter,
     loginWithApple,
     logout,
+    resetPassword,
   }
 
   return (

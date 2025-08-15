@@ -5,13 +5,11 @@ import { UI_TEXT, CSS_CLASSES, ICONS } from '@constants'
 import type { User } from '@types'
 
 interface LeaderboardTabProps {
-  contestUsers: User[]
+  users: User[]
 }
 
-function LeaderboardTab({ contestUsers }: LeaderboardTabProps) {
-  const sortedUsers = [...contestUsers].sort(
-    (a, b) => b.totalCount - a.totalCount
-  )
+function LeaderboardTab({ users }: LeaderboardTabProps) {
+  const sortedUsers = [...users].sort((a, b) => b.totalCount - a.totalCount)
 
   // Calculate ranks with proper tie handling
   const usersWithRanks: (User & { rank: number })[] = []

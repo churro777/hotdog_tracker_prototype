@@ -17,7 +17,7 @@ import useDataService from './useDataService'
 interface UseContestDataV2Return {
   // Filtered data for current contest
   contestPosts: ContestPost[]
-  contestUsers: User[]
+  users: User[]
 
   // All data (for global operations)
   allPosts: ContestPost[]
@@ -70,7 +70,7 @@ function useContestDataV2(
 
   // In simplified architecture, all posts and users are in the single contest
   const contestPosts = allPosts
-  const contestUsers = allUsers
+  const users = allUsers
 
   /**
    * Add a new contest post with user total count update
@@ -103,13 +103,11 @@ function useContestDataV2(
         }
 
         // Find current user
-        const currentContestUser = contestUsers.find(
-          u => u.id === currentUserId
-        )
-        if (!currentContestUser) {
+        const currentUser = users.find(u => u.id === currentUserId)
+        if (!currentUser) {
           logValidationError(
-            `Current user ${currentUserId} not found in contest users`,
-            { currentUserId, availableUsers: contestUsers.map(u => u.id) },
+            `Current user ${currentUserId} not found in users`,
+            { currentUserId, availableUsers: users.map(u => u.id) },
             'user-validation'
           )
           return false
@@ -118,7 +116,7 @@ function useContestDataV2(
         // Create new post data
         const postData: Omit<ContestPost, 'id'> = {
           userId: currentUserId,
-          userName: currentContestUser.displayName,
+          userName: currentUser.displayName,
           count,
           timestamp: new Date(),
           ...(image !== undefined && { image }),
@@ -130,8 +128,8 @@ function useContestDataV2(
         if (!newPost) return false
 
         // Update user's total count
-        const updatedUser = await serviceUpdateUser(currentContestUser.id, {
-          totalCount: currentContestUser.totalCount + count,
+        const updatedUser = await serviceUpdateUser(currentUser.id, {
+          totalCount: currentUser.totalCount + count,
         })
 
         return updatedUser !== null
@@ -145,7 +143,7 @@ function useContestDataV2(
         return false
       }
     },
-    [currentUserId, contestUsers, serviceAddPost, serviceUpdateUser]
+    [currentUserId, users, serviceAddPost, serviceUpdateUser]
   )
 
   /**
@@ -181,10 +179,10 @@ function useContestDataV2(
         }
 
         // Find the user who owns this post
-        const postUser = contestUsers.find(u => u.id === postToEdit.userId)
+        const postUser = users.find(u => u.id === postToEdit.userId)
         if (!postUser) {
           logValidationError(
-            `User ${postToEdit.userId} not found in contest users`,
+            `User ${postToEdit.userId} not found in users`,
             { userId: postToEdit.userId },
             'user-validation'
           )
@@ -219,7 +217,7 @@ function useContestDataV2(
         return false
       }
     },
-    [contestPosts, contestUsers, serviceUpdatePost, serviceUpdateUser]
+    [contestPosts, users, serviceUpdatePost, serviceUpdateUser]
   )
 
   /**
@@ -228,12 +226,12 @@ function useContestDataV2(
   const getCurrentUserStats = useCallback(() => {
     if (!currentUserId) return null
 
-    const currentUser = contestUsers.find(u => u.id === currentUserId)
-    if (!currentUser) return null
+    const currentUserData = users.find(u => u.id === currentUserId)
+    if (!currentUserData) return null
 
     const userPosts = contestPosts.filter(p => p.userId === currentUserId)
     const postCount = userPosts.length
-    const totalCount = currentUser.totalCount
+    const totalCount = currentUserData.totalCount
     const avgPerPost = postCount > 0 ? totalCount / postCount : 0
     const bestSinglePost = Math.max(...userPosts.map(p => p.count ?? 0), 0)
 
@@ -243,12 +241,12 @@ function useContestDataV2(
       avgPerPost: Math.round(avgPerPost * 100) / 100, // Round to 2 decimal places
       bestSinglePost,
     }
-  }, [contestUsers, contestPosts, currentUserId])
+  }, [users, contestPosts, currentUserId])
 
   return {
     // Filtered data
     contestPosts,
-    contestUsers,
+    users,
 
     // All data
     allPosts,

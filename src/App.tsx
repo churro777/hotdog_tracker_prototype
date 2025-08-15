@@ -35,7 +35,7 @@ function AppContent() {
 
   const currentUserId = currentUser?.uid
 
-  const { contestPosts, contestUsers, addPost, editPost, isLoading, error } =
+  const { contestPosts, users, addPost, editPost, isLoading, error } =
     useContestDataV2(currentUserId)
 
   // Get a random loading message when loading starts
@@ -94,7 +94,7 @@ function AppContent() {
   const renderTabContent = () => {
     switch (activeTab) {
       case TAB_TYPES.LEADERBOARD:
-        return <LeaderboardTab contestUsers={contestUsers} />
+        return <LeaderboardTab contestUsers={users} />
       case TAB_TYPES.FEED:
         return (
           <FeedTab
@@ -114,7 +114,7 @@ function AppContent() {
           />
         )
       default:
-        return <LeaderboardTab contestUsers={contestUsers} />
+        return <LeaderboardTab contestUsers={users} />
     }
   }
 
@@ -172,7 +172,7 @@ function AppContent() {
             </div>
           </div>
           <main className="tab-content">
-            <LeaderboardTab contestUsers={contestUsers} />
+            <LeaderboardTab contestUsers={users} />
           </main>
         </div>
       )

@@ -120,7 +120,7 @@ export const createMockProps = {
     onClearData: mockFunctions.onClearData,
   },
   leaderboardTab: {
-    contestUsers: mockContestUsers,
+    users: mockContestUsers,
     isDarkMode: false,
   },
   journalTab: {

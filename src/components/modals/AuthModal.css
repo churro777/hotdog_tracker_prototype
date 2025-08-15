@@ -343,3 +343,32 @@ body.dark-mode .apple-btn:hover:not(:disabled) {
     transform: translateY(0);
   }
 }
+
+/* Forgot Password Components */
+.forgot-password-link {
+  text-align: center;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.reset-success {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.reset-success h3 {
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.reset-success p {
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+}
+
+.reset-success .primary-button {
+  margin-top: 1rem;
+}

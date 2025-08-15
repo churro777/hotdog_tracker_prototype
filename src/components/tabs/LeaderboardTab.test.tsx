@@ -42,7 +42,7 @@ describe('LeaderboardTab - Tie Handling', () => {
       },
     ]
 
-    render(<LeaderboardTab contestUsers={tiedUsers} />)
+    render(<LeaderboardTab users={tiedUsers} />)
 
     // All users should show rank #2 (no ties for 1st place rule)
     const rank2Elements = screen.getAllByText('🥈')
@@ -99,7 +99,7 @@ describe('LeaderboardTab - Tie Handling', () => {
       },
     ]
 
-    render(<LeaderboardTab contestUsers={complexUsers} />)
+    render(<LeaderboardTab users={complexUsers} />)
 
     // Leader should have gold medal (rank 1)
     expect(screen.getByText('🥇')).toBeInTheDocument()
@@ -142,7 +142,7 @@ describe('LeaderboardTab - Tie Handling', () => {
       },
     ]
 
-    render(<LeaderboardTab contestUsers={tieForFirst} />)
+    render(<LeaderboardTab users={tieForFirst} />)
 
     // Two users should have silver medals (tied for 2nd, no ties for 1st)
     const silverMedals = screen.getAllByText('🥈')
@@ -181,7 +181,7 @@ describe('LeaderboardTab - Tie Handling', () => {
       },
     ]
 
-    render(<LeaderboardTab contestUsers={clearWinner} />)
+    render(<LeaderboardTab users={clearWinner} />)
 
     // Only one gold medal for clear winner
     const goldMedals = screen.getAllByText('🥇')

@@ -62,7 +62,7 @@ vi.mock('@hooks/useAuth', () => ({
 vi.mock('@hooks/useContestDataV2', () => ({
   default: () => ({
     contestPosts: [],
-    contestUsers: [
+    users: [
       {
         id: '1',
         email: 'test@example.com',
