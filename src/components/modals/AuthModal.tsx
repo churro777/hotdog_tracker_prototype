@@ -211,7 +211,8 @@ const AuthModal = ({
             Continue with Twitter
           </button> */}
 
-          <button
+          {/* Apple authentication disabled - requires Apple Developer account setup */}
+          {/* <button
             type="button"
             className="social-btn apple-btn"
             onClick={() => {
@@ -220,7 +221,7 @@ const AuthModal = ({
             disabled={loading}
           >
             Continue with Apple
-          </button>
+          </button> */}
         </div>
 
         <div className="auth-switch">
