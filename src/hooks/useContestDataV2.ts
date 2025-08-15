@@ -39,7 +39,7 @@ interface UseContestDataV2Return {
     newDescription?: string,
     newImage?: string
   ) => Promise<boolean>
-  refreshData: () => Promise<void>
+  refreshData: () => void
 
   // User statistics
   getCurrentUserStats: () => {

@@ -29,7 +29,7 @@ interface UseDataServiceReturn {
   usersError: string | null
 
   // Operations
-  refreshData: () => Promise<void>
+  refreshData: () => void
   addPost: (postData: Omit<ContestPost, 'id'>) => Promise<ContestPost | null>
   updatePost: (
     id: string,
@@ -62,57 +62,154 @@ export function useDataService(): UseDataServiceReturn {
   const error = postsError ?? usersError
 
   /**
-   * Load posts from data service
+   * Set up real-time listeners for posts and users
    */
-  const loadPosts = useCallback(async () => {
-    try {
-      setIsPostsLoading(true)
-      setPostsError(null)
-      const loadedPosts = await dataService.getPosts()
-      setPosts(loadedPosts)
-    } catch (error) {
-      const errorMessage = 'Failed to load posts'
-      setPostsError(errorMessage)
-      logError({
-        message: errorMessage,
-        error: error as Error,
-        context: 'data-service',
-        action: 'load-posts',
-      })
-    } finally {
-      setIsPostsLoading(false)
+  const setupRealtimeListeners = useCallback(() => {
+    let postsUnsubscribe: (() => void) | null = null
+    let usersUnsubscribe: (() => void) | null = null
+
+    const setupPostsListener = async () => {
+      try {
+        setIsPostsLoading(true)
+        setPostsError(null)
+
+        const { collection, onSnapshot, orderBy, query } = await import(
+          'firebase/firestore'
+        )
+        const { db } = await import('@config/firebase')
+
+        const postsRef = collection(db, 'contest-posts')
+        const q = query(postsRef, orderBy('timestamp', 'desc'))
+
+        postsUnsubscribe = onSnapshot(
+          q,
+          snapshot => {
+            const loadedPosts = snapshot.docs.map(doc => {
+              const data = doc.data() as Record<string, unknown>
+              const timestamp = data['timestamp'] as
+                | { toDate(): Date }
+                | undefined
+              return {
+                id: doc.id,
+                ...data,
+                timestamp: timestamp?.toDate() ?? new Date(),
+              }
+            }) as ContestPost[]
+
+            setPosts(loadedPosts)
+            setIsPostsLoading(false)
+            setPostsError(null)
+          },
+          error => {
+            const errorMessage = 'Failed to load posts'
+            setPostsError(errorMessage)
+            setIsPostsLoading(false)
+            logError({
+              message: errorMessage,
+              error: error as Error,
+              context: 'data-service',
+              action: 'posts-listener',
+            })
+          }
+        )
+      } catch (error) {
+        const errorMessage = 'Failed to setup posts listener'
+        setPostsError(errorMessage)
+        setIsPostsLoading(false)
+        logError({
+          message: errorMessage,
+          error: error as Error,
+          context: 'data-service',
+          action: 'setup-posts-listener',
+        })
+      }
+    }
+
+    const setupUsersListener = async () => {
+      try {
+        setIsUsersLoading(true)
+        setUsersError(null)
+
+        const { collection, onSnapshot, orderBy, query } = await import(
+          'firebase/firestore'
+        )
+        const { db } = await import('@config/firebase')
+
+        const usersRef = collection(db, 'users')
+        const q = query(usersRef, orderBy('totalCount', 'desc'))
+
+        usersUnsubscribe = onSnapshot(
+          q,
+          snapshot => {
+            const loadedUsers = snapshot.docs.map(doc => {
+              const data = doc.data() as Record<string, unknown>
+              const createdAt = data['createdAt'] as
+                | { toDate(): Date }
+                | undefined
+              const lastActive = data['lastActive'] as
+                | { toDate(): Date }
+                | undefined
+
+              return {
+                id: doc.id,
+                ...data,
+                createdAt: createdAt?.toDate() ?? new Date(),
+                lastActive: lastActive?.toDate() ?? new Date(),
+              }
+            }) as User[]
+
+            setUsers(loadedUsers)
+            setIsUsersLoading(false)
+            setUsersError(null)
+          },
+          error => {
+            const errorMessage = 'Failed to load users'
+            setUsersError(errorMessage)
+            setIsUsersLoading(false)
+            logError({
+              message: errorMessage,
+              error: error as Error,
+              context: 'data-service',
+              action: 'users-listener',
+            })
+          }
+        )
+      } catch (error) {
+        const errorMessage = 'Failed to setup users listener'
+        setUsersError(errorMessage)
+        setIsUsersLoading(false)
+        logError({
+          message: errorMessage,
+          error: error as Error,
+          context: 'data-service',
+          action: 'setup-users-listener',
+        })
+      }
+    }
+
+    // Start both listeners
+    void setupPostsListener()
+    void setupUsersListener()
+
+    // Return cleanup function
+    return () => {
+      if (postsUnsubscribe) {
+        postsUnsubscribe()
+      }
+      if (usersUnsubscribe) {
+        usersUnsubscribe()
+      }
     }
   }, [])
 
   /**
-   * Load users from data service
+   * Refresh all data (now just re-establishes listeners)
    */
-  const loadUsers = useCallback(async () => {
-    try {
-      setIsUsersLoading(true)
-      setUsersError(null)
-      const loadedUsers = await dataService.getUsers()
-      setUsers(loadedUsers)
-    } catch (error) {
-      const errorMessage = 'Failed to load users'
-      setUsersError(errorMessage)
-      logError({
-        message: errorMessage,
-        error: error as Error,
-        context: 'data-service',
-        action: 'load-users',
-      })
-    } finally {
-      setIsUsersLoading(false)
-    }
+  const refreshData = useCallback(() => {
+    // With real-time listeners, we don't need to manually refresh
+    // The listeners will automatically update when data changes
+    console.log('Real-time listeners active - data refreshes automatically')
   }, [])
-
-  /**
-   * Refresh all data
-   */
-  const refreshData = useCallback(async () => {
-    await Promise.all([loadPosts(), loadUsers()])
-  }, [loadPosts, loadUsers])
 
   /**
    * Add a new post
@@ -122,8 +219,7 @@ export function useDataService(): UseDataServiceReturn {
       try {
         const newPost = await dataService.addPost(postData)
 
-        // Optimistic update
-        setPosts(currentPosts => [newPost, ...currentPosts])
+        // No optimistic update needed - real-time listener will handle it
 
         return newPost
       } catch (error) {
@@ -146,10 +242,7 @@ export function useDataService(): UseDataServiceReturn {
       try {
         const updatedPost = await dataService.updatePost(id, updates)
 
-        // Optimistic update
-        setPosts(currentPosts =>
-          currentPosts.map(post => (post.id === id ? updatedPost : post))
-        )
+        // No optimistic update needed - real-time listener will handle it
 
         return updatedPost
       } catch (error) {
@@ -173,8 +266,7 @@ export function useDataService(): UseDataServiceReturn {
     try {
       await dataService.deletePost(id)
 
-      // Optimistic update
-      setPosts(currentPosts => currentPosts.filter(post => post.id !== id))
+      // No optimistic update needed - real-time listener will handle it
 
       return true
     } catch (error) {
@@ -197,10 +289,7 @@ export function useDataService(): UseDataServiceReturn {
       try {
         const updatedUser = await dataService.updateUser(id, updates)
 
-        // Optimistic update
-        setUsers(currentUsers =>
-          currentUsers.map(user => (user.id === id ? updatedUser : user))
-        )
+        // No optimistic update needed - real-time listener will handle it
 
         return updatedUser
       } catch (error) {
@@ -225,8 +314,7 @@ export function useDataService(): UseDataServiceReturn {
       try {
         const newUser = await dataService.addUser(userData)
 
-        // Optimistic update
-        setUsers(currentUsers => [...currentUsers, newUser])
+        // No optimistic update needed - real-time listener will handle it
 
         return newUser
       } catch (error) {
@@ -238,10 +326,13 @@ export function useDataService(): UseDataServiceReturn {
     []
   )
 
-  // Load initial data
+  // Set up real-time listeners
   useEffect(() => {
-    void refreshData()
-  }, [refreshData])
+    const cleanup = setupRealtimeListeners()
+
+    // Cleanup listeners on unmount
+    return cleanup
+  }, [setupRealtimeListeners])
 
   return {
     // Data state
