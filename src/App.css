@@ -171,10 +171,12 @@ body.dark-mode {
   width: 100%;
   box-sizing: border-box;
   background: var(--bg-primary);
+  overflow: visible;
 }
 
 .tab-panel {
   animation: fadeIn 0.3s ease-in-out;
+  overflow: visible;
 }
 
 .tab-panel h2 {

@@ -6,9 +6,10 @@ import type { User } from '@types'
 
 interface LeaderboardTabProps {
   users: User[]
+  currentUserId?: string | undefined
 }
 
-function LeaderboardTab({ users }: LeaderboardTabProps) {
+function LeaderboardTab({ users, currentUserId }: LeaderboardTabProps) {
   const sortedUsers = [...users].sort((a, b) => b.totalCount - a.totalCount)
 
   // Calculate ranks with proper tie handling
@@ -75,6 +76,7 @@ function LeaderboardTab({ users }: LeaderboardTabProps) {
       <div className="leaderboard">
         {usersWithRanks.map((user, _index) => {
           const { rank } = user
+          const isCurrentUser = currentUserId && user.id === currentUserId
           const getRankClass = (rank: number) => {
             switch (rank) {
               case 1:
@@ -91,11 +93,16 @@ function LeaderboardTab({ users }: LeaderboardTabProps) {
           return (
             <div
               key={user.id}
-              className={`leaderboard-item ${getRankClass(rank)} ${rank <= 3 ? 'top-three' : ''}`}
+              className={`leaderboard-item ${getRankClass(rank)} ${rank <= 3 ? 'top-three' : ''} ${isCurrentUser ? 'current-user' : ''}`}
             >
               <div className="rank">{getRankEmoji(rank)}</div>
               <div className="user-info">
-                <div className="user-name">{user.displayName}</div>
+                <div className="user-name">
+                  {user.displayName}
+                  {isCurrentUser && (
+                    <span className="current-user-indicator"> (You)</span>
+                  )}
+                </div>
                 <div className="user-score">{user.totalCount} hot dogs</div>
               </div>
               <div className="hot-dog-count">

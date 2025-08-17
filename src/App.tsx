@@ -94,7 +94,7 @@ function AppContent() {
   const renderTabContent = () => {
     switch (activeTab) {
       case TAB_TYPES.LEADERBOARD:
-        return <LeaderboardTab users={users} />
+        return <LeaderboardTab users={users} currentUserId={currentUserId} />
       case TAB_TYPES.FEED:
         return (
           <FeedTab
@@ -114,7 +114,7 @@ function AppContent() {
           />
         )
       default:
-        return <LeaderboardTab users={users} />
+        return <LeaderboardTab users={users} currentUserId={currentUserId} />
     }
   }
 
@@ -172,7 +172,7 @@ function AppContent() {
             </div>
           </div>
           <main className="tab-content">
-            <LeaderboardTab users={users} />
+            <LeaderboardTab users={users} currentUserId={currentUserId} />
           </main>
         </div>
       )
