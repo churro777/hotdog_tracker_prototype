@@ -437,20 +437,28 @@ body.dark-mode .contest-status.inactive {
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  min-width: 0; /* Allow flex items to shrink */
 }
 
 .header-content h1 {
   margin: 0;
   font-size: 1.75rem;
   font-weight: bold;
+  color: white;
   flex: 1;
   text-align: center;
+  min-width: 0; /* Allow title to shrink if absolutely necessary */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  min-width: 0; /* Allow flex items to shrink */
+  flex-shrink: 1; /* Allow this section to shrink if needed */
 }
 
 .user-info {
@@ -468,7 +476,7 @@ body.dark-mode .contest-status.inactive {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 100%;
+  max-width: 250px; /* Set a reasonable maximum width */
 }
 
 .back-btn,
@@ -571,6 +579,7 @@ body.dark-mode .contest-status.inactive {
 
   .user-greeting {
     font-size: 0.85rem;
+    max-width: 150px; /* Smaller max width on mobile */
   }
 
   .back-btn,
