@@ -174,7 +174,7 @@ function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
                           onClick={() => startEditing(post)}
                           className="edit-post-btn"
                         >
-                          ✏️
+                          Edit
                         </button>
                       )}
                     </div>

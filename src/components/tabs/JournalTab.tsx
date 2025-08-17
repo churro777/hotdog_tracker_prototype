@@ -199,7 +199,7 @@ function JournalTab({ posts, currentUserId, onEditPost }: JournalTabProps) {
                                   onClick={() => startEditing(post)}
                                   className="edit-post-btn"
                                 >
-                                  ✏️
+                                  Edit
                                 </button>
                               </div>
                             </div>

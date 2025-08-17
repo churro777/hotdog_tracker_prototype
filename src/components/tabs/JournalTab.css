@@ -133,11 +133,16 @@
   font-size: 1rem;
   padding: 0.25rem;
   border-radius: 4px;
+  color: var(--text-primary);
   transition: background-color 0.2s ease;
 }
 
 .edit-post-btn:hover {
   background: rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .edit-post-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .edit-controls {
