@@ -214,6 +214,8 @@ body.dark-mode .leaderboard-item.third-place .user-score {
 
 .user-info {
   flex: 1;
+  min-width: 0; /* Allow flex item to shrink below content size */
+  overflow: hidden;
 }
 
 .user-name {
@@ -221,6 +223,10 @@ body.dark-mode .leaderboard-item.third-place .user-score {
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 .user-score {

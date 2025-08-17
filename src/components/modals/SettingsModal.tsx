@@ -1,7 +1,7 @@
 import { useState, memo, useEffect } from 'react'
 
 import './SettingsModal.css'
-import { UI_TEXT, FORM_CONFIG, BUTTON_TEXT, ICONS } from '@constants'
+import { UI_TEXT, FORM_CONFIG, BUTTON_TEXT, ICONS, LIMITS } from '@constants'
 import { useAuth } from '@hooks/useAuth'
 
 interface SettingsModalProps {
@@ -91,7 +91,16 @@ function SettingsModal({
                   className="settings-input"
                   placeholder={FORM_CONFIG.PLACEHOLDERS.NAME}
                   disabled={isUpdatingName}
+                  maxLength={LIMITS.DISPLAY_NAME_MAX_LENGTH}
                 />
+                <div className="input-helper">
+                  <span
+                    className={`character-count ${userName.length >= LIMITS.DISPLAY_NAME_MAX_LENGTH ? 'limit-reached' : ''}`}
+                  >
+                    {userName.length}/{LIMITS.DISPLAY_NAME_MAX_LENGTH}{' '}
+                    characters
+                  </span>
+                </div>
                 {updateError && (
                   <div className="error-message">{updateError}</div>
                 )}

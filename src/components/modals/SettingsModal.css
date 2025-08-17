@@ -315,3 +315,21 @@
   transform: none;
   box-shadow: none;
 }
+
+/* Input helper and character count */
+.input-helper {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+}
+
+.character-count {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.character-count.limit-reached {
+  color: #dc3545;
+  font-weight: 600;
+}

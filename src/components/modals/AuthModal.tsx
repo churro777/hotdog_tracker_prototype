@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-import { CSS_CLASSES, FORM_CONFIG } from '@constants'
+import { CSS_CLASSES, FORM_CONFIG, LIMITS } from '@constants'
 import { useAuth } from '@hooks/useAuth'
 import './AuthModal.css'
 
@@ -228,6 +228,7 @@ const AuthModal = ({
                   className={CSS_CLASSES.FORM.INPUT}
                   required
                   disabled={loading}
+                  maxLength={LIMITS.DISPLAY_NAME_MAX_LENGTH}
                 />
               </div>
             )}

@@ -45,6 +45,10 @@
 .post-user {
   font-weight: 600;
   color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px; /* Limit width so timestamp has space */
 }
 
 .post-timestamp {

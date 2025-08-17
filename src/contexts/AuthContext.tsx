@@ -18,6 +18,7 @@ import type { UpdateData } from 'firebase/firestore'
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore'
 
 import { auth, db } from '@config/firebase'
+import { LIMITS } from '@constants'
 
 import { AuthContext, type AuthContextType } from './AuthContext.types'
 
@@ -34,6 +35,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     password: string,
     displayName: string
   ) => {
+    const trimmedName = displayName.trim()
+
+    if (!trimmedName) {
+      throw new Error('Display name cannot be empty')
+    }
+
+    if (trimmedName.length < LIMITS.DISPLAY_NAME_MIN_LENGTH) {
+      throw new Error(
+        `Display name must be at least ${LIMITS.DISPLAY_NAME_MIN_LENGTH} character`
+      )
+    }
+
+    if (trimmedName.length > LIMITS.DISPLAY_NAME_MAX_LENGTH) {
+      throw new Error(
+        `Display name cannot exceed ${LIMITS.DISPLAY_NAME_MAX_LENGTH} characters`
+      )
+    }
+
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       email,
@@ -41,13 +60,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     )
     const user = userCredential.user
 
-    await updateProfile(user, { displayName })
+    await updateProfile(user, { displayName: trimmedName })
 
     // Create user document
     await setDoc(doc(db, 'users', user.uid), {
       id: user.uid,
       email: user.email,
-      displayName,
+      displayName: trimmedName,
       totalCount: 0,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -91,11 +110,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       throw new Error('No user logged in')
     }
 
-    if (!newDisplayName.trim()) {
+    const trimmedName = newDisplayName.trim()
+
+    if (!trimmedName) {
       throw new Error('Display name cannot be empty')
     }
 
-    const trimmedName = newDisplayName.trim()
+    if (trimmedName.length < LIMITS.DISPLAY_NAME_MIN_LENGTH) {
+      throw new Error(
+        `Display name must be at least ${LIMITS.DISPLAY_NAME_MIN_LENGTH} character`
+      )
+    }
+
+    if (trimmedName.length > LIMITS.DISPLAY_NAME_MAX_LENGTH) {
+      throw new Error(
+        `Display name cannot exceed ${LIMITS.DISPLAY_NAME_MAX_LENGTH} characters`
+      )
+    }
 
     // Update Firebase Auth profile
     await updateProfile(currentUser, { displayName: trimmedName })
