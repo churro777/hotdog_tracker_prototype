@@ -103,7 +103,6 @@ function LeaderboardTab({ users, currentUserId }: LeaderboardTabProps) {
                     <span className="current-user-indicator"> (You)</span>
                   )}
                 </div>
-                <div className="user-score">{user.totalCount} hot dogs</div>
               </div>
               <div className="hot-dog-count">
                 {ICONS.HOT_DOG} {user.totalCount}
