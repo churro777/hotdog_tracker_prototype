@@ -1,7 +1,8 @@
-import { useState, memo } from 'react'
+import { useState, memo, useEffect } from 'react'
 
 import './SettingsModal.css'
 import { UI_TEXT, FORM_CONFIG, BUTTON_TEXT, ICONS } from '@constants'
+import { useAuth } from '@hooks/useAuth'
 
 interface SettingsModalProps {
   isDarkMode: boolean
@@ -16,12 +17,39 @@ function SettingsModal({
   onClose,
   onClearData,
 }: SettingsModalProps) {
-  const [userName, setUserName] = useState('You')
+  const { currentUser, updateDisplayName } = useAuth()
+  const [userName, setUserName] = useState('')
   const [notifications, setNotifications] = useState(true)
+  const [isUpdatingName, setIsUpdatingName] = useState(false)
+  const [updateError, setUpdateError] = useState('')
 
-  const handleSaveSettings = () => {
-    // In a real app, this would save user preferences to backend
-    alert(UI_TEXT.MESSAGES.SETTINGS_SAVED)
+  // Initialize userName with current user's display name
+  useEffect(() => {
+    if (currentUser?.displayName) {
+      setUserName(currentUser.displayName)
+    }
+  }, [currentUser])
+
+  const handleSaveSettings = async () => {
+    if (!currentUser) return
+
+    setIsUpdatingName(true)
+    setUpdateError('')
+
+    try {
+      // Only update display name if it has changed
+      if (userName.trim() !== currentUser.displayName) {
+        await updateDisplayName(userName.trim())
+      }
+      alert(UI_TEXT.MESSAGES.SETTINGS_SAVED)
+      onClose()
+    } catch (error) {
+      setUpdateError(
+        error instanceof Error ? error.message : 'Failed to update settings'
+      )
+    } finally {
+      setIsUpdatingName(false)
+    }
   }
 
   const handleClearData = () => {
@@ -62,7 +90,11 @@ function SettingsModal({
                   onChange={e => setUserName(e.target.value)}
                   className="settings-input"
                   placeholder={FORM_CONFIG.PLACEHOLDERS.NAME}
+                  disabled={isUpdatingName}
                 />
+                {updateError && (
+                  <div className="error-message">{updateError}</div>
+                )}
               </div>
             </div>
 
@@ -137,10 +169,11 @@ function SettingsModal({
           </button>
           <button
             type="button"
-            onClick={handleSaveSettings}
+            onClick={() => void handleSaveSettings()}
             className="btn-primary"
+            disabled={isUpdatingName}
           >
-            {BUTTON_TEXT.SAVE_SETTINGS}
+            {isUpdatingName ? 'Saving...' : BUTTON_TEXT.SAVE_SETTINGS}
           </button>
         </div>
       </div>

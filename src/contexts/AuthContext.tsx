@@ -86,6 +86,30 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     await sendPasswordResetEmail(auth, email)
   }
 
+  const updateDisplayName = async (newDisplayName: string) => {
+    if (!currentUser) {
+      throw new Error('No user logged in')
+    }
+
+    if (!newDisplayName.trim()) {
+      throw new Error('Display name cannot be empty')
+    }
+
+    const trimmedName = newDisplayName.trim()
+
+    // Update Firebase Auth profile
+    await updateProfile(currentUser, { displayName: trimmedName })
+
+    // Update Firestore user document
+    const userDocRef = doc(db, 'users', currentUser.uid)
+    await updateDoc(userDocRef, {
+      displayName: trimmedName,
+      updatedAt: new Date(),
+    })
+
+    console.log(`Updated display name to: ${trimmedName}`)
+  }
+
   const ensureUserDocument = useCallback(async (user: User) => {
     const userDocRef = doc(db, 'users', user.uid)
     const userDoc = await getDoc(userDocRef)
@@ -166,6 +190,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     loginWithApple,
     logout,
     resetPassword,
+    updateDisplayName,
   }
 
   return (

@@ -16,6 +16,7 @@ export interface AuthContextType {
   loginWithApple: () => Promise<void>
   logout: () => Promise<void>
   resetPassword: (email: string) => Promise<void>
+  updateDisplayName: (newDisplayName: string) => Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)
