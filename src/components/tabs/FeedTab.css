@@ -42,6 +42,12 @@
   margin-bottom: 1rem;
 }
 
+.post-user-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .post-user {
   font-weight: 600;
   color: var(--text-primary);
@@ -60,6 +66,29 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+/* Mobile layout: stack display name with edit button, then date/time below */
+@media (max-width: 768px) {
+  .post-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .post-user-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .post-user {
+    max-width: none;
+    flex: 1;
+  }
+
+  .post-timestamp {
+    align-self: flex-start;
+  }
 }
 
 .post-image {

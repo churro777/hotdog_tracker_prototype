@@ -160,15 +160,8 @@ function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
               ) : (
                 <>
                   <div className="post-header">
-                    <div className="post-user">{post.userName}</div>
-                    <div className="post-timestamp-actions">
-                      <div className="post-timestamp">
-                        {post.timestamp.toLocaleDateString()}{' '}
-                        {post.timestamp.toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </div>
+                    <div className="post-user-actions">
+                      <div className="post-user">{post.userName}</div>
                       {post.userId === currentUserId && (
                         <button
                           onClick={() => startEditing(post)}
@@ -177,6 +170,13 @@ function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
                           Edit
                         </button>
                       )}
+                    </div>
+                    <div className="post-timestamp">
+                      {post.timestamp.toLocaleDateString()}{' '}
+                      {post.timestamp.toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
                     </div>
                   </div>
 
