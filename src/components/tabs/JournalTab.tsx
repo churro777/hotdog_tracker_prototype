@@ -100,35 +100,40 @@ function JournalTab({ posts, currentUserId, onEditPost }: JournalTabProps) {
                       <div key={post.id} className="journal-post">
                         {editingPostId === post.id ? (
                           <div className="edit-form">
-                            <div className="journal-post-header">
-                              <div className="journal-post-time">
-                                {post.timestamp.toLocaleTimeString([], {
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                })}
-                              </div>
-                              <div className="edit-controls">
-                                <button
-                                  onClick={() => {
-                                    void saveEdit()
-                                  }}
-                                  className="save-edit-btn"
-                                  disabled={isSaving}
-                                >
-                                  {isSaving ? '⏳' : '💾'}
-                                </button>
-                                <button
-                                  onClick={cancelEdit}
-                                  className="cancel-edit-btn"
-                                  disabled={isSaving}
-                                >
-                                  ❌
-                                </button>
-                              </div>
+                            <div className="edit-user-name">
+                              {post.timestamp.toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </div>
+
+                            <div className="edit-count">
+                              <label>Items:</label>
+                              <input
+                                type="number"
+                                min="1"
+                                max="50"
+                                value={editCount}
+                                onChange={e => setEditCount(e.target.value)}
+                                className="edit-count-input"
+                              />
+                            </div>
+
+                            <div className="edit-description">
+                              <label>Description:</label>
+                              <textarea
+                                value={editDescription}
+                                onChange={e =>
+                                  setEditDescription(e.target.value)
+                                }
+                                placeholder="How was it? Any comments?"
+                                className="edit-description-input"
+                                rows={3}
+                              />
                             </div>
 
                             {editImage && (
-                              <div className="journal-post-image">
+                              <div className="edit-current-image">
                                 <img src={editImage} alt="Contest item" />
                                 <button
                                   type="button"
@@ -140,46 +145,39 @@ function JournalTab({ posts, currentUserId, onEditPost }: JournalTabProps) {
                               </div>
                             )}
 
-                            <div className="edit-inputs">
-                              <div className="edit-count">
-                                <label>Items: </label>
-                                <input
-                                  type="number"
-                                  min="1"
-                                  max="50"
-                                  value={editCount}
-                                  onChange={e => setEditCount(e.target.value)}
-                                  className="edit-count-input"
-                                />
-                              </div>
-                              <div className="edit-description">
-                                <label>Description: </label>
-                                <textarea
-                                  value={editDescription}
-                                  onChange={e =>
-                                    setEditDescription(e.target.value)
-                                  }
-                                  placeholder="How was it? Any comments?"
-                                  className="edit-description-input"
-                                  rows={2}
-                                />
-                              </div>
-                              <div className="edit-image">
-                                <label
-                                  htmlFor={`edit-image-upload-${post.id}`}
-                                  className="image-upload-label"
-                                >
-                                  {ICONS.CAMERA}{' '}
-                                  {FORM_CONFIG.LABELS.UPLOAD_PICTURE}
-                                </label>
-                                <input
-                                  id={`edit-image-upload-${post.id}`}
-                                  type="file"
-                                  accept={FORM_CONFIG.INPUT_TYPES.IMAGE_ACCEPT}
-                                  onChange={handleImageUpload}
-                                  className="image-upload-input"
-                                />
-                              </div>
+                            <div className="edit-image-upload">
+                              <label
+                                htmlFor={`edit-image-upload-${post.id}`}
+                                className="image-upload-label"
+                              >
+                                {ICONS.CAMERA} Upload Picture
+                              </label>
+                              <input
+                                id={`edit-image-upload-${post.id}`}
+                                type="file"
+                                accept={FORM_CONFIG.INPUT_TYPES.IMAGE_ACCEPT}
+                                onChange={handleImageUpload}
+                                className="image-upload-input"
+                              />
+                            </div>
+
+                            <div className="edit-actions">
+                              <button
+                                onClick={() => {
+                                  void saveEdit()
+                                }}
+                                className="save-edit-btn"
+                                disabled={isSaving}
+                              >
+                                {isSaving ? 'Saving...' : <>💾 Save</>}
+                              </button>
+                              <button
+                                onClick={cancelEdit}
+                                className="cancel-edit-btn"
+                                disabled={isSaving}
+                              >
+                                Cancel
+                              </button>
                             </div>
                           </div>
                         ) : (

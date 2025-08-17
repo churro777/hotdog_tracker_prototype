@@ -83,30 +83,33 @@ function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
             <div key={post.id} className="post-item">
               {editingPostId === post.id ? (
                 <div className="edit-form">
-                  <div className="post-header">
-                    <div className="post-user">{post.userName}</div>
-                    <div className="edit-controls">
-                      <button
-                        onClick={() => {
-                          void saveEdit()
-                        }}
-                        className="save-edit-btn"
-                        disabled={isSaving}
-                      >
-                        {isSaving ? '⏳' : '💾'}
-                      </button>
-                      <button
-                        onClick={cancelEdit}
-                        className="cancel-edit-btn"
-                        disabled={isSaving}
-                      >
-                        ❌
-                      </button>
-                    </div>
+                  <div className="edit-user-name">{post.userName}</div>
+
+                  <div className="edit-count">
+                    <label>Items:</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="50"
+                      value={editCount}
+                      onChange={e => setEditCount(e.target.value)}
+                      className="edit-count-input"
+                    />
+                  </div>
+
+                  <div className="edit-description">
+                    <label>Description:</label>
+                    <textarea
+                      value={editDescription}
+                      onChange={e => setEditDescription(e.target.value)}
+                      placeholder="How was it? Any comments?"
+                      className="edit-description-input"
+                      rows={3}
+                    />
                   </div>
 
                   {editImage && (
-                    <div className="post-image">
+                    <div className="edit-current-image">
                       <img src={editImage} alt="Contest item" />
                       <button
                         type="button"
@@ -118,43 +121,39 @@ function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
                     </div>
                   )}
 
-                  <div className="edit-inputs">
-                    <div className="edit-count">
-                      <label>Items: </label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="50"
-                        value={editCount}
-                        onChange={e => setEditCount(e.target.value)}
-                        className="edit-count-input"
-                      />
-                    </div>
-                    <div className="edit-description">
-                      <label>Description: </label>
-                      <textarea
-                        value={editDescription}
-                        onChange={e => setEditDescription(e.target.value)}
-                        placeholder="How was it? Any comments?"
-                        className="edit-description-input"
-                        rows={2}
-                      />
-                    </div>
-                    <div className="edit-image">
-                      <label
-                        htmlFor={`feed-edit-image-upload-${post.id}`}
-                        className="image-upload-label"
-                      >
-                        {ICONS.CAMERA} {FORM_CONFIG.LABELS.UPLOAD_PICTURE}
-                      </label>
-                      <input
-                        id={`feed-edit-image-upload-${post.id}`}
-                        type="file"
-                        accept={FORM_CONFIG.INPUT_TYPES.IMAGE_ACCEPT}
-                        onChange={handleImageUpload}
-                        className="image-upload-input"
-                      />
-                    </div>
+                  <div className="edit-image-upload">
+                    <label
+                      htmlFor={`feed-edit-image-upload-${post.id}`}
+                      className="image-upload-label"
+                    >
+                      {ICONS.CAMERA} Upload Picture
+                    </label>
+                    <input
+                      id={`feed-edit-image-upload-${post.id}`}
+                      type="file"
+                      accept={FORM_CONFIG.INPUT_TYPES.IMAGE_ACCEPT}
+                      onChange={handleImageUpload}
+                      className="image-upload-input"
+                    />
+                  </div>
+
+                  <div className="edit-actions">
+                    <button
+                      onClick={() => {
+                        void saveEdit()
+                      }}
+                      className="save-edit-btn"
+                      disabled={isSaving}
+                    >
+                      {isSaving ? 'Saving...' : <>💾 Save</>}
+                    </button>
+                    <button
+                      onClick={cancelEdit}
+                      className="cancel-edit-btn"
+                      disabled={isSaving}
+                    >
+                      Cancel
+                    </button>
                   </div>
                 </div>
               ) : (
