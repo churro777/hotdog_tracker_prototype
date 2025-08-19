@@ -17,6 +17,7 @@ import { AuthProvider } from '@contexts/AuthContext'
 import { useAuth } from '@hooks/useAuth'
 import useContestDataV2 from '@hooks/useContestDataV2'
 import useContests from '@hooks/useContests'
+import useIsAdmin from '@hooks/useIsAdmin'
 import useTheme from '@hooks/useTheme'
 import type { Tab } from '@types'
 
@@ -37,6 +38,7 @@ function AppContent() {
   const { isDarkMode, toggleTheme } = useTheme()
   const { currentUser, logout } = useAuth()
   const { activeContest } = useContests()
+  const { isAdmin } = useIsAdmin()
 
   const currentUserId = currentUser?.uid
   const activeContestId = activeContest?.id
@@ -244,9 +246,11 @@ function AppContent() {
               <span className="user-greeting">
                 Signed in as {currentUser.displayName ?? 'User'}
               </span>
-              <Link to="/admin" className="admin-link">
-                🛠️ Admin
-              </Link>
+              {isAdmin && (
+                <Link to="/admin" className="admin-link">
+                  🛠️ Admin
+                </Link>
+              )}
               <button
                 className="settings-btn"
                 onClick={() => setShowSettingsModal(true)}

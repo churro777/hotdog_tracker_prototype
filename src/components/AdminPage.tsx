@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 
 import { useAuth } from '@hooks/useAuth'
 import { useDataService } from '@hooks/useDataService'
+import useIsAdmin from '@hooks/useIsAdmin'
 import useTheme from '@hooks/useTheme'
 import type { Contest } from '@types'
 import './AdminPage.css'
@@ -20,6 +21,7 @@ interface ContestFormData {
 const AdminPage = () => {
   const { currentUser } = useAuth()
   const { dataService } = useDataService()
+  const { isAdmin, loading: adminLoading, error: adminError } = useIsAdmin()
   const { isDarkMode, toggleTheme } = useTheme()
   const [contests, setContests] = useState<Contest[]>([])
   const [loading, setLoading] = useState(true)
@@ -143,17 +145,76 @@ const AdminPage = () => {
     resetForm()
   }
 
+  // Loading state while checking admin status
+  if (adminLoading) {
+    return (
+      <div className="admin-page">
+        <div className="admin-header">
+          <h1>🛠️ Contest Administration</h1>
+          <Link to="/" className="back-link">
+            ← Back to App
+          </Link>
+        </div>
+        <div className="auth-required">
+          <p>Checking authorization...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show error if admin check failed
+  if (adminError) {
+    return (
+      <div className="admin-page">
+        <div className="admin-header">
+          <h1>⚠️ Authorization Error</h1>
+          <Link to="/" className="back-link">
+            ← Back to App
+          </Link>
+        </div>
+        <div className="auth-required">
+          <p>Failed to verify admin permissions: {adminError}</p>
+          <Link to="/" className="sign-in-btn">
+            Go to Main App
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  // Not signed in
   if (!currentUser) {
     return (
       <div className={`admin-page ${!currentUser ? 'guest-mode' : ''}`}>
         <div className="admin-header">
-          <h1>🔐 Admin Access Required</h1>
+          <h1>🔐 Sign In Required</h1>
           <Link to="/" className="back-link">
             ← Back to App
           </Link>
         </div>
         <div className="auth-required">
           <p>Please sign in to access the admin panel.</p>
+          <Link to="/" className="sign-in-btn">
+            Go to Main App
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  // Not an admin
+  if (!isAdmin) {
+    return (
+      <div className="admin-page">
+        <div className="admin-header">
+          <h1>🚫 Access Denied</h1>
+          <Link to="/" className="back-link">
+            ← Back to App
+          </Link>
+        </div>
+        <div className="auth-required">
+          <p>You do not have admin privileges to access this page.</p>
+          <p>Contact an administrator if you believe this is an error.</p>
           <Link to="/" className="sign-in-btn">
             Go to Main App
           </Link>

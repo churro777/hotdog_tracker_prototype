@@ -36,6 +36,8 @@ export interface User {
     notifications: boolean
     theme: 'light' | 'dark'
   }
+  /** Admin privileges for contest management */
+  isAdmin?: boolean
 }
 
 /**
