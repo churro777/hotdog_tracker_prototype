@@ -15,7 +15,9 @@ import LogTab from '@components/tabs/LogTab'
 import { STORAGE_KEYS, UI_TEXT, CONFIG, TAB_TYPES } from '@constants'
 import { AuthProvider } from '@contexts/AuthContext'
 import { useAuth } from '@hooks/useAuth'
+import useContestCountdown from '@hooks/useContestCountdown'
 import useContestDataV2 from '@hooks/useContestDataV2'
+import useContestLeader from '@hooks/useContestLeader'
 import useContests from '@hooks/useContests'
 import useIsAdmin from '@hooks/useIsAdmin'
 import useTheme from '@hooks/useTheme'
@@ -45,6 +47,10 @@ function AppContent() {
 
   const { contestPosts, users, addPost, editPost, isLoading, error } =
     useContestDataV2(currentUserId, activeContestId)
+
+  // Contest info hooks (depend on loaded data)
+  const countdown = useContestCountdown(activeContest)
+  const { leader, isTied, tiedCount } = useContestLeader(users || [])
 
   // Get a random loading message when loading starts
   const [loadingMessage, setLoadingMessage] = useState('')
@@ -233,10 +239,34 @@ function AppContent() {
           <h1>{UI_TEXT.APP_TITLE}</h1>
           {activeContest && (
             <div className="active-contest-info">
-              <span className="contest-name">{activeContest.name}</span>
-              <span className={`contest-status ${activeContest.status}`}>
-                {activeContest.status}
-              </span>
+              <div className="contest-header-row">
+                <span className="contest-name">{activeContest.name}</span>
+                <span className={`contest-status ${activeContest.status}`}>
+                  {activeContest.status}
+                </span>
+              </div>
+              <div className="contest-details-row">
+                <div className="countdown-info">
+                  <span className="countdown-label">
+                    {countdown.statusMessage}
+                  </span>
+                  {!countdown.isCompleted && (
+                    <span className="countdown-time">
+                      {countdown.formattedTime}
+                    </span>
+                  )}
+                </div>
+                {leader && (
+                  <div className="leader-info">
+                    <span className="leader-label">
+                      {isTied ? `${tiedCount}-way tie:` : 'Leader:'}
+                    </span>
+                    <span className="leader-name">
+                      {leader.displayName} ({leader.totalCount})
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
