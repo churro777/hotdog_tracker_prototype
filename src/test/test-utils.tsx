@@ -50,6 +50,7 @@ export const mockLegacyContestUsers: ContestUser[] = [
 export const mockContestPosts: ContestPost[] = [
   {
     id: '1',
+    contestId: 'default',
     userId: 'current-user',
     userName: 'You',
     count: 3,
@@ -58,6 +59,7 @@ export const mockContestPosts: ContestPost[] = [
   },
   {
     id: '2',
+    contestId: 'default',
     userId: 'joey-chestnut',
     userName: 'Joey Chestnut',
     count: 5,
@@ -66,6 +68,7 @@ export const mockContestPosts: ContestPost[] = [
   },
   {
     id: '3',
+    contestId: 'default',
     userId: 'current-user',
     userName: 'You',
     count: 1,

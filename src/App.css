@@ -3,6 +3,7 @@
   /* Light mode colors */
   --bg-primary: #ffffff;
   --bg-secondary: #f8f9fa;
+  --bg-tertiary: #e9ecef;
   --bg-surface: #ffffff;
   --text-primary: #343a40;
   --text-secondary: #6c757d;
@@ -11,12 +12,26 @@
   --shadow-hover: rgba(0, 0, 0, 0.15);
   --input-bg: #ffffff;
   --button-hover: #e9ecef;
+
+  /* Brand colors */
+  --accent-color: #ff6b35;
+  --accent-color-transparent: rgba(255, 107, 53, 0.2);
+
+  /* Status colors */
+  --success-color: #4caf50;
+  --success-bg: #d4edda;
+  --success-text: #155724;
+  --error-bg: #f8d7da;
+  --error-text: #721c24;
+  --warning-bg: #fff3cd;
+  --warning-text: #856404;
 }
 
 /* Dark mode colors */
 body.dark-mode {
   --bg-primary: #1a1a1a;
   --bg-secondary: #2d2d2d;
+  --bg-tertiary: #404040;
   --bg-surface: #2d2d2d;
   --text-primary: #ffffff;
   --text-secondary: #b0b0b0;
@@ -25,6 +40,19 @@ body.dark-mode {
   --shadow-hover: rgba(0, 0, 0, 0.4);
   --input-bg: #404040;
   --button-hover: #404040;
+
+  /* Brand colors stay the same in dark mode */
+  --accent-color: #ff6b35;
+  --accent-color-transparent: rgba(255, 107, 53, 0.2);
+
+  /* Status colors for dark mode */
+  --success-color: #4caf50;
+  --success-bg: #1d4f2a;
+  --success-text: #4caf50;
+  --error-bg: #4a1e21;
+  --error-text: #f56565;
+  --warning-bg: #3d3716;
+  --warning-text: #ffd700;
 
   background-color: var(--bg-primary);
   color: var(--text-primary);
@@ -440,12 +468,55 @@ body.dark-mode .contest-status.inactive {
   min-width: 0; /* Allow flex items to shrink */
 }
 
-.header-content h1 {
+.title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.active-contest-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.contest-name {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+.contest-status {
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.contest-status.upcoming {
+  background: rgba(255, 193, 7, 0.8);
+  color: #000;
+}
+
+.contest-status.active {
+  background: rgba(40, 167, 69, 0.8);
+  color: white;
+}
+
+.contest-status.completed {
+  background: rgba(108, 117, 125, 0.8);
+  color: white;
+}
+
+.title-section h1 {
   margin: 0;
   font-size: 1.75rem;
   font-weight: bold;
   color: white;
-  flex: 1;
   text-align: center;
   min-width: 0; /* Allow title to shrink if absolutely necessary */
   overflow: hidden;
@@ -477,6 +548,25 @@ body.dark-mode .contest-status.inactive {
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 250px; /* Set a reasonable maximum width */
+}
+
+.admin-link {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-weight: 500;
+}
+
+.admin-link:hover {
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
 }
 
 .back-btn,

@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
 
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+
 import './App.css'
 
+import AdminPage from '@components/AdminPage'
 import ErrorBoundary from '@components/ErrorBoundary'
 import AuthModal from '@components/modals/AuthModal'
 import SettingsModal from '@components/modals/SettingsModal'
@@ -13,6 +16,7 @@ import { STORAGE_KEYS, UI_TEXT, CONFIG, TAB_TYPES } from '@constants'
 import { AuthProvider } from '@contexts/AuthContext'
 import { useAuth } from '@hooks/useAuth'
 import useContestDataV2 from '@hooks/useContestDataV2'
+import useContests from '@hooks/useContests'
 import useTheme from '@hooks/useTheme'
 import type { Tab } from '@types'
 
@@ -32,11 +36,13 @@ function AppContent() {
   )
   const { isDarkMode, toggleTheme } = useTheme()
   const { currentUser, logout } = useAuth()
+  const { activeContest } = useContests()
 
   const currentUserId = currentUser?.uid
+  const activeContestId = activeContest?.id
 
   const { contestPosts, users, addPost, editPost, isLoading, error } =
-    useContestDataV2(currentUserId)
+    useContestDataV2(currentUserId, activeContestId)
 
   // Get a random loading message when loading starts
   const [loadingMessage, setLoadingMessage] = useState('')
@@ -221,13 +227,26 @@ function AppContent() {
   const getHeaderContent = () => {
     return (
       <div className="header-content">
-        <h1>{UI_TEXT.APP_TITLE}</h1>
+        <div className="title-section">
+          <h1>{UI_TEXT.APP_TITLE}</h1>
+          {activeContest && (
+            <div className="active-contest-info">
+              <span className="contest-name">{activeContest.name}</span>
+              <span className={`contest-status ${activeContest.status}`}>
+                {activeContest.status}
+              </span>
+            </div>
+          )}
+        </div>
         <div className="header-actions">
           {currentUser && (
             <div className="user-info">
               <span className="user-greeting">
                 Signed in as {currentUser.displayName ?? 'User'}
               </span>
+              <Link to="/admin" className="admin-link">
+                🛠️ Admin
+              </Link>
               <button
                 className="settings-btn"
                 onClick={() => setShowSettingsModal(true)}
@@ -280,7 +299,12 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <Router>
+        <Routes>
+          <Route path="/" element={<AppContent />} />
+          <Route path="/admin" element={<AdminPage />} />
+        </Routes>
+      </Router>
     </AuthProvider>
   )
 }

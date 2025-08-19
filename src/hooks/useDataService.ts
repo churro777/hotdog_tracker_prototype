@@ -38,6 +38,9 @@ interface UseDataServiceReturn {
   deletePost: (id: string) => Promise<boolean>
   updateUser: (id: string, updates: Partial<User>) => Promise<User | null>
   addUser: (userData: Omit<User, 'id'>) => Promise<User | null>
+
+  // Direct service access
+  dataService: typeof dataService
 }
 
 /**
@@ -356,6 +359,9 @@ export function useDataService(): UseDataServiceReturn {
     deletePost,
     updateUser,
     addUser,
+
+    // Direct service access
+    dataService,
   }
 }
 

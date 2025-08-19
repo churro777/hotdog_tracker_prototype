@@ -55,7 +55,8 @@ interface UseContestDataV2Return {
  * Provides contest-specific data filtering and operations with proper async handling
  */
 function useContestDataV2(
-  currentUserId: string | undefined
+  currentUserId: string | undefined,
+  contestId?: string
 ): UseContestDataV2Return {
   const {
     posts: allPosts,
@@ -68,8 +69,11 @@ function useContestDataV2(
     refreshData,
   } = useDataService()
 
-  // In simplified architecture, all posts and users are in the single contest
-  const contestPosts = allPosts
+  // Filter posts by contest if contestId is provided
+  const contestPosts = contestId
+    ? allPosts.filter(post => post.contestId === contestId)
+    : allPosts
+
   const users = allUsers
 
   /**
@@ -119,6 +123,7 @@ function useContestDataV2(
           userName: currentUser.displayName,
           count,
           timestamp: new Date(),
+          contestId: contestId ?? 'default', // Use provided contestId or default
           ...(image !== undefined && { image }),
           ...(description !== undefined && { description }),
         }
@@ -143,7 +148,7 @@ function useContestDataV2(
         return false
       }
     },
-    [currentUserId, users, serviceAddPost, serviceUpdateUser]
+    [currentUserId, users, serviceAddPost, serviceUpdateUser, contestId]
   )
 
   /**

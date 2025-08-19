@@ -4,14 +4,20 @@
  * between localStorage (current) and Firebase (future) implementations
  */
 
-import type { ContestPost, User } from '@types'
+import type { ContestPost, User, Contest } from '@types'
 
 /**
  * Generic data service interface
  */
 export interface DataService {
+  // Contests
+  getContests(): Promise<Contest[]>
+  addContest(contest: Omit<Contest, 'id'>): Promise<Contest>
+  updateContest(id: string, updates: Partial<Contest>): Promise<Contest>
+  deleteContest(id: string): Promise<void>
+
   // Contest Posts
-  getPosts(): Promise<ContestPost[]>
+  getPosts(contestId?: string): Promise<ContestPost[]>
   addPost(post: Omit<ContestPost, 'id'>): Promise<ContestPost>
   updatePost(id: string, updates: Partial<ContestPost>): Promise<ContestPost>
   deletePost(id: string): Promise<void>
@@ -29,8 +35,15 @@ export interface DataService {
  * Batch operation interface for atomic updates
  */
 export type BatchOperation =
+  | { type: 'create'; collection: 'contests'; data: Omit<Contest, 'id'> }
   | { type: 'create'; collection: 'posts'; data: Omit<ContestPost, 'id'> }
   | { type: 'create'; collection: 'users'; data: Omit<User, 'id'> }
+  | {
+      type: 'update'
+      collection: 'contests'
+      id: string
+      data: Partial<Contest>
+    }
   | {
       type: 'update'
       collection: 'posts'
@@ -43,6 +56,7 @@ export type BatchOperation =
       id: string
       data: Partial<User>
     }
+  | { type: 'delete'; collection: 'contests'; id: string }
   | { type: 'delete'; collection: 'posts'; id: string }
 
 /**
@@ -50,18 +64,141 @@ export type BatchOperation =
  * Provides real-time data synchronization with Firestore
  */
 class FirebaseDataService implements DataService {
+  private readonly contestsCollection = 'contests'
   private readonly postsCollection = 'contest-posts'
   private readonly usersCollection = 'users'
 
-  async getPosts(): Promise<ContestPost[]> {
+  async getContests(): Promise<Contest[]> {
     try {
       const { collection, getDocs, orderBy, query } = await import(
         'firebase/firestore'
       )
       const { db } = await import('@config/firebase')
 
+      const contestsRef = collection(db, this.contestsCollection)
+      const q = query(contestsRef, orderBy('startDate', 'desc'))
+      const snapshot = await getDocs(q)
+
+      return snapshot.docs.map(doc => {
+        const data = doc.data() as Record<string, unknown>
+        const startDate = data['startDate'] as { toDate(): Date } | undefined
+        const endDate = data['endDate'] as { toDate(): Date } | undefined
+        const createdAt = data['createdAt'] as { toDate(): Date } | undefined
+        return {
+          id: doc.id,
+          ...data,
+          startDate: startDate?.toDate() ?? new Date(),
+          endDate: endDate?.toDate() ?? new Date(),
+          createdAt: createdAt?.toDate() ?? new Date(),
+        }
+      }) as Contest[]
+    } catch (error) {
+      console.error('Error fetching contests from Firebase:', error)
+      throw error
+    }
+  }
+
+  async addContest(contestData: Omit<Contest, 'id'>): Promise<Contest> {
+    try {
+      const { collection, addDoc, Timestamp } = await import(
+        'firebase/firestore'
+      )
+      const { db } = await import('@config/firebase')
+
+      const contestsRef = collection(db, this.contestsCollection)
+      const dataWithTimestamps = {
+        ...contestData,
+        startDate: Timestamp.fromDate(contestData.startDate),
+        endDate: Timestamp.fromDate(contestData.endDate),
+        createdAt: Timestamp.fromDate(contestData.createdAt),
+      }
+
+      const docRef = await addDoc(contestsRef, dataWithTimestamps)
+
+      return {
+        id: docRef.id,
+        ...contestData,
+      }
+    } catch (error) {
+      console.error('Error adding contest to Firebase:', error)
+      throw error
+    }
+  }
+
+  async updateContest(id: string, updates: Partial<Contest>): Promise<Contest> {
+    try {
+      const { doc, updateDoc, getDoc, Timestamp } = await import(
+        'firebase/firestore'
+      )
+      const { db } = await import('@config/firebase')
+
+      const contestRef = doc(db, this.contestsCollection, id)
+      const updatesWithTimestamps = {
+        ...updates,
+        ...(updates.startDate && {
+          startDate: Timestamp.fromDate(updates.startDate),
+        }),
+        ...(updates.endDate && {
+          endDate: Timestamp.fromDate(updates.endDate),
+        }),
+        ...(updates.createdAt && {
+          createdAt: Timestamp.fromDate(updates.createdAt),
+        }),
+      }
+
+      await updateDoc(contestRef, updatesWithTimestamps)
+
+      const updatedDoc = await getDoc(contestRef)
+      const data = updatedDoc.data() as Record<string, unknown>
+      const startDate = data['startDate'] as { toDate(): Date } | undefined
+      const endDate = data['endDate'] as { toDate(): Date } | undefined
+      const createdAt = data['createdAt'] as { toDate(): Date } | undefined
+
+      return {
+        id,
+        ...data,
+        startDate: startDate?.toDate() ?? new Date(),
+        endDate: endDate?.toDate() ?? new Date(),
+        createdAt: createdAt?.toDate() ?? new Date(),
+      } as Contest
+    } catch (error) {
+      console.error('Error updating contest in Firebase:', error)
+      throw error
+    }
+  }
+
+  async deleteContest(id: string): Promise<void> {
+    try {
+      const { doc, deleteDoc } = await import('firebase/firestore')
+      const { db } = await import('@config/firebase')
+
+      const contestRef = doc(db, this.contestsCollection, id)
+      await deleteDoc(contestRef)
+    } catch (error) {
+      console.error('Error deleting contest from Firebase:', error)
+      throw error
+    }
+  }
+
+  async getPosts(contestId?: string): Promise<ContestPost[]> {
+    try {
+      const { collection, getDocs, orderBy, query, where } = await import(
+        'firebase/firestore'
+      )
+      const { db } = await import('@config/firebase')
+
       const postsRef = collection(db, this.postsCollection)
-      const q = query(postsRef, orderBy('timestamp', 'desc'))
+      let q = query(postsRef, orderBy('timestamp', 'desc'))
+
+      // Filter by contest if contestId provided
+      if (contestId) {
+        q = query(
+          postsRef,
+          where('contestId', '==', contestId),
+          orderBy('timestamp', 'desc')
+        )
+      }
+
       const snapshot = await getDocs(q)
 
       return snapshot.docs.map(doc => {

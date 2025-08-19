@@ -4,6 +4,37 @@ import { render, screen } from '@test/test-utils'
 
 import App from './App'
 
+// Mock React Router
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom')
+  return {
+    ...(actual as object),
+    BrowserRouter: ({ children }: { children: React.ReactNode }) => children,
+    Routes: ({ children }: { children: React.ReactNode }) => {
+      // Return the first route (main app content) for testing
+      if (Array.isArray(children)) {
+        return children[0] as React.ReactNode
+      }
+      return children
+    },
+    Route: ({ element }: { element: React.ReactNode }) => element,
+    useNavigate: () => vi.fn(),
+    useLocation: () => ({ pathname: '/' }),
+    Link: ({
+      children,
+      ...props
+    }: {
+      children: React.ReactNode
+      to?: string
+      className?: string
+    }) => (
+      <a href={props.to} className={props.className}>
+        {children}
+      </a>
+    ),
+  }
+})
+
 // Mock Firebase config
 vi.mock('@config/firebase', () => ({
   auth: {},
