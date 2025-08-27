@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 import { useAuth } from '@hooks/useAuth'
 import { useDataService } from '@hooks/useDataService'
@@ -13,34 +13,51 @@ export const useIsAdmin = () => {
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const isCancelledRef = useRef(false)
 
   useEffect(() => {
+    isCancelledRef.current = false
+
     const checkAdminStatus = async () => {
       if (!currentUser) {
-        setIsAdmin(false)
-        setLoading(false)
+        if (!isCancelledRef.current) {
+          setIsAdmin(false)
+          setLoading(false)
+        }
         return
       }
 
       try {
-        setLoading(true)
-        setError(null)
+        if (!isCancelledRef.current) {
+          setLoading(true)
+          setError(null)
+        }
 
         // Get all users and find the current user's admin status
         const users = await dataService.getUsers()
         const userRecord = users.find(user => user.id === currentUser.uid)
 
-        setIsAdmin(userRecord?.isAdmin ?? false)
+        if (!isCancelledRef.current) {
+          setIsAdmin(userRecord?.isAdmin ?? false)
+        }
       } catch (err) {
         console.error('Error checking admin status:', err)
-        setError('Failed to check admin status')
-        setIsAdmin(false)
+        if (!isCancelledRef.current) {
+          setError('Failed to check admin status')
+          setIsAdmin(false)
+        }
       } finally {
-        setLoading(false)
+        if (!isCancelledRef.current) {
+          setLoading(false)
+        }
       }
     }
 
     void checkAdminStatus()
+
+    return () => {
+      isCancelledRef.current = true
+    }
   }, [currentUser, dataService])
 
   return { isAdmin, loading, error }

@@ -3,7 +3,7 @@
  * Provides React-friendly interface for data operations with loading states and error handling
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 import type { ContestPost, User } from '@types'
 import { logError, logUserError } from '@utils/errorLogger'
@@ -48,6 +48,9 @@ interface UseDataServiceReturn {
  * Provides loading states, error handling, and optimistic updates
  */
 export function useDataService(): UseDataServiceReturn {
+  // Cancellation ref to prevent state updates after unmount
+  const isCancelledRef = useRef(false)
+
   // Data state
   const [posts, setPosts] = useState<ContestPost[]>([])
   const [users, setUsers] = useState<User[]>([])
@@ -73,8 +76,10 @@ export function useDataService(): UseDataServiceReturn {
 
     const setupPostsListener = async () => {
       try {
-        setIsPostsLoading(true)
-        setPostsError(null)
+        if (!isCancelledRef.current) {
+          setIsPostsLoading(true)
+          setPostsError(null)
+        }
 
         const { collection, onSnapshot, orderBy, query } = await import(
           'firebase/firestore'
@@ -99,14 +104,18 @@ export function useDataService(): UseDataServiceReturn {
               }
             }) as ContestPost[]
 
-            setPosts(loadedPosts)
-            setIsPostsLoading(false)
-            setPostsError(null)
+            if (!isCancelledRef.current) {
+              setPosts(loadedPosts)
+              setIsPostsLoading(false)
+              setPostsError(null)
+            }
           },
           error => {
             const errorMessage = 'Failed to load posts'
-            setPostsError(errorMessage)
-            setIsPostsLoading(false)
+            if (!isCancelledRef.current) {
+              setPostsError(errorMessage)
+              setIsPostsLoading(false)
+            }
             logError({
               message: errorMessage,
               error: error as Error,
@@ -117,8 +126,10 @@ export function useDataService(): UseDataServiceReturn {
         )
       } catch (error) {
         const errorMessage = 'Failed to setup posts listener'
-        setPostsError(errorMessage)
-        setIsPostsLoading(false)
+        if (!isCancelledRef.current) {
+          setPostsError(errorMessage)
+          setIsPostsLoading(false)
+        }
         logError({
           message: errorMessage,
           error: error as Error,
@@ -130,8 +141,10 @@ export function useDataService(): UseDataServiceReturn {
 
     const setupUsersListener = async () => {
       try {
-        setIsUsersLoading(true)
-        setUsersError(null)
+        if (!isCancelledRef.current) {
+          setIsUsersLoading(true)
+          setUsersError(null)
+        }
 
         const { collection, onSnapshot, orderBy, query } = await import(
           'firebase/firestore'
@@ -161,14 +174,18 @@ export function useDataService(): UseDataServiceReturn {
               }
             }) as User[]
 
-            setUsers(loadedUsers)
-            setIsUsersLoading(false)
-            setUsersError(null)
+            if (!isCancelledRef.current) {
+              setUsers(loadedUsers)
+              setIsUsersLoading(false)
+              setUsersError(null)
+            }
           },
           error => {
             const errorMessage = 'Failed to load users'
-            setUsersError(errorMessage)
-            setIsUsersLoading(false)
+            if (!isCancelledRef.current) {
+              setUsersError(errorMessage)
+              setIsUsersLoading(false)
+            }
             logError({
               message: errorMessage,
               error: error as Error,
@@ -179,8 +196,11 @@ export function useDataService(): UseDataServiceReturn {
         )
       } catch (error) {
         const errorMessage = 'Failed to setup users listener'
-        setUsersError(errorMessage)
-        setIsUsersLoading(false)
+        // Only set state if component is still mounted
+        if (!isCancelledRef.current) {
+          setUsersError(errorMessage)
+          setIsUsersLoading(false)
+        }
         logError({
           message: errorMessage,
           error: error as Error,
@@ -331,10 +351,14 @@ export function useDataService(): UseDataServiceReturn {
 
   // Set up real-time listeners
   useEffect(() => {
+    isCancelledRef.current = false
     const cleanup = setupRealtimeListeners()
 
     // Cleanup listeners on unmount
-    return cleanup
+    return () => {
+      isCancelledRef.current = true
+      cleanup()
+    }
   }, [setupRealtimeListeners])
 
   return {
