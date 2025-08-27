@@ -127,7 +127,7 @@ function useImageUpload(): UseImageUploadReturn {
         .catch(error => {
           console.error('❌ Image compression failed:', error)
           alert(
-            'Unable to compress image. Please try a smaller image or use a different photo.'
+            `Image compression failed: ${error instanceof Error ? error.message : 'Unknown error'}. File: ${file.name} (${Math.round(file.size / 1024)}KB). Please try a smaller image.`
           )
         })
     } else {
@@ -151,7 +151,7 @@ function useImageUpload(): UseImageUploadReturn {
           fileSize: file.size,
         })
         alert(
-          'Failed to load image. Please try again or choose a different image.'
+          `Failed to read image file: ${file.name} (${Math.round(file.size / 1024)}KB). Error: ${e.target?.error?.message ?? 'Unknown error'}. Try a different photo.`
         )
       }
 
@@ -164,9 +164,23 @@ function useImageUpload(): UseImageUploadReturn {
   }
 
   const handleFileInputChange = (fileInput: HTMLInputElement) => {
+    console.log('📱 Mobile file input change:', {
+      filesLength: fileInput.files?.length ?? 0,
+      hasFiles: !!fileInput.files?.length,
+    })
+
     const file = fileInput.files?.[0]
     if (file) {
+      console.log('📱 Mobile file selected:', {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        lastModified: file.lastModified,
+      })
       processFile(file)
+    } else {
+      console.warn('📱 No file selected from mobile input')
+      alert('No photo was selected. Please try again.')
     }
   }
 
@@ -182,13 +196,38 @@ function useImageUpload(): UseImageUploadReturn {
   }
 
   const handlePhotoLibrary = () => {
+    console.log('📱 Photo library button clicked')
     const fileInput = document.createElement('input')
     fileInput.type = 'file'
     fileInput.accept = 'image/*'
+
+    // Add timeout to detect if file picker was cancelled/failed
+    // eslint-disable-next-line prefer-const
+    let filePickerTimeout: NodeJS.Timeout
+
     fileInput.addEventListener('change', () => {
+      clearTimeout(filePickerTimeout)
+      console.log('📱 Photo library file picker change event')
       handleFileInputChange(fileInput)
     })
-    fileInput.click()
+
+    fileInput.addEventListener('cancel', () => {
+      clearTimeout(filePickerTimeout)
+      console.log('📱 Photo library file picker cancelled')
+    })
+
+    // Set timeout to detect if picker fails to open
+    filePickerTimeout = setTimeout(() => {
+      console.warn('📱 Photo library picker timeout - may have failed to open')
+    }, 1000)
+
+    try {
+      fileInput.click()
+      console.log('📱 Photo library file picker opened')
+    } catch (error) {
+      console.error('📱 Failed to open photo library:', error)
+      alert(`Failed to open photo library: ${String(error)}`)
+    }
   }
 
   return {

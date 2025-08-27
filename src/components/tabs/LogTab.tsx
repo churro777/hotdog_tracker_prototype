@@ -29,6 +29,7 @@ function LogTab({ onAddPost, setActiveTab }: LogTabProps) {
   )
   const [newPostDescription, setNewPostDescription] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const [debugInfo, setDebugInfo] = useState<string>('')
   const {
     imagePreview,
     handleImageUpload,
@@ -39,6 +40,12 @@ function LogTab({ onAddPost, setActiveTab }: LogTabProps) {
   } = useImageUpload()
 
   const isMobile = isMobileDevice()
+
+  // Debug wrapper for photo library
+  const handlePhotoLibraryDebug = () => {
+    setDebugInfo('Photo library clicked...')
+    handlePhotoLibrary()
+  }
 
   const handleSubmitPost = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -110,7 +117,7 @@ function LogTab({ onAddPost, setActiveTab }: LogTabProps) {
                 </button>
                 <button
                   type="button"
-                  onClick={handlePhotoLibrary}
+                  onClick={handlePhotoLibraryDebug}
                   className="photo-button library-button"
                 >
                   {ICONS.FOLDER} Library
@@ -144,6 +151,19 @@ function LogTab({ onAddPost, setActiveTab }: LogTabProps) {
               >
                 {BUTTON_TEXT.REMOVE}
               </button>
+            </div>
+          )}
+          {isMobile && debugInfo && (
+            <div
+              style={{
+                background: '#ffeb3b',
+                padding: '10px',
+                margin: '10px 0',
+                borderRadius: '4px',
+                fontSize: '12px',
+              }}
+            >
+              Debug: {debugInfo}
             </div>
           )}
         </div>
