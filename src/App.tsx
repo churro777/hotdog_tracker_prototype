@@ -229,75 +229,97 @@ function AppContent() {
 
   /**
    * Renders the header content with app title and settings button.
+   * Mobile layout: Three rows - title/auth, leader/buttons, countdown
    *
    * @returns {JSX.Element} The header content with title and settings access
    */
   const getHeaderContent = () => {
     return (
       <div className="header-content">
-        <div className="title-section">
-          <h1>{UI_TEXT.APP_TITLE}</h1>
-          {activeContest && (
-            <div className="active-contest-info">
-              <div className="contest-header-row">
-                <span className="contest-name">{activeContest.name}</span>
-                <span className={`contest-status ${activeContest.status}`}>
-                  {activeContest.status}
-                </span>
+        {/* Row 1: App title + User authentication */}
+        <div className="header-row header-row-1">
+          <div className="title-section">
+            <h1>{UI_TEXT.APP_TITLE}</h1>
+          </div>
+          <div className="header-actions">
+            {currentUser && (
+              <div className="user-info">
+                <button
+                  className="settings-btn"
+                  onClick={() => setShowSettingsModal(true)}
+                >
+                  {UI_TEXT.TABS.SETTINGS}
+                </button>
+                <button
+                  className="logout-btn"
+                  onClick={() => {
+                    void logout()
+                  }}
+                >
+                  Sign Out
+                </button>
               </div>
-              <div className="contest-details-row">
-                <div className="countdown-info">
-                  <span className="countdown-label">
-                    {countdown.statusMessage}
+            )}
+          </div>
+        </div>
+
+        {/* Row 2: Contest name + status */}
+        {activeContest && (
+          <div className="header-row header-row-2">
+            <div className="contest-name-status">
+              <span className="contest-name">{activeContest.name}</span>
+              <span className={`contest-status ${activeContest.status}`}>
+                {activeContest.status}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Row 3: Current leader + Contest countdown timer */}
+        {activeContest && (
+          <div className="header-row header-row-3">
+            <div className="leader-section">
+              {leader && (
+                <div className="leader-info">
+                  <span className="leader-label">
+                    {isTied ? `${tiedCount}-way tie:` : 'Leader:'}
                   </span>
-                  {!countdown.isCompleted && (
-                    <span className="countdown-time">
-                      {countdown.formattedTime}
-                    </span>
-                  )}
+                  <span className="leader-name">
+                    {leader.displayName} ({leader.totalCount})
+                  </span>
                 </div>
-                {leader && (
-                  <div className="leader-info">
-                    <span className="leader-label">
-                      {isTied ? `${tiedCount}-way tie:` : 'Leader:'}
-                    </span>
-                    <span className="leader-name">
-                      {leader.displayName} ({leader.totalCount})
-                    </span>
-                  </div>
+              )}
+            </div>
+            <div className="countdown-section">
+              <div className="countdown-info">
+                <span className="countdown-label">
+                  {countdown.statusMessage}
+                </span>
+                {!countdown.isCompleted && (
+                  <span className="countdown-time">
+                    {countdown.formattedTime}
+                  </span>
                 )}
               </div>
             </div>
-          )}
-        </div>
-        <div className="header-actions">
-          {currentUser && (
-            <div className="user-info">
+          </div>
+        )}
+
+        {/* Row 4: User status + Admin button */}
+        {currentUser && (
+          <div className="header-row header-row-4">
+            <div className="user-status-section">
               <span className="user-greeting">
                 Signed in as {currentUser.displayName ?? 'User'}
               </span>
               {isAdmin && (
                 <Link to="/admin" className="admin-link">
-                  🛠️ Admin
+                  🛠️ Admin Panel
                 </Link>
               )}
-              <button
-                className="settings-btn"
-                onClick={() => setShowSettingsModal(true)}
-              >
-                {UI_TEXT.TABS.SETTINGS}
-              </button>
-              <button
-                className="logout-btn"
-                onClick={() => {
-                  void logout()
-                }}
-              >
-                Sign Out
-              </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     )
   }

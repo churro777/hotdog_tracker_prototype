@@ -462,38 +462,103 @@ body.dark-mode .contest-status.inactive {
 /* Header styling for multi-contest platform */
 .header-content {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   width: 100%;
-  min-width: 0; /* Allow flex items to shrink */
-}
-
-.title-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
   min-width: 0;
-  flex: 1;
 }
 
-.active-contest-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.85rem;
+/* Desktop: Single row layout */
+@media (min-width: 769px) {
+  .header-content {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header-row {
+    display: contents;
+  }
+
+  .title-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+    flex: 1;
+  }
 }
 
-.contest-header-row {
+/* Mobile: Three row layout */
+@media (max-width: 768px) {
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+    min-height: 44px;
+  }
+
+  .header-row-1 {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 0.5rem;
+  }
+
+  .header-row-2 {
+    padding: 0.5rem 0;
+    justify-content: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .header-row-3 {
+    padding: 0.5rem 0;
+    justify-content: space-between;
+  }
+
+  .header-row-4 {
+    padding-top: 0.5rem;
+    justify-content: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .title-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+    flex: 1;
+  }
+}
+
+.contest-name-status {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.contest-details-row {
+.leader-section {
   display: flex;
   align-items: center;
+  flex: 1;
+}
+
+.user-status-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
   gap: 1rem;
-  flex-wrap: wrap;
+}
+
+.admin-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.countdown-section {
+  display: flex;
+  align-items: center;
 }
 
 .countdown-info {
@@ -504,14 +569,14 @@ body.dark-mode .contest-status.inactive {
 
 .countdown-label {
   color: rgba(255, 255, 255, 0.8);
-  font-size: 0.75rem;
+  font-size: 0.85rem;
 }
 
 .countdown-time {
   color: white;
   font-weight: 600;
   font-family: 'Courier New', monospace;
-  font-size: 0.8rem;
+  font-size: 1rem;
 }
 
 .leader-info {
@@ -522,18 +587,19 @@ body.dark-mode .contest-status.inactive {
 
 .leader-label {
   color: rgba(255, 255, 255, 0.8);
-  font-size: 0.75rem;
+  font-size: 0.85rem;
 }
 
 .leader-name {
   color: white;
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 
 .contest-name {
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 600;
+  font-size: 1rem;
 }
 
 .contest-status {
@@ -600,21 +666,26 @@ body.dark-mode .contest-status.inactive {
 
 .admin-link {
   background: rgba(255, 255, 255, 0.2);
-  border: none;
+  border: 2px solid rgba(255, 255, 255, 0.4);
   color: white;
   font-size: 0.9rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  font-weight: 500;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .admin-link:hover {
   background: rgba(255, 255, 255, 0.3);
   color: white;
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: translateY(-1px);
 }
 
 .back-btn,
@@ -650,20 +721,17 @@ body.dark-mode .contest-status.inactive {
 
 /* Mobile responsive adjustments for contest info */
 @media (max-width: 768px) {
-  .contest-details-row {
-    flex-direction: column;
-    gap: 0.5rem;
-    align-items: flex-start;
-  }
-
   .countdown-info,
   .leader-info {
-    font-size: 0.75rem;
+    font-size: 0.85rem;
   }
 
-  .countdown-time,
+  .countdown-time {
+    font-size: 1rem;
+  }
+
   .leader-name {
-    font-size: 0.75rem;
+    font-size: 0.9rem;
   }
 }
 
@@ -730,13 +798,26 @@ body.dark-mode .contest-status.inactive {
     font-size: 1.1rem;
   }
 
-  .header-content h1 {
+  .title-section h1 {
     font-size: 1.25rem;
   }
 
   .user-greeting {
     font-size: 0.85rem;
-    max-width: 150px; /* Smaller max width on mobile */
+    max-width: 200px; /* Larger max width since it's on its own row */
+  }
+
+  .user-status-section {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .user-status-section .user-greeting {
+    flex: 1;
+    text-align: left;
+    max-width: none;
   }
 
   .back-btn,
@@ -753,6 +834,12 @@ body.dark-mode .contest-status.inactive {
   }
 
   .user-info {
+    gap: 0.5rem;
+  }
+
+  .header-buttons {
+    display: flex;
+    align-items: center;
     gap: 0.5rem;
   }
 }
