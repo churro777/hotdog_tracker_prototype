@@ -27,6 +27,10 @@ interface UseContestDataV2Return {
   isLoading: boolean
   error: string | null
 
+  // Pagination state - for contest-specific posts
+  hasMorePosts: boolean
+  isLoadingMore: boolean
+
   // Operations
   addPost: (
     count: number,
@@ -40,6 +44,7 @@ interface UseContestDataV2Return {
     newImage?: string
   ) => Promise<boolean>
   refreshData: () => void
+  loadMorePosts: () => Promise<void>
 
   // User statistics
   getCurrentUserStats: () => {
@@ -63,13 +68,17 @@ function useContestDataV2(
     users: allUsers,
     isLoading,
     error,
+    hasMorePosts,
+    isLoadingMore,
     addPost: serviceAddPost,
     updatePost: serviceUpdatePost,
     updateUser: serviceUpdateUser,
     refreshData,
+    loadMorePosts,
   } = useDataService()
 
   // Filter posts by contest if contestId is provided
+  // Now that migration is complete, all posts should have proper contestId values
   const contestPosts = contestId
     ? allPosts.filter(post => post.contestId === contestId)
     : allPosts
@@ -261,10 +270,15 @@ function useContestDataV2(
     isLoading,
     error,
 
+    // Pagination state
+    hasMorePosts,
+    isLoadingMore,
+
     // Operations
     addPost,
     editPost,
     refreshData,
+    loadMorePosts,
 
     // Statistics
     getCurrentUserStats,

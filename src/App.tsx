@@ -44,8 +44,17 @@ function AppContent() {
   const currentUserId = currentUser?.uid
   const activeContestId = activeContest?.id
 
-  const { contestPosts, users, addPost, editPost, isLoading, error } =
-    useContestDataV2(currentUserId, activeContestId)
+  const {
+    contestPosts,
+    users,
+    addPost,
+    editPost,
+    isLoading,
+    error,
+    hasMorePosts,
+    isLoadingMore,
+    loadMorePosts,
+  } = useContestDataV2(currentUserId, activeContestId)
 
   // Contest info hooks (depend on loaded data)
   const countdown = useContestCountdown(activeContest)
@@ -114,6 +123,9 @@ function AppContent() {
             posts={contestPosts}
             onEditPost={editPost}
             currentUserId={currentUserId!}
+            hasMorePosts={hasMorePosts}
+            isLoadingMore={isLoadingMore}
+            onLoadMore={loadMorePosts}
           />
         )
       case TAB_TYPES.LOG:

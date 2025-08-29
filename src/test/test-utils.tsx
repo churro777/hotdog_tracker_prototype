@@ -87,6 +87,7 @@ export const mockFunctions = {
   onToggleTheme: vi.fn(),
   onClose: vi.fn(),
   onClearData: vi.fn(),
+  onLoadMore: vi.fn(),
 }
 
 /**
@@ -111,6 +112,9 @@ export const createMockProps = {
     posts: mockContestPosts,
     onEditPost: mockFunctions.onEditPost,
     currentUserId: 'current-user',
+    hasMorePosts: false,
+    isLoadingMore: false,
+    onLoadMore: mockFunctions.onLoadMore,
   },
   logTab: {
     onAddPost: mockFunctions.onAddPost,

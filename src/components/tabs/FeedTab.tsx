@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useEffect, useRef, useCallback } from 'react'
 
 import './FeedTab.css'
 import { FORM_CONFIG, BUTTON_TEXT, ICONS } from '@constants'
@@ -21,6 +21,12 @@ interface FeedTabProps {
   ) => Promise<boolean>
   /** ID of the current user (used to determine edit permissions) */
   currentUserId: string
+  /** Whether there are more posts to load */
+  hasMorePosts: boolean
+  /** Whether currently loading more posts */
+  isLoadingMore: boolean
+  /** Function to load more posts */
+  onLoadMore: () => Promise<void>
 }
 
 /**
@@ -31,7 +37,14 @@ interface FeedTabProps {
  * @param {FeedTabProps} props - The component props
  * @returns {JSX.Element} The feed tab content
  */
-function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
+function FeedTab({
+  posts,
+  onEditPost,
+  currentUserId,
+  hasMorePosts,
+  isLoadingMore,
+  onLoadMore,
+}: FeedTabProps) {
   const {
     editingPostId,
     editCount,
@@ -46,6 +59,38 @@ function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
     saveEdit,
     cancelEdit,
   } = usePostEdit(onEditPost)
+
+  // Ref for the posts container to detect scroll
+  const postsContainerRef = useRef<HTMLDivElement>(null)
+
+  /**
+   * Handle scroll detection for infinite loading
+   */
+  const handleScroll = useCallback(() => {
+    if (!postsContainerRef.current || !hasMorePosts || isLoadingMore) {
+      return
+    }
+
+    const container = postsContainerRef.current
+    const { scrollTop, scrollHeight, clientHeight } = container
+    const distanceFromBottom = scrollHeight - scrollTop - clientHeight
+
+    // Load more when user is within 100px of bottom
+    if (distanceFromBottom < 100) {
+      void onLoadMore()
+    }
+  }, [hasMorePosts, isLoadingMore, onLoadMore])
+
+  /**
+   * Set up scroll listener
+   */
+  useEffect(() => {
+    const container = postsContainerRef.current
+    if (!container) return
+
+    container.addEventListener('scroll', handleScroll)
+    return () => container.removeEventListener('scroll', handleScroll)
+  }, [handleScroll])
 
   /**
    * Renders the content of a post (simplified architecture - all posts are consumption entries)
@@ -78,7 +123,7 @@ function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
       </div>
 
       <div className="posts-section">
-        <div className="posts-list">
+        <div className="posts-list" ref={postsContainerRef}>
           {posts.map(post => (
             <div key={post.id} className="post-item">
               {editingPostId === post.id ? (
@@ -185,6 +230,22 @@ function FeedTab({ posts, onEditPost, currentUserId }: FeedTabProps) {
             </div>
           ))}
         </div>
+
+        {/* Loading more indicator */}
+        {isLoadingMore && (
+          <div className="loading-more">
+            <p>Loading more posts...</p>
+          </div>
+        )}
+
+        {/* Load more button as fallback */}
+        {hasMorePosts && !isLoadingMore && posts.length > 0 && (
+          <div className="load-more-section">
+            <button onClick={() => void onLoadMore()} className="load-more-btn">
+              Load More Posts
+            </button>
+          </div>
+        )}
 
         {posts.length === 0 && (
           <p className="empty-state">

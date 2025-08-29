@@ -28,8 +28,13 @@ interface UseDataServiceReturn {
   postsError: string | null
   usersError: string | null
 
+  // Pagination state
+  hasMorePosts: boolean
+  isLoadingMore: boolean
+
   // Operations
   refreshData: () => void
+  loadMorePosts: (contestId?: string) => Promise<void>
   addPost: (postData: Omit<ContestPost, 'id'>) => Promise<ContestPost | null>
   updatePost: (
     id: string,
@@ -63,6 +68,11 @@ export function useDataService(): UseDataServiceReturn {
   const [postsError, setPostsError] = useState<string | null>(null)
   const [usersError, setUsersError] = useState<string | null>(null)
 
+  // Pagination state
+  const [hasMorePosts, setHasMorePosts] = useState(true)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [lastPostDoc, setLastPostDoc] = useState<unknown>(null)
+
   // Derived states
   const isLoading = isPostsLoading || isUsersLoading
   const error = postsError ?? usersError
@@ -81,13 +91,13 @@ export function useDataService(): UseDataServiceReturn {
           setPostsError(null)
         }
 
-        const { collection, onSnapshot, orderBy, query } = await import(
+        const { collection, onSnapshot, orderBy, query, limit } = await import(
           'firebase/firestore'
         )
         const { db } = await import('@config/firebase')
 
         const postsRef = collection(db, 'contest-posts')
-        const q = query(postsRef, orderBy('timestamp', 'desc'))
+        const q = query(postsRef, orderBy('timestamp', 'desc'), limit(10))
 
         postsUnsubscribe = onSnapshot(
           q,
@@ -108,6 +118,11 @@ export function useDataService(): UseDataServiceReturn {
               setPosts(loadedPosts)
               setIsPostsLoading(false)
               setPostsError(null)
+
+              // Update pagination state
+              const hasMore = snapshot.docs.length === 10
+              setHasMorePosts(hasMore)
+              setLastPostDoc(snapshot.docs[snapshot.docs.length - 1] ?? null)
             }
           },
           error => {
@@ -233,6 +248,65 @@ export function useDataService(): UseDataServiceReturn {
     // The listeners will automatically update when data changes
     console.log('Real-time listeners active - data refreshes automatically')
   }, [])
+
+  /**
+   * Load more posts for pagination
+   */
+  const loadMorePosts = useCallback(async () => {
+    if (!hasMorePosts || isLoadingMore || !lastPostDoc) {
+      return
+    }
+
+    setIsLoadingMore(true)
+
+    try {
+      const { collection, getDocs, orderBy, query, limit, startAfter } =
+        await import('firebase/firestore')
+      const { db } = await import('@config/firebase')
+
+      const postsRef = collection(db, 'contest-posts')
+      const q = query(
+        postsRef,
+        orderBy('timestamp', 'desc'),
+        startAfter(lastPostDoc),
+        limit(10)
+      )
+
+      const snapshot = await getDocs(q)
+
+      const newPosts = snapshot.docs.map(doc => {
+        const data = doc.data() as Record<string, unknown>
+        const timestamp = data['timestamp'] as { toDate(): Date } | undefined
+        return {
+          id: doc.id,
+          ...data,
+          timestamp: timestamp?.toDate() ?? new Date(),
+        }
+      }) as ContestPost[]
+
+      if (!isCancelledRef.current) {
+        setPosts(prevPosts => [...prevPosts, ...newPosts])
+        const hasMore = snapshot.docs.length === 10
+        setHasMorePosts(hasMore)
+        setLastPostDoc(snapshot.docs[snapshot.docs.length - 1] ?? null)
+      }
+    } catch (error) {
+      const errorMessage = 'Failed to load more posts'
+      if (!isCancelledRef.current) {
+        setPostsError(errorMessage)
+      }
+      logError({
+        message: errorMessage,
+        error: error as Error,
+        context: 'data-service',
+        action: 'load-more-posts',
+      })
+    } finally {
+      if (!isCancelledRef.current) {
+        setIsLoadingMore(false)
+      }
+    }
+  }, [hasMorePosts, isLoadingMore, lastPostDoc])
 
   /**
    * Add a new post
@@ -376,8 +450,13 @@ export function useDataService(): UseDataServiceReturn {
     postsError,
     usersError,
 
+    // Pagination state
+    hasMorePosts,
+    isLoadingMore,
+
     // Operations
     refreshData,
+    loadMorePosts,
     addPost,
     updatePost,
     deletePost,
