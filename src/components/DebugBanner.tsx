@@ -47,7 +47,14 @@ function DebugBanner() {
 
         <div className="debug-section">
           <span className="debug-label">Layout:</span>
-          <span className="debug-value">📱 {currentLayout}</span>
+          <span className="debug-value">
+            {currentLayout === 'Mobile'
+              ? '📱'
+              : currentLayout === 'Tablet'
+                ? '📋'
+                : '💻'}{' '}
+            {currentLayout}
+          </span>
         </div>
 
         <div className="debug-section">
