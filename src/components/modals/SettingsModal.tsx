@@ -3,6 +3,7 @@ import { useState, memo, useEffect } from 'react'
 import './SettingsModal.css'
 import { UI_TEXT, FORM_CONFIG, BUTTON_TEXT, ICONS, LIMITS } from '@constants'
 import { useAuth } from '@hooks/useAuth'
+import useLocalStorage from '@hooks/useLocalStorage'
 
 interface SettingsModalProps {
   isDarkMode: boolean
@@ -22,6 +23,7 @@ function SettingsModal({
   const [notifications, setNotifications] = useState(true)
   const [isUpdatingName, setIsUpdatingName] = useState(false)
   const [updateError, setUpdateError] = useState('')
+  const [debugMode, setDebugMode] = useLocalStorage('debugMode', false)
 
   // Initialize userName with current user's display name
   useEffect(() => {
@@ -131,6 +133,22 @@ function SettingsModal({
                   <span className="checkmark"></span>
                   {FORM_CONFIG.LABELS.DARK_MODE}
                 </label>
+              </div>
+
+              <div className="setting-item">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={debugMode}
+                    onChange={e => setDebugMode(e.target.checked)}
+                  />
+                  <span className="checkmark"></span>
+                  Debug Mode
+                </label>
+                <p className="setting-description">
+                  Shows contest name, authentication status, and admin
+                  privileges in the banner
+                </p>
               </div>
             </div>
 

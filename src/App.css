@@ -119,7 +119,7 @@ body.dark-mode {
 .app-header {
   background: linear-gradient(135deg, #ff6b35, #f7931e);
   color: white;
-  padding: 1rem;
+  padding: 1rem 1rem 0rem;
   text-align: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: sticky;

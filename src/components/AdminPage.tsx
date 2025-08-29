@@ -7,6 +7,8 @@ import { useDataService } from '@hooks/useDataService'
 import useIsAdmin from '@hooks/useIsAdmin'
 import useTheme from '@hooks/useTheme'
 import type { Contest } from '@types'
+
+import DebugBanner from './DebugBanner'
 import './AdminPage.css'
 
 interface ContestFormData {
@@ -225,6 +227,7 @@ const AdminPage = () => {
 
   return (
     <div className="admin-page">
+      <DebugBanner />
       <div className="admin-header">
         <h1>🛠️ Contest Administration</h1>
         <div className="header-actions">

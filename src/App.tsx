@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
 import './App.css'
 
 import AdminPage from '@components/AdminPage'
+import DebugBanner from '@components/DebugBanner'
 import ErrorBoundary from '@components/ErrorBoundary'
 import AuthModal from '@components/modals/AuthModal'
 import SettingsModal from '@components/modals/SettingsModal'
@@ -19,7 +20,6 @@ import useContestCountdown from '@hooks/useContestCountdown'
 import useContestDataV2 from '@hooks/useContestDataV2'
 import useContestLeader from '@hooks/useContestLeader'
 import useContests from '@hooks/useContests'
-import useIsAdmin from '@hooks/useIsAdmin'
 import useTheme from '@hooks/useTheme'
 import type { Tab } from '@types'
 
@@ -40,7 +40,6 @@ function AppContent() {
   const { isDarkMode, toggleTheme } = useTheme()
   const { currentUser, logout } = useAuth()
   const { activeContest } = useContests()
-  const { isAdmin } = useIsAdmin()
 
   const currentUserId = currentUser?.uid
   const activeContestId = activeContest?.id
@@ -263,18 +262,6 @@ function AppContent() {
           </div>
         </div>
 
-        {/* Row 2: Contest name + status */}
-        {activeContest && (
-          <div className="header-row header-row-2">
-            <div className="contest-name-status">
-              <span className="contest-name">{activeContest.name}</span>
-              <span className={`contest-status ${activeContest.status}`}>
-                {activeContest.status}
-              </span>
-            </div>
-          </div>
-        )}
-
         {/* Row 3: Current leader + Contest countdown timer */}
         {activeContest && (
           <div className="header-row header-row-3">
@@ -304,28 +291,14 @@ function AppContent() {
             </div>
           </div>
         )}
-
-        {/* Row 4: User status + Admin button */}
-        {currentUser && (
-          <div className="header-row header-row-4">
-            <div className="user-status-section">
-              <span className="user-greeting">
-                Signed in as {currentUser.displayName ?? 'User'}
-              </span>
-              {isAdmin && (
-                <Link to="/admin" className="admin-link">
-                  🛠️ Admin Panel
-                </Link>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     )
   }
 
   return (
     <div className={`app ${!currentUser ? 'guest-mode' : ''}`}>
+      <DebugBanner />
+
       {!isLoading && (
         <header className="app-header">{getHeaderContent()}</header>
       )}
