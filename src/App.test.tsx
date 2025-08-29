@@ -132,7 +132,7 @@ vi.mock('@hooks/useTheme', () => ({
 describe('App Component - Basic Integration', () => {
   it('should render app title', () => {
     render(<App />)
-    expect(screen.getByText('Hot Dog Tracker')).toBeInTheDocument()
+    expect(screen.getAllByText('Hot Dog Tracker')).toHaveLength(2) // Mobile and desktop headers
   })
 
   it('should render navigation tabs', () => {
@@ -155,7 +155,7 @@ describe('App Component - Basic Integration', () => {
 
   it('should render settings button', () => {
     render(<App />)
-    expect(screen.getByText('⚙️')).toBeInTheDocument()
+    expect(screen.getAllByText('⚙️')).toHaveLength(2) // Mobile and desktop headers
   })
 
   it('should have proper app structure', () => {

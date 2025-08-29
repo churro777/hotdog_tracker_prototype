@@ -240,19 +240,108 @@ function AppContent() {
 
   /**
    * Renders the header content with app title and settings button.
-   * Mobile layout: Three rows - title/auth, leader/buttons, countdown
+   * Separate layouts for mobile vs desktop/tablet
    *
    * @returns {JSX.Element} The header content with title and settings access
    */
   const getHeaderContent = () => {
     return (
-      <div className="header-content">
-        {/* Row 1: App title + User authentication */}
-        <div className="header-row header-row-1">
-          <div className="title-section">
-            <h1>{UI_TEXT.APP_TITLE}</h1>
+      <>
+        {/* Mobile Header Layout (3-4 rows) */}
+        <div className="header-content mobile-header">
+          {/* Row 1: App title + User authentication */}
+          <div className="header-row header-row-1">
+            <div className="title-section">
+              <h1>{UI_TEXT.APP_TITLE}</h1>
+            </div>
+            <div className="header-actions">
+              {currentUser && (
+                <div className="user-info">
+                  <button
+                    className="settings-btn"
+                    onClick={() => setShowSettingsModal(true)}
+                  >
+                    {UI_TEXT.TABS.SETTINGS}
+                  </button>
+                  <button
+                    className="logout-btn"
+                    onClick={() => {
+                      void logout()
+                    }}
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-          <div className="header-actions">
+
+          {/* Row 3: Current leader + Contest countdown timer */}
+          {activeContest && (
+            <div className="header-row header-row-3">
+              <div className="leader-section">
+                {leader && (
+                  <div className="leader-info">
+                    <span className="leader-label">
+                      {isTied ? `${tiedCount}-way tie:` : 'Leader:'}
+                    </span>
+                    <span className="leader-name">
+                      {leader.displayName} ({leader.totalCount})
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="countdown-section">
+                <div className="countdown-info">
+                  <span className="countdown-label">
+                    {countdown.statusMessage}
+                  </span>
+                  {!countdown.isCompleted && (
+                    <span className="countdown-time">
+                      {countdown.formattedTime}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Desktop/Tablet Header Layout (single row) */}
+        <div className="header-content desktop-header">
+          <div className="desktop-left-section">
+            {/* Empty left section for balance */}
+          </div>
+
+          <div className="desktop-center-section">
+            <h1>{UI_TEXT.APP_TITLE}</h1>
+            {activeContest && (
+              <div className="contest-info-combined">
+                {leader && (
+                  <div className="leader-info">
+                    <span className="leader-label">
+                      {isTied ? `${tiedCount}-way tie:` : 'Leader:'}
+                    </span>
+                    <span className="leader-name">
+                      {leader.displayName} ({leader.totalCount})
+                    </span>
+                  </div>
+                )}
+                <div className="countdown-info">
+                  <span className="countdown-label">
+                    {countdown.statusMessage}
+                  </span>
+                  {!countdown.isCompleted && (
+                    <span className="countdown-time">
+                      {countdown.formattedTime}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="desktop-right-section">
             {currentUser && (
               <div className="user-info">
                 <button
@@ -273,37 +362,7 @@ function AppContent() {
             )}
           </div>
         </div>
-
-        {/* Row 3: Current leader + Contest countdown timer */}
-        {activeContest && (
-          <div className="header-row header-row-3">
-            <div className="leader-section">
-              {leader && (
-                <div className="leader-info">
-                  <span className="leader-label">
-                    {isTied ? `${tiedCount}-way tie:` : 'Leader:'}
-                  </span>
-                  <span className="leader-name">
-                    {leader.displayName} ({leader.totalCount})
-                  </span>
-                </div>
-              )}
-            </div>
-            <div className="countdown-section">
-              <div className="countdown-info">
-                <span className="countdown-label">
-                  {countdown.statusMessage}
-                </span>
-                {!countdown.isCompleted && (
-                  <span className="countdown-time">
-                    {countdown.formattedTime}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      </>
     )
   }
 

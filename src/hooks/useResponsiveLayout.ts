@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 
 import { COMPONENT_STYLES } from '@constants/theme'
 
-type LayoutType = 'Mobile' | 'Tablet' | 'Desktop'
+type LayoutType = 'SmallPhone' | 'Mobile' | 'Tablet' | 'Desktop'
 
 const useResponsiveLayout = (): LayoutType => {
   const [layout, setLayout] = useState<LayoutType>('Desktop')
@@ -11,7 +11,9 @@ const useResponsiveLayout = (): LayoutType => {
     const updateLayout = () => {
       const width = window.innerWidth
 
-      if (width < parseInt(COMPONENT_STYLES.BREAKPOINTS.MOBILE)) {
+      if (width < parseInt(COMPONENT_STYLES.BREAKPOINTS.SMALL_PHONE)) {
+        setLayout('SmallPhone')
+      } else if (width < parseInt(COMPONENT_STYLES.BREAKPOINTS.MOBILE)) {
         setLayout('Mobile')
       } else if (width < parseInt(COMPONENT_STYLES.BREAKPOINTS.TABLET)) {
         setLayout('Tablet')

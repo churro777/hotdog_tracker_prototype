@@ -467,29 +467,17 @@ body.dark-mode .contest-status.inactive {
   min-width: 0;
 }
 
-/* Desktop: Single row layout */
-@media (min-width: 769px) {
-  .header-content {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+/* Hide desktop header on mobile */
+@media (max-width: 768px) {
+  .desktop-header {
+    display: none;
   }
 
-  .header-row {
-    display: contents;
-  }
-
-  .title-section {
+  .mobile-header {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
-    min-width: 0;
-    flex: 1;
   }
-}
 
-/* Mobile: Three row layout */
-@media (max-width: 768px) {
   .header-row {
     display: flex;
     justify-content: space-between;
@@ -526,6 +514,104 @@ body.dark-mode .contest-status.inactive {
     gap: 0.25rem;
     min-width: 0;
     flex: 1;
+  }
+}
+
+/* Hide mobile header on desktop/tablet */
+@media (min-width: 769px) {
+  .mobile-header {
+    display: none;
+  }
+
+  .desktop-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 2rem;
+  }
+
+  .desktop-left-section,
+  .desktop-right-section {
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+
+  .desktop-left-section {
+    justify-content: flex-start;
+  }
+
+  .desktop-right-section {
+    justify-content: flex-end;
+  }
+
+  .desktop-center-section {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.25rem;
+  }
+
+  .desktop-center-section h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: white;
+  }
+
+  .desktop-center-section .contest-info-combined {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+
+  .desktop-center-section .contest-info-combined .leader-info,
+  .desktop-center-section .contest-info-combined .countdown-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+/* Tablet-specific layout (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .desktop-center-section .contest-info-combined {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem 2rem;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.75rem;
+  }
+
+  .desktop-center-section .contest-info-combined .leader-info,
+  .desktop-center-section .contest-info-combined .countdown-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    text-align: center;
+  }
+
+  .desktop-center-section .contest-info-combined .leader-label,
+  .desktop-center-section .contest-info-combined .countdown-label {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+  }
+
+  .desktop-center-section .contest-info-combined .leader-name,
+  .desktop-center-section .contest-info-combined .countdown-time {
+    font-size: 1rem;
+    color: white;
+    font-weight: 600;
   }
 }
 
@@ -732,6 +818,101 @@ body.dark-mode .contest-status.inactive {
 
   .leader-name {
     font-size: 0.9rem;
+  }
+}
+
+/* Small phone adjustments (≤480px) */
+@media (max-width: 480px) {
+  .app-header {
+    padding: 0.75rem 0.75rem 0;
+  }
+
+  .app-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .title-section h1 {
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+
+  .header-row {
+    padding: 0.25rem 0;
+    min-height: 36px;
+  }
+
+  .header-row-1 {
+    padding-bottom: 0.4rem;
+  }
+
+  .header-row-3 {
+    padding: 0.4rem 0;
+  }
+
+  .back-btn,
+  .settings-btn {
+    font-size: 0.9rem;
+    min-width: 32px;
+    height: 32px;
+    padding: 0.3rem;
+  }
+
+  .logout-btn {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+    height: 32px;
+  }
+
+  .user-info {
+    gap: 0.4rem;
+  }
+
+  .countdown-info,
+  .leader-info {
+    font-size: 0.8rem;
+  }
+
+  .countdown-time {
+    font-size: 0.9rem;
+  }
+
+  .leader-name {
+    font-size: 0.85rem;
+  }
+
+  .countdown-label,
+  .leader-label {
+    font-size: 0.75rem;
+  }
+
+  /* Guest banner adjustments for small phones */
+  .join-contest-banner {
+    padding: 0.75rem;
+  }
+
+  .join-contest-banner h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .join-contest-banner p {
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .auth-buttons {
+    gap: 0.5rem;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .sign-in-btn,
+  .join-contest-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    width: 100%;
+    max-width: none;
+    height: 44px;
   }
 }
 

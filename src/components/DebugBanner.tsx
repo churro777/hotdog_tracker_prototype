@@ -48,12 +48,14 @@ function DebugBanner() {
         <div className="debug-section">
           <span className="debug-label">Layout:</span>
           <span className="debug-value">
-            {currentLayout === 'Mobile'
-              ? '📱'
-              : currentLayout === 'Tablet'
-                ? '📋'
-                : '💻'}{' '}
-            {currentLayout}
+            {currentLayout === 'SmallPhone'
+              ? '📞'
+              : currentLayout === 'Mobile'
+                ? '📲'
+                : currentLayout === 'Tablet'
+                  ? '📋'
+                  : '💻'}{' '}
+            {currentLayout === 'SmallPhone' ? 'Small Phone' : currentLayout}
           </span>
         </div>
 

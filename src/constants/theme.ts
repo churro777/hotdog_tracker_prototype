@@ -116,6 +116,7 @@ export const COMPONENT_STYLES = {
 
   // Breakpoints (for media queries)
   BREAKPOINTS: {
+    SMALL_PHONE: '480px',
     MOBILE: '768px',
     TABLET: '1024px',
     DESKTOP: '1200px',
