@@ -3,6 +3,7 @@ import { useAuth } from '@hooks/useAuth'
 import useContests from '@hooks/useContests'
 import useIsAdmin from '@hooks/useIsAdmin'
 import useLocalStorage from '@hooks/useLocalStorage'
+import useResponsiveLayout from '@hooks/useResponsiveLayout'
 
 /**
  * Debug banner component that shows development information
@@ -13,6 +14,7 @@ function DebugBanner() {
   const { currentUser } = useAuth()
   const { activeContest } = useContests()
   const { isAdmin } = useIsAdmin()
+  const currentLayout = useResponsiveLayout()
 
   // Don't render if debug mode is disabled
   if (!debugMode) {
@@ -41,6 +43,11 @@ function DebugBanner() {
         <div className="debug-section">
           <span className="debug-label">Admin:</span>
           <span className="debug-value">{isAdmin ? '🛠️ Yes' : '❌ No'}</span>
+        </div>
+
+        <div className="debug-section">
+          <span className="debug-label">Layout:</span>
+          <span className="debug-value">📱 {currentLayout}</span>
         </div>
 
         <div className="debug-section">
