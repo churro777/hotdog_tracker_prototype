@@ -192,7 +192,24 @@ export const applyTheme = (themeName: ThemeName | boolean) => {
   }
 
   const themeDefinition = getTheme(theme)
-  const variables = themeDefinition.colors
+
+  // Guard against undefined theme
+  let variables: Record<string, string>
+  if (!themeDefinition?.colors) {
+    console.error(
+      `Theme '${theme}' not found in THEME_DEFINITIONS. Falling back to light theme.`
+    )
+    const fallbackTheme = getTheme('light')
+    if (!fallbackTheme) {
+      console.error(
+        'Fallback light theme is also missing! Theme system is broken.'
+      )
+      return
+    }
+    variables = fallbackTheme.colors
+  } else {
+    variables = themeDefinition.colors
+  }
 
   // Apply theme color variables
   Object.entries(variables).forEach(([property, value]) => {
