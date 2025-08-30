@@ -75,7 +75,10 @@ body.dark-mode .error-message {
 .btn-primary {
   width: 100%;
   padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  background: var(
+    --primary-gradient,
+    linear-gradient(135deg, #ff6b35, #f7931e)
+  );
   color: white;
   border: none;
   border-radius: 8px;

@@ -117,7 +117,7 @@ body.dark-mode {
 }
 
 .app-header {
-  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  background: var(--banner-gradient, linear-gradient(135deg, #ff6b35, #f7931e));
   color: white;
   padding: 1rem 1rem 0rem;
   text-align: center;
@@ -242,7 +242,10 @@ body.dark-mode {
   text-align: center;
   padding: 2rem 1rem;
   margin-bottom: 2rem;
-  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  background: var(
+    --primary-gradient,
+    linear-gradient(135deg, #ff6b35, #f7931e)
+  );
   border-radius: 16px;
   color: white;
   box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
@@ -293,7 +296,10 @@ body.dark-mode {
 
 .create-contest-btn,
 .create-first-contest {
-  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  background: var(
+    --primary-gradient,
+    linear-gradient(135deg, #ff6b35, #f7931e)
+  );
   color: white;
   border: none;
   border-radius: 8px;
@@ -1049,7 +1055,10 @@ body.dark-mode .contest-status.inactive {
   text-align: center;
   padding: 2rem;
   margin: 0;
-  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  background: var(
+    --primary-gradient,
+    linear-gradient(135deg, #ff6b35, #f7931e)
+  );
   color: white;
   box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
   z-index: 100;

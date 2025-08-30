@@ -1,7 +1,7 @@
 /* Debug Banner Styles */
 
 .debug-banner {
-  background: linear-gradient(135deg, #ff6b6b, #feca57);
+  background: var(--banner-gradient, linear-gradient(135deg, #ff6b6b, #feca57));
   border-bottom: 2px solid #ff4757;
   padding: 8px 16px;
   font-family: 'Courier New', monospace;
@@ -44,7 +44,6 @@
 
 /* Dark mode adjustments */
 .dark-mode .debug-banner {
-  background: linear-gradient(135deg, #4a4a4a, #666);
   border-bottom-color: #555;
 }
 
