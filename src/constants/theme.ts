@@ -25,35 +25,44 @@ export const THEME_COLORS = {
   FOCUS_SHADOW: 'rgba(255, 107, 53, 0.2)',
 } as const
 
-// CSS Custom Properties (CSS Variables)
-export const CSS_VARIABLES = {
-  // Light Mode
-  LIGHT: {
-    '--bg-primary': '#ffffff',
-    '--bg-secondary': '#f8f9fa',
-    '--bg-surface': '#ffffff',
-    '--text-primary': '#343a40',
-    '--text-secondary': '#6c757d',
-    '--border-color': '#dee2e6',
-    '--shadow': 'rgba(0, 0, 0, 0.1)',
-    '--shadow-hover': 'rgba(0, 0, 0, 0.15)',
-    '--input-bg': '#ffffff',
-    '--button-hover': '#e9ecef',
+// Theme definitions with all color schemes
+export const THEME_DEFINITIONS = {
+  light: {
+    name: 'Light',
+    colors: {
+      '--bg-primary': '#ffffff',
+      '--bg-secondary': '#f8f9fa',
+      '--bg-surface': '#ffffff',
+      '--text-primary': '#343a40',
+      '--text-secondary': '#6c757d',
+      '--border-color': '#dee2e6',
+      '--shadow': 'rgba(0, 0, 0, 0.1)',
+      '--shadow-hover': 'rgba(0, 0, 0, 0.15)',
+      '--input-bg': '#ffffff',
+      '--button-hover': '#e9ecef',
+    },
   },
+  dark: {
+    name: 'Dark',
+    colors: {
+      '--bg-primary': '#1a1a1a',
+      '--bg-secondary': '#2d2d2d',
+      '--bg-surface': '#2d2d2d',
+      '--text-primary': '#ffffff',
+      '--text-secondary': '#b0b0b0',
+      '--border-color': '#404040',
+      '--shadow': 'rgba(0, 0, 0, 0.3)',
+      '--shadow-hover': 'rgba(0, 0, 0, 0.4)',
+      '--input-bg': '#404040',
+      '--button-hover': '#404040',
+    },
+  },
+} as const
 
-  // Dark Mode
-  DARK: {
-    '--bg-primary': '#1a1a1a',
-    '--bg-secondary': '#2d2d2d',
-    '--bg-surface': '#2d2d2d',
-    '--text-primary': '#ffffff',
-    '--text-secondary': '#b0b0b0',
-    '--border-color': '#404040',
-    '--shadow': 'rgba(0, 0, 0, 0.3)',
-    '--shadow-hover': 'rgba(0, 0, 0, 0.4)',
-    '--input-bg': '#404040',
-    '--button-hover': '#404040',
-  },
+// CSS Custom Properties (CSS Variables) - Backward compatibility
+export const CSS_VARIABLES = {
+  LIGHT: THEME_DEFINITIONS.light.colors,
+  DARK: THEME_DEFINITIONS.dark.colors,
 } as const
 
 // Component-specific Styling Constants
@@ -140,10 +149,29 @@ export const ANIMATIONS = {
   },
 } as const
 
+// Theme types
+export type ThemeName = keyof typeof THEME_DEFINITIONS
+export const THEME_NAMES = Object.keys(THEME_DEFINITIONS) as ThemeName[]
+
+// Helper function to get theme by name
+export const getTheme = (themeName: ThemeName) => {
+  return THEME_DEFINITIONS[themeName]
+}
+
 // Helper function to apply theme variables to document
-export const applyTheme = (isDarkMode: boolean) => {
+export const applyTheme = (themeName: ThemeName | boolean) => {
   const root = document.documentElement
-  const variables = isDarkMode ? CSS_VARIABLES.DARK : CSS_VARIABLES.LIGHT
+
+  // Handle backward compatibility with boolean (dark mode)
+  let theme: ThemeName
+  if (typeof themeName === 'boolean') {
+    theme = themeName ? 'dark' : 'light'
+  } else {
+    theme = themeName
+  }
+
+  const themeDefinition = getTheme(theme)
+  const variables = themeDefinition.colors
 
   // Apply theme color variables
   Object.entries(variables).forEach(([property, value]) => {
@@ -208,6 +236,17 @@ export const applyTheme = (isDarkMode: boolean) => {
     '--transform-move-up-md',
     ANIMATIONS.TRANSFORMS.MOVE_UP_MEDIUM
   )
+
+  // Apply theme class to body for backward compatibility
+  document.body.className = document.body.className.replace(/theme-\w+/g, '')
+  document.body.classList.add(`theme-${theme}`)
+
+  // Maintain dark-mode class for backward compatibility
+  if (theme === 'dark') {
+    document.body.classList.add('dark-mode')
+  } else {
+    document.body.classList.remove('dark-mode')
+  }
 }
 
 // Helper function to get CSS variable value
@@ -262,5 +301,8 @@ export const getThemeColors = (isDarkMode: boolean) => ({
   error: THEME_COLORS.ERROR,
 })
 
-// Utility type for theme-aware components
+// Utility type for theme-aware components (backward compatibility)
 export type ThemeMode = 'light' | 'dark'
+
+// New theme system types
+export type Theme = (typeof THEME_DEFINITIONS)[ThemeName]

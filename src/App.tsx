@@ -20,7 +20,6 @@ import useContestCountdown from '@hooks/useContestCountdown'
 import useContestDataV2 from '@hooks/useContestDataV2'
 import useContestLeader from '@hooks/useContestLeader'
 import useContests from '@hooks/useContests'
-import useTheme from '@hooks/useTheme'
 import type { Tab } from '@types'
 
 /**
@@ -37,7 +36,6 @@ function AppContent() {
   const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup'>(
     'signup'
   )
-  const { isDarkMode, toggleTheme } = useTheme()
   const { currentUser, logout } = useAuth()
   const { activeContest } = useContests()
 
@@ -379,8 +377,6 @@ function AppContent() {
       {showSettingsModal && (
         <ErrorBoundary>
           <SettingsModal
-            isDarkMode={isDarkMode}
-            onToggleTheme={toggleTheme}
             onClose={() => setShowSettingsModal(false)}
             onClearData={handleClearAllData}
           />

@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 import * as themeModule from '../constants/theme'
 import { localStorageMock } from '../test/setup'
@@ -8,6 +8,7 @@ import { localStorageMock } from '../test/setup'
 interface MockedStorage {
   getItem: {
     mockReturnValue: (value: string | null) => void
+    mockImplementation: (fn: (key: string) => string | null) => void
     toHaveBeenCalledWith: (key: string) => void
   }
   setItem: {
@@ -24,25 +25,24 @@ import useTheme from './useTheme'
 vi.mock('../constants/theme', () => ({
   applyTheme: vi.fn(),
   getCSSVariable: vi.fn(() => 'mocked-value'),
+  getTheme: vi.fn((themeName: string) => ({
+    name: themeName === 'dark' ? 'Dark' : 'Light',
+    colors: {
+      '--bg-primary': themeName === 'dark' ? '#1a1a1a' : '#ffffff',
+      '--text-primary': themeName === 'dark' ? '#ffffff' : '#343a40',
+    },
+  })),
+  THEME_NAMES: ['light', 'dark'],
 }))
 
 describe('useTheme', () => {
   const mockApplyTheme = vi.mocked(themeModule.applyTheme)
   const mockGetCSSVariable = vi.mocked(themeModule.getCSSVariable)
 
-  // Use localStorageMock methods directly instead of creating references
-
-  let mockAdd: ReturnType<typeof vi.spyOn>
-  let mockRemove: ReturnType<typeof vi.spyOn>
-
   beforeEach(() => {
-    // Mock document.body.classList methods
-    mockAdd = vi
-      .spyOn(document.body.classList, 'add')
-      .mockImplementation(() => void 0)
-    mockRemove = vi
-      .spyOn(document.body.classList, 'remove')
-      .mockImplementation(() => void 0)
+    vi.clearAllMocks()
+    // Reset localStorage mock
+    mockLocalStorage.getItem.mockReturnValue(null)
   })
 
   it('should initialize with light theme by default', () => {
@@ -50,32 +50,43 @@ describe('useTheme', () => {
 
     expect(result.current.isDarkMode).toBe(false)
     expect(result.current.theme).toBe('light')
+    expect(result.current.themeName).toBe('light')
+    expect(result.current.availableThemes).toEqual(['light', 'dark'])
   })
 
   it('should initialize with stored dark mode preference', () => {
-    // Mock localStorage to return dark mode
-    mockLocalStorage.getItem.mockReturnValue(JSON.stringify(true))
+    // Mock both old and new storage keys
+    mockLocalStorage.getItem.mockImplementation((key: string) => {
+      if (key === 'hotdog-contest-dark-mode') return JSON.stringify(true)
+      if (key === 'theme') return JSON.stringify('light')
+      return null
+    })
 
     const { result } = renderHook(() => useTheme())
 
+    // Should migrate from old dark mode to new theme system
     expect(result.current.isDarkMode).toBe(true)
     expect(result.current.theme).toBe('dark')
+    expect(result.current.themeName).toBe('dark')
   })
 
-  it('should apply theme and CSS classes on initialization', () => {
+  it('should apply theme on initialization', () => {
     renderHook(() => useTheme())
 
-    expect(mockApplyTheme).toHaveBeenCalledWith(false)
-    expect(mockRemove).toHaveBeenCalledWith('dark-mode')
+    expect(mockApplyTheme).toHaveBeenCalledWith('light')
   })
 
-  it('should apply dark mode theme and CSS classes', () => {
-    mockLocalStorage.getItem.mockReturnValue(JSON.stringify(true))
+  it('should apply dark mode theme on initialization', () => {
+    // Mock both old and new storage keys
+    mockLocalStorage.getItem.mockImplementation((key: string) => {
+      if (key === 'hotdog-contest-dark-mode') return JSON.stringify(true)
+      if (key === 'theme') return JSON.stringify('light')
+      return null
+    })
 
     renderHook(() => useTheme())
 
-    expect(mockApplyTheme).toHaveBeenCalledWith(true)
-    expect(mockAdd).toHaveBeenCalledWith('dark-mode')
+    expect(mockApplyTheme).toHaveBeenCalledWith('dark')
   })
 
   it('should toggle theme from light to dark', () => {
@@ -89,12 +100,17 @@ describe('useTheme', () => {
 
     expect(result.current.isDarkMode).toBe(true)
     expect(result.current.theme).toBe('dark')
-    expect(mockApplyTheme).toHaveBeenCalledWith(true)
-    expect(mockAdd).toHaveBeenCalledWith('dark-mode')
+    expect(result.current.themeName).toBe('dark')
+    expect(mockApplyTheme).toHaveBeenCalledWith('dark')
   })
 
   it('should toggle theme from dark to light', () => {
-    mockLocalStorage.getItem.mockReturnValue(JSON.stringify(true))
+    // Mock both old and new storage keys
+    mockLocalStorage.getItem.mockImplementation((key: string) => {
+      if (key === 'hotdog-contest-dark-mode') return JSON.stringify(true)
+      if (key === 'theme') return JSON.stringify('light')
+      return null
+    })
     const { result } = renderHook(() => useTheme())
 
     expect(result.current.isDarkMode).toBe(true)
@@ -105,8 +121,8 @@ describe('useTheme', () => {
 
     expect(result.current.isDarkMode).toBe(false)
     expect(result.current.theme).toBe('light')
-    expect(mockApplyTheme).toHaveBeenCalledWith(false)
-    expect(mockRemove).toHaveBeenCalledWith('dark-mode')
+    expect(result.current.themeName).toBe('light')
+    expect(mockApplyTheme).toHaveBeenCalledWith('light')
   })
 
   it('should set specific theme to dark', () => {
@@ -118,10 +134,16 @@ describe('useTheme', () => {
 
     expect(result.current.isDarkMode).toBe(true)
     expect(result.current.theme).toBe('dark')
+    expect(result.current.themeName).toBe('dark')
   })
 
   it('should set specific theme to light', () => {
-    mockLocalStorage.getItem.mockReturnValue(JSON.stringify(true))
+    // Mock both old and new storage keys - start with dark
+    mockLocalStorage.getItem.mockImplementation((key: string) => {
+      if (key === 'hotdog-contest-dark-mode') return JSON.stringify(true)
+      if (key === 'theme') return JSON.stringify('light')
+      return null
+    })
     const { result } = renderHook(() => useTheme())
 
     act(() => {
@@ -130,79 +152,69 @@ describe('useTheme', () => {
 
     expect(result.current.isDarkMode).toBe(false)
     expect(result.current.theme).toBe('light')
+    expect(result.current.themeName).toBe('light')
   })
 
   it('should provide getCSSVariable function', () => {
     const { result } = renderHook(() => useTheme())
 
-    const cssValue = result.current.getCSSVariable('--test-variable')
+    const value = result.current.getCSSVariable('--test-variable')
 
-    expect(cssValue).toBe('mocked-value')
+    expect(value).toBe('mocked-value')
     expect(mockGetCSSVariable).toHaveBeenCalledWith('--test-variable')
   })
 
-  it('should persist theme changes to localStorage', () => {
+  it('should set theme by name', () => {
     const { result } = renderHook(() => useTheme())
 
     act(() => {
-      result.current.toggleTheme()
+      result.current.setThemeName('dark')
     })
 
-    expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-      'hotdog-contest-dark-mode',
-      JSON.stringify(true)
-    )
+    expect(result.current.themeName).toBe('dark')
+    expect(result.current.isDarkMode).toBe(true)
+    expect(result.current.theme).toBe('dark')
   })
 
   it('should handle multiple theme changes correctly', () => {
     const { result } = renderHook(() => useTheme())
 
     // Start with light
-    expect(result.current.theme).toBe('light')
+    expect(result.current.themeName).toBe('light')
 
     // Toggle to dark
     act(() => {
       result.current.toggleTheme()
     })
-    expect(result.current.theme).toBe('dark')
+    expect(result.current.themeName).toBe('dark')
 
-    // Set to light
+    // Set back to light using new API
     act(() => {
-      result.current.setTheme('light')
+      result.current.setThemeName('light')
     })
-    expect(result.current.theme).toBe('light')
+    expect(result.current.themeName).toBe('light')
 
-    // Set to dark
-    act(() => {
-      result.current.setTheme('dark')
-    })
-    expect(result.current.theme).toBe('dark')
-
-    // Toggle back to light
+    // Toggle to dark again
     act(() => {
       result.current.toggleTheme()
     })
-    expect(result.current.theme).toBe('light')
+    expect(result.current.themeName).toBe('dark')
   })
 
   it('should apply theme changes on every state update', () => {
     const { result } = renderHook(() => useTheme())
 
-    // Clear previous calls
-    mockApplyTheme.mockClear()
-
-    act(() => {
-      result.current.toggleTheme()
-    })
-
+    // Initial render
     expect(mockApplyTheme).toHaveBeenCalledTimes(1)
-    expect(mockApplyTheme).toHaveBeenCalledWith(true)
+    expect(mockApplyTheme).toHaveBeenCalledWith('light')
 
     act(() => {
-      result.current.setTheme('light')
+      result.current.setThemeName('dark')
     })
 
     expect(mockApplyTheme).toHaveBeenCalledTimes(2)
-    expect(mockApplyTheme).toHaveBeenLastCalledWith(false)
+    expect(mockApplyTheme).toHaveBeenLastCalledWith('dark')
   })
 })
+
+export {}

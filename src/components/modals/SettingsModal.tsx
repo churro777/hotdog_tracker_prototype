@@ -1,23 +1,17 @@
 import { useState, memo, useEffect } from 'react'
 
 import './SettingsModal.css'
+import ThemeSelector from '@components/ThemeSelector'
 import { UI_TEXT, FORM_CONFIG, BUTTON_TEXT, ICONS, LIMITS } from '@constants'
 import { useAuth } from '@hooks/useAuth'
 import useLocalStorage from '@hooks/useLocalStorage'
 
 interface SettingsModalProps {
-  isDarkMode: boolean
-  onToggleTheme: () => void
   onClose: () => void
   onClearData: () => void
 }
 
-function SettingsModal({
-  isDarkMode,
-  onToggleTheme,
-  onClose,
-  onClearData,
-}: SettingsModalProps) {
+function SettingsModal({ onClose, onClearData }: SettingsModalProps) {
   const { currentUser, updateDisplayName } = useAuth()
   const [userName, setUserName] = useState('')
   const [notifications, setNotifications] = useState(true)
@@ -124,15 +118,7 @@ function SettingsModal({
               </div>
 
               <div className="setting-item">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={isDarkMode}
-                    onChange={onToggleTheme}
-                  />
-                  <span className="checkmark"></span>
-                  {FORM_CONFIG.LABELS.DARK_MODE}
-                </label>
+                <ThemeSelector />
               </div>
 
               <div className="setting-item">
