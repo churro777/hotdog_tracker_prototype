@@ -3,6 +3,9 @@ import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 
 import { useAuth } from '@hooks/useAuth'
+import useContestCountdown from '@hooks/useContestCountdown'
+import useContestLeader from '@hooks/useContestLeader'
+import useContests from '@hooks/useContests'
 import { useDataService } from '@hooks/useDataService'
 import useIsAdmin from '@hooks/useIsAdmin'
 import useTheme from '@hooks/useTheme'
@@ -22,9 +25,13 @@ interface ContestFormData {
 
 const AdminPage = () => {
   const { currentUser } = useAuth()
-  const { dataService } = useDataService()
+  const { dataService, users } = useDataService()
   const { isAdmin, loading: adminLoading, error: adminError } = useIsAdmin()
   const { isDarkMode, toggleTheme } = useTheme()
+  const { activeContest } = useContests()
+  const countdown = useContestCountdown(activeContest)
+  const { leader, isTied, tiedCount } = useContestLeader(users || [])
+
   const [contests, setContests] = useState<Contest[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -251,6 +258,86 @@ const AdminPage = () => {
         </div>
       )}
 
+      {/* Current Contest Section */}
+      <div className="current-contest-section">
+        <h2>📋 Current Contest</h2>
+        {activeContest ? (
+          <div className="current-contest-card">
+            <div className="contest-header">
+              <div className="contest-title">
+                <h3>{activeContest.name}</h3>
+                <span className={`status-badge ${activeContest.status}`}>
+                  {activeContest.status}
+                </span>
+                {activeContest.isDefault && (
+                  <span className="default-badge">Default</span>
+                )}
+              </div>
+              <div className="contest-status">
+                <div className="countdown-display">
+                  <span className="countdown-label">
+                    {countdown.statusMessage}
+                  </span>
+                  {!countdown.isCompleted && (
+                    <span className="countdown-time">
+                      {countdown.formattedTime}
+                    </span>
+                  )}
+                  {countdown.isContestOver && leader && (
+                    <span className="contest-winner">
+                      Contest Winner: {leader.displayName}!
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {activeContest.description && (
+              <p className="contest-description">{activeContest.description}</p>
+            )}
+
+            <div className="contest-details">
+              <div className="contest-dates">
+                <div className="date-item">
+                  <strong>Start:</strong>{' '}
+                  {activeContest.startDate.toLocaleDateString()}{' '}
+                  {activeContest.startDate.toLocaleTimeString()}
+                </div>
+                <div className="date-item">
+                  <strong>End:</strong>{' '}
+                  {activeContest.endDate.toLocaleDateString()}{' '}
+                  {activeContest.endDate.toLocaleTimeString()}
+                </div>
+              </div>
+
+              {leader && (
+                <div className="leader-display">
+                  <strong>Current Leader:</strong>{' '}
+                  <span className="leader-name">
+                    {isTied ? `${tiedCount}-way tie: ` : ''}
+                    {leader.displayName} ({leader.totalCount})
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="contest-actions">
+              <button
+                onClick={() => startEditing(activeContest)}
+                className="edit-btn"
+              >
+                Edit Current Contest
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="no-contest">
+            <p>No active contest found.</p>
+            <p>Create a contest or mark one as the default contest.</p>
+          </div>
+        )}
+      </div>
+
       <div className="admin-content">
         <div className="admin-actions">
           <button
@@ -376,67 +463,95 @@ const AdminPage = () => {
         )}
 
         <div className="contests-list">
-          <h3>Existing Contests ({contests.length})</h3>
+          {(() => {
+            // Filter out the current/active contest from the list
+            const otherContests = contests.filter(
+              contest => !activeContest || contest.id !== activeContest.id
+            )
+            return (
+              <>
+                <h3>Other Contests ({otherContests.length})</h3>
 
-          {loading ? (
-            <div className="loading">Loading contests...</div>
-          ) : contests.length === 0 ? (
-            <div className="no-contests">
-              <p>No contests created yet.</p>
-              <p>Use the "Create New Contest" button to get started!</p>
-            </div>
-          ) : (
-            <div className="contests-grid">
-              {contests.map(contest => (
-                <div
-                  key={contest.id}
-                  className={`contest-card ${contest.status}`}
-                >
-                  <div className="contest-header">
-                    <h4>{contest.name}</h4>
-                    {contest.isDefault && (
-                      <span className="default-badge">Default</span>
+                {loading ? (
+                  <div className="loading">Loading contests...</div>
+                ) : otherContests.length === 0 ? (
+                  <div className="no-contests">
+                    {contests.length === 0 ? (
+                      <>
+                        <p>No contests created yet.</p>
+                        <p>
+                          Use the "Create New Contest" button to get started!
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p>
+                          All contests are currently active or there are no
+                          other contests.
+                        </p>
+                        <p>
+                          Create additional contests using the button above.
+                        </p>
+                      </>
                     )}
-                    <span className={`status-badge ${contest.status}`}>
-                      {contest.status}
-                    </span>
                   </div>
+                ) : (
+                  <div className="contests-grid">
+                    {otherContests.map(contest => (
+                      <div
+                        key={contest.id}
+                        className={`contest-card ${contest.status}`}
+                      >
+                        <div className="contest-header">
+                          <h4>{contest.name}</h4>
+                          {contest.isDefault && (
+                            <span className="default-badge">Default</span>
+                          )}
+                          <span className={`status-badge ${contest.status}`}>
+                            {contest.status}
+                          </span>
+                        </div>
 
-                  {contest.description && (
-                    <p className="contest-description">{contest.description}</p>
-                  )}
+                        {contest.description && (
+                          <p className="contest-description">
+                            {contest.description}
+                          </p>
+                        )}
 
-                  <div className="contest-dates">
-                    <div>
-                      <strong>Start:</strong>{' '}
-                      {contest.startDate.toLocaleDateString()}{' '}
-                      {contest.startDate.toLocaleTimeString()}
-                    </div>
-                    <div>
-                      <strong>End:</strong>{' '}
-                      {contest.endDate.toLocaleDateString()}{' '}
-                      {contest.endDate.toLocaleTimeString()}
-                    </div>
+                        <div className="contest-dates">
+                          <div>
+                            <strong>Start:</strong>{' '}
+                            {contest.startDate.toLocaleDateString()}{' '}
+                            {contest.startDate.toLocaleTimeString()}
+                          </div>
+                          <div>
+                            <strong>End:</strong>{' '}
+                            {contest.endDate.toLocaleDateString()}{' '}
+                            {contest.endDate.toLocaleTimeString()}
+                          </div>
+                        </div>
+
+                        <div className="contest-actions">
+                          <button
+                            onClick={() => startEditing(contest)}
+                            className="edit-btn"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => void handleDeleteContest(contest.id)}
+                            className="delete-btn"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-
-                  <div className="contest-actions">
-                    <button
-                      onClick={() => startEditing(contest)}
-                      className="edit-btn"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => void handleDeleteContest(contest.id)}
-                      className="delete-btn"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                )}
+              </>
+            )
+          })()}
         </div>
       </div>
     </div>

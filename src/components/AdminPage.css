@@ -79,6 +79,129 @@
   opacity: 0.9;
 }
 
+.current-contest-section {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.current-contest-section h2 {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+}
+
+.current-contest-card {
+  background: var(--bg-surface);
+  border: 2px solid var(--accent-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
+.current-contest-card .contest-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.contest-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.contest-title h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+}
+
+.contest-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  min-width: 200px;
+}
+
+.countdown-display {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.countdown-label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.countdown-time {
+  color: var(--accent-color);
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  font-size: 1.1rem;
+}
+
+.contest-winner {
+  color: #ffd700;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  animation: winner-glow 2s ease-in-out infinite;
+}
+
+.contest-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
+.contest-dates .date-item {
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.leader-display {
+  text-align: right;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.leader-name {
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+.current-contest-card .contest-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.no-contest {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+}
+
+.no-contest p {
+  margin-bottom: 0.5rem;
+}
+
 .admin-content {
   padding: 2rem;
   max-width: 1200px;
@@ -386,6 +509,39 @@
     flex-direction: column;
     gap: 1rem;
     text-align: center;
+  }
+
+  .current-contest-section {
+    padding: 1rem;
+  }
+
+  .current-contest-card .contest-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .contest-status {
+    align-items: flex-start;
+    min-width: auto;
+    width: 100%;
+  }
+
+  .countdown-display {
+    align-items: flex-start;
+  }
+
+  .contest-details {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .leader-display {
+    text-align: left;
+  }
+
+  .current-contest-card .contest-actions {
+    justify-content: flex-start;
   }
 
   .admin-content {
