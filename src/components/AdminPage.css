@@ -325,6 +325,34 @@
   min-height: 80px;
 }
 
+.quick-setup-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.quick-btn {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-btn:hover:not(:disabled) {
+  background: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+}
+
+.quick-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .form-actions {
   display: flex;
   gap: 1rem;
@@ -567,5 +595,14 @@
 
   .form-actions {
     flex-direction: column;
+  }
+
+  .quick-setup-buttons {
+    flex-direction: column;
+  }
+
+  .quick-btn {
+    width: 100%;
+    text-align: center;
   }
 }

@@ -18,7 +18,9 @@ interface ContestFormData {
   name: string
   description: string
   startDate: string
+  startTime: string
   endDate: string
+  endTime: string
   status: 'upcoming' | 'active' | 'completed'
   isDefault: boolean
 }
@@ -42,10 +44,27 @@ const AdminPage = () => {
     name: '',
     description: '',
     startDate: '',
+    startTime: '09:00',
     endDate: '',
+    endTime: '17:00',
     status: 'upcoming',
     isDefault: false,
   })
+
+  // Utility functions for date/time handling
+  const formatDateForInput = (date: Date): string => {
+    return date.toISOString().split('T')[0] ?? ''
+  }
+
+  const formatTimeForInput = (date: Date): string => {
+    const hours = date.getHours().toString().padStart(2, '0')
+    const minutes = date.getMinutes().toString().padStart(2, '0')
+    return `${hours}:${minutes}`
+  }
+
+  const combineDateAndTime = (date: string, time: string): Date => {
+    return new Date(`${date}T${time}:00`)
+  }
 
   const loadContests = useCallback(async () => {
     try {
@@ -71,8 +90,8 @@ const AdminPage = () => {
       const contestData = {
         name: formData.name,
         description: formData.description,
-        startDate: new Date(formData.startDate),
-        endDate: new Date(formData.endDate),
+        startDate: combineDateAndTime(formData.startDate, formData.startTime),
+        endDate: combineDateAndTime(formData.endDate, formData.endTime),
         status: formData.status,
         isDefault: formData.isDefault,
         createdAt: new Date(),
@@ -96,8 +115,8 @@ const AdminPage = () => {
       const updates = {
         name: formData.name,
         description: formData.description,
-        startDate: new Date(formData.startDate),
-        endDate: new Date(formData.endDate),
+        startDate: combineDateAndTime(formData.startDate, formData.startTime),
+        endDate: combineDateAndTime(formData.endDate, formData.endTime),
         status: formData.status,
         isDefault: formData.isDefault,
       }
@@ -129,8 +148,10 @@ const AdminPage = () => {
     setFormData({
       name: contest.name,
       description: contest.description ?? '',
-      startDate: contest.startDate.toISOString().slice(0, 16),
-      endDate: contest.endDate.toISOString().slice(0, 16),
+      startDate: formatDateForInput(contest.startDate),
+      startTime: formatTimeForInput(contest.startDate),
+      endDate: formatDateForInput(contest.endDate),
+      endTime: formatTimeForInput(contest.endDate),
       status: contest.status,
       isDefault: contest.isDefault ?? false,
     })
@@ -142,7 +163,9 @@ const AdminPage = () => {
       name: '',
       description: '',
       startDate: '',
+      startTime: '09:00',
       endDate: '',
+      endTime: '17:00',
       status: 'upcoming',
       isDefault: false,
     })
@@ -152,6 +175,36 @@ const AdminPage = () => {
     setEditingContest(null)
     setShowCreateForm(false)
     resetForm()
+  }
+
+  // Helper functions for quick contest setup
+  const setQuickDuration = (hours: number) => {
+    if (!formData.startDate || !formData.startTime) return
+
+    const startDateTime = combineDateAndTime(
+      formData.startDate,
+      formData.startTime
+    )
+    const endDateTime = new Date(
+      startDateTime.getTime() + hours * 60 * 60 * 1000
+    )
+
+    setFormData({
+      ...formData,
+      endDate: formatDateForInput(endDateTime),
+      endTime: formatTimeForInput(endDateTime),
+    })
+  }
+
+  const setTomorrowStart = () => {
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+
+    setFormData({
+      ...formData,
+      startDate: formatDateForInput(tomorrow),
+      endDate: formatDateForInput(tomorrow),
+    })
   }
 
   // Loading state while checking admin status
@@ -378,11 +431,49 @@ const AdminPage = () => {
               />
             </div>
 
+            {/* Quick setup buttons */}
+            <div className="form-group">
+              <label>Quick Setup</label>
+              <div className="quick-setup-buttons">
+                <button
+                  type="button"
+                  onClick={setTomorrowStart}
+                  className="quick-btn"
+                >
+                  Tomorrow
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setQuickDuration(1)}
+                  className="quick-btn"
+                  disabled={!formData.startDate}
+                >
+                  1 Hour
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setQuickDuration(2)}
+                  className="quick-btn"
+                  disabled={!formData.startDate}
+                >
+                  2 Hours
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setQuickDuration(8)}
+                  className="quick-btn"
+                  disabled={!formData.startDate}
+                >
+                  8 Hours
+                </button>
+              </div>
+            </div>
+
             <div className="form-row">
               <div className="form-group">
-                <label>Start Date & Time *</label>
+                <label>Start Date *</label>
                 <input
-                  type="datetime-local"
+                  type="date"
                   value={formData.startDate}
                   onChange={e =>
                     setFormData({ ...formData, startDate: e.target.value })
@@ -392,12 +483,38 @@ const AdminPage = () => {
               </div>
 
               <div className="form-group">
-                <label>End Date & Time *</label>
+                <label>Start Time *</label>
                 <input
-                  type="datetime-local"
+                  type="time"
+                  value={formData.startTime}
+                  onChange={e =>
+                    setFormData({ ...formData, startTime: e.target.value })
+                  }
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>End Date *</label>
+                <input
+                  type="date"
                   value={formData.endDate}
                   onChange={e =>
                     setFormData({ ...formData, endDate: e.target.value })
+                  }
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>End Time *</label>
+                <input
+                  type="time"
+                  value={formData.endTime}
+                  onChange={e =>
+                    setFormData({ ...formData, endTime: e.target.value })
                   }
                   required
                 />
@@ -450,7 +567,11 @@ const AdminPage = () => {
                 }}
                 className="save-btn"
                 disabled={
-                  !formData.name || !formData.startDate || !formData.endDate
+                  !formData.name ||
+                  !formData.startDate ||
+                  !formData.startTime ||
+                  !formData.endDate ||
+                  !formData.endTime
                 }
               >
                 {editingContest ? 'Update Contest' : 'Create Contest'}
