@@ -5,6 +5,35 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hot Dog Tracker</title>
+
+    <script>
+      // Initialize theme immediately before any CSS loads
+      ;(function () {
+        try {
+          // Check for stored theme
+          const storedTheme = localStorage.getItem('theme')
+          const storedDarkMode = localStorage.getItem('darkMode')
+
+          let theme = 'light' // default
+
+          if (storedTheme) {
+            // Parse JSON since useLocalStorage stores values as JSON
+            theme = JSON.parse(storedTheme)
+          } else if (storedDarkMode) {
+            const isDarkMode = JSON.parse(storedDarkMode)
+            theme = isDarkMode ? 'dark' : 'light'
+          }
+
+          // Apply theme class immediately
+          document.body.className = 'theme-' + theme
+          if (theme === 'dark') {
+            document.body.classList.add('dark-mode')
+          }
+        } catch (error) {
+          console.warn('Failed to initialize theme in HTML head:', error)
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>
