@@ -127,7 +127,13 @@ function AppContent() {
           />
         )
       case TAB_TYPES.LOG:
-        return <LogTab onAddPost={addPost} setActiveTab={setActiveTab} />
+        return (
+          <LogTab
+            onAddPost={addPost}
+            setActiveTab={setActiveTab}
+            isContestOver={countdown.isContestOver}
+          />
+        )
       case TAB_TYPES.JOURNAL:
         return (
           <JournalTab
@@ -299,6 +305,11 @@ function AppContent() {
                       {countdown.formattedTime}
                     </span>
                   )}
+                  {countdown.isContestOver && leader && (
+                    <span className="contest-winner">
+                      Contest Winner: {leader.displayName}!
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -332,6 +343,11 @@ function AppContent() {
                   {!countdown.isCompleted && (
                     <span className="countdown-time">
                       {countdown.formattedTime}
+                    </span>
+                  )}
+                  {countdown.isContestOver && leader && (
+                    <span className="contest-winner">
+                      Contest Winner: {leader.displayName}!
                     </span>
                   )}
                 </div>

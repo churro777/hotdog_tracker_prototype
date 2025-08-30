@@ -21,9 +21,10 @@ interface LogTabProps {
     image?: string
   ) => Promise<boolean>
   setActiveTab: React.Dispatch<React.SetStateAction<Tab>>
+  isContestOver?: boolean
 }
 
-function LogTab({ onAddPost, setActiveTab }: LogTabProps) {
+function LogTab({ onAddPost, setActiveTab, isContestOver }: LogTabProps) {
   const [newPostCount, setNewPostCount] = useState<string>(
     LIMITS.DEFAULT_ITEM_COUNT.toString()
   )
@@ -97,109 +98,131 @@ function LogTab({ onAddPost, setActiveTab }: LogTabProps) {
     <div className={CSS_CLASSES.TAB_PANEL}>
       <h2>{UI_TEXT.TABS.LOG} Entry</h2>
 
-      <form
-        onSubmit={e => {
-          void handleSubmitPost(e)
-        }}
-        className="post-form"
-      >
-        <div className="form-section">
-          {isMobile ? (
-            <>
-              <label className="image-upload-label">{ICONS.CAMERA} Photo</label>
-              <div className="mobile-photo-buttons">
+      {isContestOver ? (
+        <div className="contest-over-message">
+          <h3>Contest Over!</h3>
+          <p>The contest has ended and no more entries can be logged.</p>
+          <p>
+            You can still review your entries in the Journal tab and see the
+            results in the Feed and Leaderboard.
+          </p>
+        </div>
+      ) : (
+        <form
+          onSubmit={e => {
+            void handleSubmitPost(e)
+          }}
+          className="post-form"
+        >
+          <div className="form-section">
+            {isMobile ? (
+              <>
+                <label className="image-upload-label">
+                  {ICONS.CAMERA} Photo
+                </label>
+                <div className="mobile-photo-buttons">
+                  <button
+                    type="button"
+                    onClick={handleCameraCapture}
+                    className="photo-button camera-button"
+                  >
+                    {ICONS.CAMERA} Camera
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handlePhotoLibraryDebug}
+                    className="photo-button library-button"
+                  >
+                    {ICONS.FOLDER} Library
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <label
+                  htmlFor="log-image-upload"
+                  className="image-upload-label"
+                >
+                  {ICONS.CAMERA} {FORM_CONFIG.LABELS.UPLOAD_PICTURE}
+                </label>
+                <input
+                  id="log-image-upload"
+                  type="file"
+                  accept={FORM_CONFIG.INPUT_TYPES.IMAGE_ACCEPT}
+                  onChange={handleImageUpload}
+                  className="image-upload-input"
+                />
+              </>
+            )}
+            {imagePreview && (
+              <div className="image-preview">
+                <img
+                  src={imagePreview}
+                  alt={FORM_CONFIG.ALT_TEXT.CONTEST_ITEM_PREVIEW}
+                />
                 <button
                   type="button"
-                  onClick={handleCameraCapture}
-                  className="photo-button camera-button"
+                  onClick={clearImage}
+                  className="remove-image"
                 >
-                  {ICONS.CAMERA} Camera
-                </button>
-                <button
-                  type="button"
-                  onClick={handlePhotoLibraryDebug}
-                  className="photo-button library-button"
-                >
-                  {ICONS.FOLDER} Library
+                  {BUTTON_TEXT.REMOVE}
                 </button>
               </div>
-            </>
-          ) : (
-            <>
-              <label htmlFor="log-image-upload" className="image-upload-label">
-                {ICONS.CAMERA} {FORM_CONFIG.LABELS.UPLOAD_PICTURE}
-              </label>
-              <input
-                id="log-image-upload"
-                type="file"
-                accept={FORM_CONFIG.INPUT_TYPES.IMAGE_ACCEPT}
-                onChange={handleImageUpload}
-                className="image-upload-input"
-              />
-            </>
-          )}
-          {imagePreview && (
-            <div className="image-preview">
-              <img
-                src={imagePreview}
-                alt={FORM_CONFIG.ALT_TEXT.CONTEST_ITEM_PREVIEW}
-              />
-              <button
-                type="button"
-                onClick={clearImage}
-                className="remove-image"
+            )}
+            {isMobile && debugInfo && (
+              <div
+                style={{
+                  background: '#ffeb3b',
+                  padding: '10px',
+                  margin: '10px 0',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                }}
               >
-                {BUTTON_TEXT.REMOVE}
-              </button>
-            </div>
-          )}
-          {isMobile && debugInfo && (
-            <div
-              style={{
-                background: '#ffeb3b',
-                padding: '10px',
-                margin: '10px 0',
-                borderRadius: '4px',
-                fontSize: '12px',
-              }}
-            >
-              Debug: {debugInfo}
-            </div>
-          )}
-        </div>
+                Debug: {debugInfo}
+              </div>
+            )}
+          </div>
 
-        <div className="form-section">
-          <label htmlFor="log-count">{FORM_CONFIG.LABELS.ITEMS_CONSUMED}</label>
-          <input
-            id="log-count"
-            type="number"
-            min={LIMITS.MIN_ITEM_COUNT}
-            max={LIMITS.MAX_ITEM_COUNT}
-            value={newPostCount}
-            onChange={e => setNewPostCount(e.target.value)}
-            className="count-input"
-            required
-          />
-        </div>
+          <div className="form-section">
+            <label htmlFor="log-count">
+              {FORM_CONFIG.LABELS.ITEMS_CONSUMED}
+            </label>
+            <input
+              id="log-count"
+              type="number"
+              min={LIMITS.MIN_ITEM_COUNT}
+              max={LIMITS.MAX_ITEM_COUNT}
+              value={newPostCount}
+              onChange={e => setNewPostCount(e.target.value)}
+              className="count-input"
+              required
+            />
+          </div>
 
-        <div className="form-section">
-          <label htmlFor="log-description">
-            {FORM_CONFIG.LABELS.DESCRIPTION_OPTIONAL}
-          </label>
-          <textarea
-            id="log-description"
-            value={newPostDescription}
-            onChange={e => setNewPostDescription(e.target.value)}
-            placeholder={FORM_CONFIG.PLACEHOLDERS.DESCRIPTION}
-            className="description-input"
-            rows={LIMITS.TEXTAREA_ROWS_MEDIUM}
-          />
-        </div>
+          <div className="form-section">
+            <label htmlFor="log-description">
+              {FORM_CONFIG.LABELS.DESCRIPTION_OPTIONAL}
+            </label>
+            <textarea
+              id="log-description"
+              value={newPostDescription}
+              onChange={e => setNewPostDescription(e.target.value)}
+              placeholder={FORM_CONFIG.PLACEHOLDERS.DESCRIPTION}
+              className="description-input"
+              rows={LIMITS.TEXTAREA_ROWS_MEDIUM}
+            />
+          </div>
 
-        <button type="submit" className="submit-button" disabled={isSubmitting}>
-          {isSubmitting ? 'Saving...' : BUTTON_TEXT.LOG_ENTRY}
-        </button>
-      </form>
+          <button
+            type="submit"
+            className="submit-button"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Saving...' : BUTTON_TEXT.LOG_ENTRY}
+          </button>
+        </form>
+      )}
     </div>
   )
 }

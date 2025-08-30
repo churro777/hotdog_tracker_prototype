@@ -671,6 +671,28 @@ body.dark-mode .contest-status.inactive {
   font-size: 1rem;
 }
 
+.contest-winner {
+  color: #ffd700;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  animation: winner-glow 2s ease-in-out infinite;
+}
+
+@keyframes winner-glow {
+  0%,
+  100% {
+    text-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.3),
+      0 0 10px rgba(255, 215, 0, 0.5);
+  }
+  50% {
+    text-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.3),
+      0 0 15px rgba(255, 215, 0, 0.8);
+  }
+}
+
 .leader-info {
   display: flex;
   align-items: center;

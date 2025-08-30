@@ -15,6 +15,8 @@ export interface CountdownInfo {
   formattedTime: string
   /** Status message for display */
   statusMessage: string
+  /** Contest is over and showing results */
+  isContestOver: boolean
 }
 
 /**
@@ -40,6 +42,7 @@ export const useContestCountdown = (contest: Contest | null): CountdownInfo => {
       isUpcoming: false,
       formattedTime: '',
       statusMessage: 'No active contest',
+      isContestOver: false,
     }
   }
 
@@ -52,6 +55,7 @@ export const useContestCountdown = (contest: Contest | null): CountdownInfo => {
   let isCompleted = false
   let isUpcoming = false
   let statusMessage = ''
+  let isContestOver = false
 
   if (now < startTime) {
     // Contest hasn't started yet
@@ -66,8 +70,9 @@ export const useContestCountdown = (contest: Contest | null): CountdownInfo => {
   } else {
     // Contest is over
     isCompleted = true
+    isContestOver = true
     timeRemaining = 0
-    statusMessage = 'Contest ended'
+    statusMessage = 'Contest Over!'
   }
 
   const formattedTime = formatTimeRemaining(timeRemaining)
@@ -79,6 +84,7 @@ export const useContestCountdown = (contest: Contest | null): CountdownInfo => {
     isUpcoming,
     formattedTime,
     statusMessage,
+    isContestOver,
   }
 }
 
