@@ -3,6 +3,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import './index.css'
+import { perf } from '@config/firebase'
 import { applyTheme, type ThemeName } from '@constants/theme'
 import { validateEnvironment } from '@utils/env'
 
@@ -47,6 +48,10 @@ initializeThemeVariables()
 
 // Validate environment variables on startup
 validateEnvironment()
+
+// Initialize Firebase Performance Monitoring
+// This automatically tracks page loads, HTTP requests, and custom metrics
+console.log('🔥 Firebase Performance Monitoring initialized:', perf)
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
