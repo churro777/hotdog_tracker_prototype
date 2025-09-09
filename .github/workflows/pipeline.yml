@@ -314,7 +314,7 @@ jobs:
         run: |
           echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_HOTDOG_TRACKER_DEF59 }}' > $RUNNER_TEMP/firebase-service-account.json
           export GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/firebase-service-account.json
-          firebase deploy --only hosting,firestore:rules --project hotdog-tracker-def59 --non-interactive
+          firebase deploy --only hosting --project hotdog-tracker-def59 --non-interactive
 
       - name: Comment deployment status
         uses: actions/github-script@v7
