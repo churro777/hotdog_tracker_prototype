@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hot Dog Tracker - Health Check</title>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: monospace; padding: 20px; background: #f5f5f5; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .healthy { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .timestamp { color: #666; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <h1>🌭 Hot Dog Tracker Health Check</h1>
+    <div id="status">Loading...</div>
+    
+    <script>
+        function formatTime(date) {
+            return date.toLocaleString();
+        }
+        
+        function checkHealth() {
+            const statusDiv = document.getElementById('status');
+            const errors = JSON.parse(localStorage.getItem('app-health-errors') || '[]');
+            const now = new Date();
+            
+            // Check for recent errors (last 5 minutes)
+            const recentErrors = errors.filter(error => {
+                const errorTime = new Date(error.timestamp);
+                return (now - errorTime) < 5 * 60 * 1000; // 5 minutes
+            });
+            
+            if (recentErrors.length === 0) {
+                statusDiv.innerHTML = `
+                    <div class="status healthy">
+                        ✅ APPLICATION HEALTHY
+                        <div class="timestamp">Last checked: ${formatTime(now)}</div>
+                        <div>No Firebase errors in last 5 minutes</div>
+                    </div>
+                `;
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        ❌ FIREBASE ERRORS DETECTED
+                        <div class="timestamp">Last checked: ${formatTime(now)}</div>
+                        <div>Recent errors: ${recentErrors.length}</div>
+                        <div style="margin-top: 10px;">
+                            ${recentErrors.map(error => 
+                                `<div>• ${error.message} (${error.collection || 'unknown'})</div>`
+                            ).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Auto-refresh every 30 seconds
+            setTimeout(checkHealth, 30000);
+        }
+        
+        // Start health check
+        checkHealth();
+    </script>
+</body>
+</html>

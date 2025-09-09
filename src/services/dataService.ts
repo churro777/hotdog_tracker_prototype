@@ -93,7 +93,8 @@ class FirebaseDataService implements DataService {
         }
       }) as Contest[]
     } catch (error) {
-      console.error('Error fetching contests from Firebase:', error)
+      const { logFirebaseError } = await import('@utils/errorLogger')
+      logFirebaseError('Failed to fetch contests', error as Error, 'contests')
       throw error
     }
   }
@@ -211,7 +212,8 @@ class FirebaseDataService implements DataService {
         }
       }) as ContestPost[]
     } catch (error) {
-      console.error('Error fetching posts from Firebase:', error)
+      const { logFirebaseError } = await import('@utils/errorLogger')
+      logFirebaseError('Failed to fetch posts', error as Error, 'contest-posts')
       throw error
     }
   }
@@ -340,7 +342,8 @@ class FirebaseDataService implements DataService {
         }
       }) as User[]
     } catch (error) {
-      console.error('Error fetching users from Firebase:', error)
+      const { logFirebaseError } = await import('@utils/errorLogger')
+      logFirebaseError('Failed to fetch users', error as Error, 'users')
       throw error
     }
   }

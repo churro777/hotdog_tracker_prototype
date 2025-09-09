@@ -114,3 +114,46 @@ export function logValidationError(
     error: new Error(`Invalid data: ${dataString}`),
   })
 }
+
+/**
+ * Log a critical Firebase connection error
+ * @param message - Error message
+ * @param error - The error object
+ * @param collection - The Firebase collection that failed
+ */
+export function logFirebaseError(
+  message: string,
+  error: Error,
+  collection?: string
+): void {
+  logError({
+    message: `🔥 FIREBASE ERROR: ${message}`,
+    error,
+    context: 'firebase-critical',
+    ...(collection && { action: `collection: ${collection}` }),
+  })
+
+  // In production, also send to localStorage for health checking
+  if (import.meta.env.PROD) {
+    try {
+      const healthErrorsRaw = localStorage.getItem('app-health-errors') ?? '[]'
+      const healthErrors = JSON.parse(healthErrorsRaw) as {
+        message: string
+        collection?: string
+        timestamp: string
+        type: string
+      }[]
+      healthErrors.push({
+        message,
+        ...(collection && { collection }),
+        timestamp: new Date().toISOString(),
+        type: 'firebase-error',
+      })
+      // Keep only last 10 errors
+      const recentErrors = healthErrors.slice(-10)
+      localStorage.setItem('app-health-errors', JSON.stringify(recentErrors))
+    } catch {
+      // If localStorage fails, just continue
+    }
+  }
+}
