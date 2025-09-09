@@ -38,6 +38,14 @@ service cloud.firestore {
       allow write: if false; // Only admins should modify contest info
     }
     
+    // Contests collection - for admin contest management
+    match /contests/{contestId} {
+      // Anyone can read contests
+      allow read: if true;
+      // Only authenticated users can write contests (admin check done in app)
+      allow write: if request.auth != null;
+    }
+    
     // Deny all other paths
     match /{document=**} {
       allow read, write: if false;

@@ -24,10 +24,10 @@
             theme = isDarkMode ? 'dark' : 'light'
           }
 
-          // Apply theme class immediately
-          document.body.className = 'theme-' + theme
+          // Apply theme class immediately to document element since body might not exist yet
+          document.documentElement.className = 'theme-' + theme
           if (theme === 'dark') {
-            document.body.classList.add('dark-mode')
+            document.documentElement.classList.add('dark-mode')
           }
         } catch (error) {
           console.warn('Failed to initialize theme in HTML head:', error)
