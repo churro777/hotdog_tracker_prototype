@@ -21,7 +21,7 @@ service cloud.firestore {
       
       // Only authenticated users can create posts
       allow create: if request.auth != null 
-        && request.auth.uid == resource.data.userId;
+        && request.auth.uid == request.resource.data.userId;
       
       // Only post owners can update their posts
       allow update: if request.auth != null 
