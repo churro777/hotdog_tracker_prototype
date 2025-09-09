@@ -11,6 +11,7 @@ import {
   TAB_TYPES,
 } from '@constants'
 import useImageUpload from '@hooks/useImageUpload'
+import useLocalStorage from '@hooks/useLocalStorage'
 import type { Tab } from '@types'
 import { isMobileDevice } from '@utils/deviceDetection'
 
@@ -30,6 +31,8 @@ function LogTab({ onAddPost, setActiveTab, isContestOver }: LogTabProps) {
   )
   const [newPostDescription, setNewPostDescription] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+
+  const [debugMode] = useLocalStorage('debugMode', false)
   const [debugInfo, setDebugInfo] = useState<string>('')
   const {
     imagePreview,
@@ -44,7 +47,9 @@ function LogTab({ onAddPost, setActiveTab, isContestOver }: LogTabProps) {
 
   // Debug wrapper for photo library
   const handlePhotoLibraryDebug = () => {
-    setDebugInfo('Photo library clicked...')
+    if (debugMode) {
+      setDebugInfo('Photo library clicked...')
+    }
     handlePhotoLibrary()
   }
 
@@ -169,19 +174,6 @@ function LogTab({ onAddPost, setActiveTab, isContestOver }: LogTabProps) {
                 </button>
               </div>
             )}
-            {isMobile && debugInfo && (
-              <div
-                style={{
-                  background: '#ffeb3b',
-                  padding: '10px',
-                  margin: '10px 0',
-                  borderRadius: '4px',
-                  fontSize: '12px',
-                }}
-              >
-                Debug: {debugInfo}
-              </div>
-            )}
           </div>
 
           <div className="form-section">
@@ -221,6 +213,20 @@ function LogTab({ onAddPost, setActiveTab, isContestOver }: LogTabProps) {
           >
             {isSubmitting ? 'Saving...' : BUTTON_TEXT.LOG_ENTRY}
           </button>
+
+          {isMobile && debugMode && debugInfo && (
+            <div
+              style={{
+                background: '#ffeb3b',
+                padding: '10px',
+                margin: '10px 0',
+                borderRadius: '4px',
+                fontSize: '12px',
+              }}
+            >
+              Debug: {debugInfo}
+            </div>
+          )}
         </form>
       )}
     </div>
