@@ -1,6 +1,16 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Helper functions for reaction validation
+    function onlyUpdatingReactions() {
+      let allowedFields = ['upvotes', 'fishyFlags'];
+      let changedFields = request.resource.data.diff(resource.data).changedKeys();
+      return changedFields.hasOnly(allowedFields);
+    }
+    
+    function isPostOwner() {
+      return request.auth.uid == resource.data.userId;
+    }
     // Users collection - authenticated users can read/write their own data
     // Everyone can read to see leaderboard
     match /users/{userId} {
@@ -23,9 +33,13 @@ service cloud.firestore {
       allow create: if request.auth != null 
         && request.auth.uid == request.resource.data.userId;
       
-      // Only post owners can update their posts
-      allow update: if request.auth != null 
-        && request.auth.uid == resource.data.userId;
+      // Post owners can update their posts, or authenticated users can update reactions
+      allow update: if request.auth != null && (
+        // Post owner can update any field
+        request.auth.uid == resource.data.userId ||
+        // Authenticated users can only update reactions (upvotes, fishyFlags) and not on their own posts
+        (onlyUpdatingReactions() && request.auth.uid != resource.data.userId)
+      );
       
       // Only post owners can delete their posts
       allow delete: if request.auth != null 
