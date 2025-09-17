@@ -11,6 +11,7 @@ import useIsAdmin from '@hooks/useIsAdmin'
 import useTheme from '@hooks/useTheme'
 import type { Contest } from '@types'
 
+import FlaggedPostsTab from './admin/FlaggedPostsTab'
 import DebugBanner from './DebugBanner'
 import './AdminPage.css'
 
@@ -27,7 +28,8 @@ interface ContestFormData {
 
 const AdminPage = () => {
   const { currentUser } = useAuth()
-  const { dataService, users } = useDataService()
+  const { dataService, users, getFlaggedPosts, clearPostFlags, deletePost } =
+    useDataService()
   const { isAdmin, loading: adminLoading, error: adminError } = useIsAdmin()
   const { isDarkMode, toggleTheme } = useTheme()
   const { activeContest } = useContests()
@@ -673,6 +675,16 @@ const AdminPage = () => {
               </>
             )
           })()}
+        </div>
+
+        {/* Flagged Posts Section */}
+        <div className="flagged-posts-section">
+          <h2>🐟 Post Moderation</h2>
+          <FlaggedPostsTab
+            onGetFlaggedPosts={getFlaggedPosts}
+            onClearFlags={clearPostFlags}
+            onDeletePost={deletePost}
+          />
         </div>
       </div>
     </div>

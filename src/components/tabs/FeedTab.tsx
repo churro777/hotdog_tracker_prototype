@@ -1,5 +1,6 @@
 import { memo, useEffect, useRef, useCallback } from 'react'
 
+import PostReactions from '@components/PostReactions'
 import './FeedTab.css'
 import { FORM_CONFIG, BUTTON_TEXT, ICONS } from '@constants'
 import usePostEdit from '@hooks/usePostEdit'
@@ -27,6 +28,12 @@ interface FeedTabProps {
   isLoadingMore: boolean
   /** Function to load more posts */
   onLoadMore: () => Promise<void>
+  /** Function to toggle upvote on a post */
+  onToggleUpvote: (postId: string) => void
+  /** Function to toggle flag on a post */
+  onToggleFlag: (postId: string) => void
+  /** Whether the current user is authenticated */
+  isAuthenticated: boolean
 }
 
 /**
@@ -44,6 +51,9 @@ function FeedTab({
   hasMorePosts,
   isLoadingMore,
   onLoadMore,
+  onToggleUpvote,
+  onToggleFlag,
+  isAuthenticated,
 }: FeedTabProps) {
   const {
     editingPostId,
@@ -225,6 +235,14 @@ function FeedTab({
                   </div>
 
                   {renderPostContent(post)}
+
+                  <PostReactions
+                    post={post}
+                    currentUserId={currentUserId}
+                    isAuthenticated={isAuthenticated}
+                    onToggleUpvote={onToggleUpvote}
+                    onToggleFlag={onToggleFlag}
+                  />
                 </>
               )}
             </div>

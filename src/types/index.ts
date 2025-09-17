@@ -86,8 +86,10 @@ export interface ContestPost {
   timestamp: Date
   /** Optional description or comment for the post */
   description?: string
-  /** User reactions to posts */
-  reactions?: Record<string, 'like' | 'fire' | 'wow'>
+  /** Array of user IDs who upvoted this post */
+  upvotes?: string[]
+  /** Array of user IDs who flagged this post as suspicious */
+  fishyFlags?: string[]
   /** Optional location data */
   location?: {
     lat: number

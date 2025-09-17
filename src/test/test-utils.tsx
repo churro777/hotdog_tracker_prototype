@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { render, type RenderOptions } from '@testing-library/react'
+import { vi } from 'vitest'
 
 import { CONTEST_IDS } from '@constants'
 import type { ContestPost, User, ContestUser } from '@types'
@@ -88,6 +89,8 @@ export const mockFunctions = {
   onClose: vi.fn(),
   onClearData: vi.fn(),
   onLoadMore: vi.fn(),
+  onToggleUpvote: vi.fn(),
+  onToggleFlag: vi.fn(),
 }
 
 /**
@@ -115,6 +118,9 @@ export const createMockProps = {
     hasMorePosts: false,
     isLoadingMore: false,
     onLoadMore: mockFunctions.onLoadMore,
+    onToggleUpvote: mockFunctions.onToggleUpvote,
+    onToggleFlag: mockFunctions.onToggleFlag,
+    isAuthenticated: true,
   },
   logTab: {
     onAddPost: mockFunctions.onAddPost,

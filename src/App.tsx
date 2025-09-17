@@ -20,6 +20,7 @@ import useContestCountdown from '@hooks/useContestCountdown'
 import useContestDataV2 from '@hooks/useContestDataV2'
 import useContestLeader from '@hooks/useContestLeader'
 import useContests from '@hooks/useContests'
+import { useDataService } from '@hooks/useDataService'
 import type { Tab } from '@types'
 
 /**
@@ -53,6 +54,22 @@ function AppContent() {
     isLoadingMore,
     loadMorePosts,
   } = useContestDataV2(currentUserId, activeContestId)
+
+  // Get reaction methods from data service
+  const { togglePostUpvote, togglePostFlag } = useDataService()
+
+  // Reaction handlers
+  const handleToggleUpvote = (postId: string) => {
+    if (currentUserId) {
+      void togglePostUpvote(postId, currentUserId)
+    }
+  }
+
+  const handleToggleFlag = (postId: string) => {
+    if (currentUserId) {
+      void togglePostFlag(postId, currentUserId)
+    }
+  }
 
   // Contest info hooks (depend on loaded data)
   const countdown = useContestCountdown(activeContest)
@@ -124,6 +141,9 @@ function AppContent() {
             hasMorePosts={hasMorePosts}
             isLoadingMore={isLoadingMore}
             onLoadMore={loadMorePosts}
+            onToggleUpvote={handleToggleUpvote}
+            onToggleFlag={handleToggleFlag}
+            isAuthenticated={!!currentUser}
           />
         )
       case TAB_TYPES.LOG:

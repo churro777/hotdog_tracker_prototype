@@ -44,6 +44,14 @@ interface UseDataServiceReturn {
   updateUser: (id: string, updates: Partial<User>) => Promise<User | null>
   addUser: (userData: Omit<User, 'id'>) => Promise<User | null>
 
+  // Post reactions
+  togglePostUpvote: (postId: string, userId: string) => Promise<boolean>
+  togglePostFlag: (postId: string, userId: string) => Promise<boolean>
+
+  // Admin operations
+  clearPostFlags: (postId: string) => Promise<boolean>
+  getFlaggedPosts: (threshold?: number) => Promise<ContestPost[]>
+
   // Direct service access
   dataService: typeof dataService
 }
@@ -423,6 +431,96 @@ export function useDataService(): UseDataServiceReturn {
     []
   )
 
+  /**
+   * Toggle upvote on a post
+   */
+  const togglePostUpvote = useCallback(
+    async (postId: string, userId: string): Promise<boolean> => {
+      try {
+        await dataService.togglePostUpvote(postId, userId)
+        // Real-time listener will handle UI update
+        return true
+      } catch (error) {
+        const errorMessage = `Failed to toggle upvote on post ${postId}`
+        logError({
+          message: errorMessage,
+          error: error as Error,
+          context: 'data-service',
+          action: 'toggle-upvote',
+        })
+        return false
+      }
+    },
+    []
+  )
+
+  /**
+   * Toggle flag on a post
+   */
+  const togglePostFlag = useCallback(
+    async (postId: string, userId: string): Promise<boolean> => {
+      try {
+        await dataService.togglePostFlag(postId, userId)
+        // Real-time listener will handle UI update
+        return true
+      } catch (error) {
+        const errorMessage = `Failed to toggle flag on post ${postId}`
+        logError({
+          message: errorMessage,
+          error: error as Error,
+          context: 'data-service',
+          action: 'toggle-flag',
+        })
+        return false
+      }
+    },
+    []
+  )
+
+  /**
+   * Clear all flags from a post (admin operation)
+   */
+  const clearPostFlags = useCallback(
+    async (postId: string): Promise<boolean> => {
+      try {
+        await dataService.clearPostFlags(postId)
+        // Real-time listener will handle UI update
+        return true
+      } catch (error) {
+        const errorMessage = `Failed to clear flags on post ${postId}`
+        logError({
+          message: errorMessage,
+          error: error as Error,
+          context: 'data-service',
+          action: 'clear-flags',
+        })
+        return false
+      }
+    },
+    []
+  )
+
+  /**
+   * Get flagged posts (admin operation)
+   */
+  const getFlaggedPosts = useCallback(
+    async (threshold = 3): Promise<ContestPost[]> => {
+      try {
+        return await dataService.getFlaggedPosts(threshold)
+      } catch (error) {
+        const errorMessage = 'Failed to fetch flagged posts'
+        logError({
+          message: errorMessage,
+          error: error as Error,
+          context: 'data-service',
+          action: 'get-flagged-posts',
+        })
+        return []
+      }
+    },
+    []
+  )
+
   // Set up real-time listeners
   useEffect(() => {
     isCancelledRef.current = false
@@ -462,6 +560,14 @@ export function useDataService(): UseDataServiceReturn {
     deletePost,
     updateUser,
     addUser,
+
+    // Post reactions
+    togglePostUpvote,
+    togglePostFlag,
+
+    // Admin operations
+    clearPostFlags,
+    getFlaggedPosts,
 
     // Direct service access
     dataService,

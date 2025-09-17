@@ -1,0 +1,111 @@
+/* PostReactions component styles */
+.post-reactions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  margin-top: 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+.reactions-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.reactions-right {
+  display: flex;
+  align-items: center;
+}
+
+.reaction-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.reaction-btn:hover:not(.disabled) {
+  background: var(--bg-hover);
+  border-color: var(--border-hover);
+  transform: translateY(-1px);
+}
+
+.reaction-btn:active:not(.disabled) {
+  transform: translateY(0);
+}
+
+.reaction-btn.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.reaction-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.upvote-btn.active {
+  background: #4caf50;
+  border-color: #4caf50;
+}
+
+.flag-btn.active {
+  background: #f44336;
+  border-color: #f44336;
+}
+
+.count {
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 16px;
+  text-align: center;
+}
+
+.hotdog-emoji {
+  font-size: 18px;
+  opacity: 0.8;
+  user-select: none;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .post-reactions {
+    padding: 6px 0;
+  }
+
+  .reactions-left {
+    gap: 8px;
+  }
+
+  .reaction-btn {
+    padding: 4px 8px;
+    font-size: 13px;
+    min-height: 32px;
+  }
+
+  .hotdog-emoji {
+    font-size: 16px;
+  }
+}
+
+/* Dark mode adjustments */
+.dark-mode .reaction-btn {
+  border-color: var(--border-color-dark);
+  background: var(--bg-secondary-dark);
+}
+
+.dark-mode .reaction-btn:hover:not(.disabled) {
+  background: var(--bg-hover-dark);
+  border-color: var(--border-hover-dark);
+}

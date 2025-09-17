@@ -27,6 +27,14 @@ export interface DataService {
   updateUser(id: string, updates: Partial<User>): Promise<User>
   addUser(user: Omit<User, 'id'>): Promise<User>
 
+  // Post reactions
+  togglePostUpvote(postId: string, userId: string): Promise<void>
+  togglePostFlag(postId: string, userId: string): Promise<void>
+
+  // Admin post management
+  clearPostFlags(postId: string): Promise<void>
+  getFlaggedPosts(threshold?: number): Promise<ContestPost[]>
+
   // Batch operations
   batchUpdate(operations: BatchOperation[]): Promise<void>
 }
@@ -411,6 +419,115 @@ class FirebaseDataService implements DataService {
       }
     } catch (error) {
       console.error('Error adding user to Firebase:', error)
+      throw error
+    }
+  }
+
+  async togglePostUpvote(postId: string, userId: string): Promise<void> {
+    try {
+      const { doc, updateDoc, arrayUnion, arrayRemove, getDoc } = await import(
+        'firebase/firestore'
+      )
+      const { db } = await import('@config/firebase')
+
+      const postRef = doc(db, this.postsCollection, postId)
+      const postSnap = await getDoc(postRef)
+
+      if (!postSnap.exists()) {
+        throw new Error('Post not found')
+      }
+
+      const postData = postSnap.data() as ContestPost
+      const currentUpvotes = postData.upvotes ?? []
+      const hasUpvoted = currentUpvotes.includes(userId)
+
+      await updateDoc(postRef, {
+        upvotes: hasUpvoted ? arrayRemove(userId) : arrayUnion(userId),
+      })
+    } catch (error) {
+      const { logFirebaseError } = await import('@utils/errorLogger')
+      logFirebaseError('Failed to toggle post upvote', error as Error, 'posts')
+      throw error
+    }
+  }
+
+  async togglePostFlag(postId: string, userId: string): Promise<void> {
+    try {
+      const { doc, updateDoc, arrayUnion, arrayRemove, getDoc } = await import(
+        'firebase/firestore'
+      )
+      const { db } = await import('@config/firebase')
+
+      const postRef = doc(db, this.postsCollection, postId)
+      const postSnap = await getDoc(postRef)
+
+      if (!postSnap.exists()) {
+        throw new Error('Post not found')
+      }
+
+      const postData = postSnap.data() as ContestPost
+      const currentFlags = postData.fishyFlags ?? []
+      const hasFlagged = currentFlags.includes(userId)
+
+      await updateDoc(postRef, {
+        fishyFlags: hasFlagged ? arrayRemove(userId) : arrayUnion(userId),
+      })
+    } catch (error) {
+      const { logFirebaseError } = await import('@utils/errorLogger')
+      logFirebaseError('Failed to toggle post flag', error as Error, 'posts')
+      throw error
+    }
+  }
+
+  async clearPostFlags(postId: string): Promise<void> {
+    try {
+      const { doc, updateDoc } = await import('firebase/firestore')
+      const { db } = await import('@config/firebase')
+
+      const postRef = doc(db, this.postsCollection, postId)
+      await updateDoc(postRef, {
+        fishyFlags: [],
+      })
+    } catch (error) {
+      const { logFirebaseError } = await import('@utils/errorLogger')
+      logFirebaseError('Failed to clear post flags', error as Error, 'posts')
+      throw error
+    }
+  }
+
+  async getFlaggedPosts(threshold = 3): Promise<ContestPost[]> {
+    try {
+      const { collection, getDocs, orderBy, query } = await import(
+        'firebase/firestore'
+      )
+      const { db } = await import('@config/firebase')
+
+      const postsRef = collection(db, this.postsCollection)
+      const q = query(postsRef, orderBy('timestamp', 'desc'))
+      const snapshot = await getDocs(q)
+
+      const flaggedPosts: ContestPost[] = []
+
+      snapshot.docs.forEach(doc => {
+        const data = doc.data() as Record<string, unknown>
+        const timestamp = data['timestamp'] as { toDate(): Date } | undefined
+        const fishyFlags = (data['fishyFlags'] as string[]) || []
+
+        if (fishyFlags.length >= threshold) {
+          flaggedPosts.push({
+            id: doc.id,
+            ...data,
+            timestamp: timestamp?.toDate() ?? new Date(),
+            upvotes: (data['upvotes'] as string[]) || [],
+            fishyFlags,
+          } as ContestPost)
+        }
+      })
+
+      return flaggedPosts
+    } catch (error) {
+      const { logFirebaseError } = await import('@utils/errorLogger')
+      logFirebaseError('Failed to fetch flagged posts', error as Error, 'posts')
       throw error
     }
   }
