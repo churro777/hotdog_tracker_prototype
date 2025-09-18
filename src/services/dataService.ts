@@ -20,7 +20,9 @@ export interface DataService {
   getPosts(contestId?: string): Promise<ContestPost[]>
   addPost(post: Omit<ContestPost, 'id'>): Promise<ContestPost>
   updatePost(id: string, updates: Partial<ContestPost>): Promise<ContestPost>
-  deletePost(id: string): Promise<void>
+  deletePost(id: string, deletedBy?: string): Promise<void>
+  getDeletedPosts(): Promise<ContestPost[]>
+  restorePost(id: string): Promise<void>
 
   // Users (simplified architecture - includes contest data)
   getUsers(): Promise<User[]>
@@ -203,13 +205,20 @@ class FirebaseDataService implements DataService {
       const { db } = await import('@config/firebase')
 
       const postsRef = collection(db, this.postsCollection)
-      let q = query(postsRef, orderBy('timestamp', 'desc'))
 
-      // Filter by contest if contestId provided
+      // Base query filters out deleted posts
+      let q
       if (contestId) {
         q = query(
           postsRef,
           where('contestId', '==', contestId),
+          where('isDeleted', '!=', true),
+          orderBy('timestamp', 'desc')
+        )
+      } else {
+        q = query(
+          postsRef,
+          where('isDeleted', '!=', true),
           orderBy('timestamp', 'desc')
         )
       }
@@ -319,15 +328,109 @@ class FirebaseDataService implements DataService {
     }
   }
 
-  async deletePost(id: string): Promise<void> {
+  async deletePost(id: string, deletedBy?: string): Promise<void> {
     try {
-      const { doc, deleteDoc } = await import('firebase/firestore')
+      const { doc, updateDoc, getDoc, Timestamp, increment } = await import(
+        'firebase/firestore'
+      )
       const { db } = await import('@config/firebase')
 
+      // First get the post to know the count and user
       const postRef = doc(db, this.postsCollection, id)
-      await deleteDoc(postRef)
+      const postSnap = await getDoc(postRef)
+
+      if (!postSnap.exists()) {
+        throw new Error('Post not found')
+      }
+
+      const postData = postSnap.data()
+      const userId = postData['userId'] as string
+      const count = postData['count'] as number
+
+      // Soft delete the post
+      await updateDoc(postRef, {
+        isDeleted: true,
+        deletedAt: Timestamp.now(),
+        deletedBy: deletedBy ?? 'unknown',
+      })
+
+      // Subtract count from user's totalCount
+      const userRef = doc(db, 'users', userId)
+      await updateDoc(userRef, {
+        totalCount: increment(-count),
+      })
     } catch (error) {
-      console.error('Error deleting post from Firebase:', error)
+      console.error('Error soft deleting post from Firebase:', error)
+      throw error
+    }
+  }
+
+  async getDeletedPosts(): Promise<ContestPost[]> {
+    try {
+      const { collection, getDocs, orderBy, query, where } = await import(
+        'firebase/firestore'
+      )
+      const { db } = await import('@config/firebase')
+
+      const postsRef = collection(db, this.postsCollection)
+      const q = query(
+        postsRef,
+        where('isDeleted', '==', true),
+        orderBy('deletedAt', 'desc')
+      )
+
+      const snapshot = await getDocs(q)
+
+      return snapshot.docs.map(doc => {
+        const data = doc.data() as Record<string, unknown>
+        const timestamp = data['timestamp'] as { toDate(): Date } | undefined
+        const deletedAt = data['deletedAt'] as { toDate(): Date } | undefined
+        return {
+          id: doc.id,
+          ...data,
+          timestamp: timestamp?.toDate() ?? new Date(),
+          deletedAt: deletedAt?.toDate() ?? new Date(),
+        }
+      }) as ContestPost[]
+    } catch (error) {
+      console.error('Error fetching deleted posts from Firebase:', error)
+      throw error
+    }
+  }
+
+  async restorePost(id: string): Promise<void> {
+    try {
+      const { doc, updateDoc, getDoc, deleteField, increment } = await import(
+        'firebase/firestore'
+      )
+      const { db } = await import('@config/firebase')
+
+      // First get the post to know the count and user
+      const postRef = doc(db, this.postsCollection, id)
+      const postSnap = await getDoc(postRef)
+
+      if (!postSnap.exists()) {
+        throw new Error('Post not found')
+      }
+
+      const postData = postSnap.data()
+      const userId = postData['userId'] as string
+      const count = postData['count'] as number
+
+      // Restore the post (remove deletion flags)
+      await updateDoc(postRef, {
+        isDeleted: deleteField(),
+        deletedAt: deleteField(),
+        deletedBy: deleteField(),
+      })
+
+      // Add count back to user's totalCount
+      const userRef = doc(db, 'users', userId)
+      await updateDoc(userRef, {
+        totalCount: increment(count),
+      })
+    } catch (error) {
+      console.error('Error restoring post from Firebase:', error)
       throw error
     }
   }

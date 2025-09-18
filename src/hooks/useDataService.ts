@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 
+import { useAuth } from '@hooks/useAuth'
 import type { ContestPost, User } from '@types'
 import { logError, logUserError } from '@utils/errorLogger'
 
@@ -41,6 +42,8 @@ interface UseDataServiceReturn {
     updates: Partial<ContestPost>
   ) => Promise<ContestPost | null>
   deletePost: (id: string) => Promise<boolean>
+  getDeletedPosts: () => Promise<ContestPost[]>
+  restorePost: (id: string) => Promise<boolean>
   updateUser: (id: string, updates: Partial<User>) => Promise<User | null>
   addUser: (userData: Omit<User, 'id'>) => Promise<User | null>
 
@@ -69,6 +72,10 @@ interface UseDataServiceReturn {
 export function useDataService(): UseDataServiceReturn {
   // Cancellation ref to prevent state updates after unmount
   const isCancelledRef = useRef(false)
+
+  // Get current user for audit trail
+  const { currentUser } = useAuth()
+  const userId: string | undefined = currentUser?.uid
 
   // Data state
   const [posts, setPosts] = useState<ContestPost[]>([])
@@ -105,13 +112,17 @@ export function useDataService(): UseDataServiceReturn {
           setPostsError(null)
         }
 
-        const { collection, onSnapshot, orderBy, query, limit } = await import(
-          'firebase/firestore'
-        )
+        const { collection, onSnapshot, orderBy, query, limit, where } =
+          await import('firebase/firestore')
         const { db } = await import('@config/firebase')
 
         const postsRef = collection(db, 'contest-posts')
-        const q = query(postsRef, orderBy('timestamp', 'desc'), limit(10))
+        const q = query(
+          postsRef,
+          where('isDeleted', '!=', true),
+          orderBy('timestamp', 'desc'),
+          limit(10)
+        )
 
         postsUnsubscribe = onSnapshot(
           q,
@@ -274,13 +285,14 @@ export function useDataService(): UseDataServiceReturn {
     setIsLoadingMore(true)
 
     try {
-      const { collection, getDocs, orderBy, query, limit, startAfter } =
+      const { collection, getDocs, orderBy, query, limit, startAfter, where } =
         await import('firebase/firestore')
       const { db } = await import('@config/firebase')
 
       const postsRef = collection(db, 'contest-posts')
       const q = query(
         postsRef,
+        where('isDeleted', '!=', true),
         orderBy('timestamp', 'desc'),
         startAfter(lastPostDoc),
         limit(10)
@@ -373,20 +385,60 @@ export function useDataService(): UseDataServiceReturn {
   /**
    * Delete a post
    */
-  const deletePost = useCallback(async (id: string): Promise<boolean> => {
+  const deletePost = useCallback(
+    async (id: string): Promise<boolean> => {
+      try {
+        await dataService.deletePost(id, userId)
+
+        // No optimistic update needed - real-time listener will handle it
+
+        return true
+      } catch (error) {
+        const errorMessage = `Failed to delete post ${id}`
+        logError({
+          message: errorMessage,
+          error: error as Error,
+          context: 'data-service',
+          action: 'delete-post',
+        })
+        return false
+      }
+    },
+    [userId]
+  )
+
+  /**
+   * Get deleted posts for admin review
+   */
+  const getDeletedPosts = useCallback(async (): Promise<ContestPost[]> => {
     try {
-      await dataService.deletePost(id)
-
-      // No optimistic update needed - real-time listener will handle it
-
-      return true
+      return await dataService.getDeletedPosts()
     } catch (error) {
-      const errorMessage = `Failed to delete post ${id}`
+      const errorMessage = 'Failed to fetch deleted posts'
       logError({
         message: errorMessage,
         error: error as Error,
         context: 'data-service',
-        action: 'delete-post',
+        action: 'get-deleted-posts',
+      })
+      return []
+    }
+  }, [])
+
+  /**
+   * Restore a soft-deleted post
+   */
+  const restorePost = useCallback(async (id: string): Promise<boolean> => {
+    try {
+      await dataService.restorePost(id)
+      return true
+    } catch (error) {
+      const errorMessage = `Failed to restore post ${id}`
+      logError({
+        message: errorMessage,
+        error: error as Error,
+        context: 'data-service',
+        action: 'restore-post',
       })
       return false
     }
@@ -587,6 +639,8 @@ export function useDataService(): UseDataServiceReturn {
     // Admin operations
     clearPostFlags,
     getFlaggedPosts,
+    getDeletedPosts,
+    restorePost,
 
     // Direct service access
     dataService,

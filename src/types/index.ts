@@ -118,6 +118,12 @@ export interface ContestPost {
     lng: number
     name?: string
   }
+  /** Soft delete flag - if true, post is hidden from normal queries */
+  isDeleted?: boolean
+  /** Timestamp when the post was soft deleted */
+  deletedAt?: Date
+  /** ID of the admin user who deleted this post */
+  deletedBy?: string
 }
 
 /**
