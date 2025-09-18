@@ -28,8 +28,14 @@ interface ContestFormData {
 
 const AdminPage = () => {
   const { currentUser } = useAuth()
-  const { dataService, users, getFlaggedPosts, clearPostFlags, deletePost } =
-    useDataService()
+  const {
+    dataService,
+    users,
+    getFlaggedPosts,
+    clearPostFlags,
+    deletePost,
+    syncContestScores,
+  } = useDataService()
   const { isAdmin, loading: adminLoading, error: adminError } = useIsAdmin()
   const { isDarkMode, toggleTheme } = useTheme()
   const { activeContest } = useContests()
@@ -41,6 +47,11 @@ const AdminPage = () => {
   const [error, setError] = useState<string | null>(null)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [editingContest, setEditingContest] = useState<Contest | null>(null)
+  const [syncLoading, setSyncLoading] = useState(false)
+  const [syncResult, setSyncResult] = useState<{
+    updated: number
+    errors: string[]
+  } | null>(null)
 
   const [formData, setFormData] = useState<ContestFormData>({
     name: '',
@@ -207,6 +218,20 @@ const AdminPage = () => {
       startDate: formatDateForInput(tomorrow),
       endDate: formatDateForInput(tomorrow),
     })
+  }
+
+  const handleSyncScores = async () => {
+    setSyncLoading(true)
+    setSyncResult(null)
+
+    try {
+      const result = await syncContestScores()
+      setSyncResult(result)
+    } catch {
+      setSyncResult({ updated: 0, errors: ['Failed to sync scores'] })
+    } finally {
+      setSyncLoading(false)
+    }
   }
 
   // Loading state while checking admin status
@@ -675,6 +700,91 @@ const AdminPage = () => {
               </>
             )
           })()}
+        </div>
+
+        {/* Contest Management Section */}
+        <div className="contest-management-section">
+          <h2>🏆 Contest Management</h2>
+
+          {/* Current Contest Info */}
+          {activeContest && (
+            <div className="current-contest-info">
+              <h3>Current Contest: {activeContest.name}</h3>
+              <div className="contest-stats">
+                <p>
+                  <strong>Status:</strong> {activeContest.status}
+                </p>
+                <p>
+                  <strong>Participants:</strong> {users?.length || 0} users
+                </p>
+                {countdown && (
+                  <p>
+                    <strong>Time:</strong> {countdown.formattedTime}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Participants List */}
+          <div className="participants-section">
+            <div className="participants-header">
+              <h3>📊 Contest Participants</h3>
+              <button
+                onClick={() => void handleSyncScores()}
+                disabled={syncLoading}
+                className="sync-button"
+              >
+                {syncLoading ? '🔄 Syncing...' : '🔄 Sync Scores'}
+              </button>
+            </div>
+
+            {/* Sync Results */}
+            {syncResult && (
+              <div
+                className={`sync-result ${syncResult.errors.length > 0 ? 'error' : 'success'}`}
+              >
+                {syncResult.errors.length > 0 ? (
+                  <>
+                    <p>❌ Sync failed: {syncResult.errors.join(', ')}</p>
+                  </>
+                ) : (
+                  <p>✅ Sync complete: {syncResult.updated} scores updated</p>
+                )}
+              </div>
+            )}
+
+            {/* Participants Table */}
+            <div className="participants-table">
+              <div className="table-header">
+                <span>Rank</span>
+                <span>User</span>
+                <span>Total Score</span>
+                <span>Status</span>
+              </div>
+
+              {users && users.length > 0 ? (
+                [...users]
+                  .sort((a, b) => b.totalCount - a.totalCount)
+                  .map((user, index) => (
+                    <div key={user.id} className="table-row">
+                      <span className="rank">#{index + 1}</span>
+                      <span className="user-name">{user.displayName}</span>
+                      <span className="score">{user.totalCount} 🌭</span>
+                      <span className="status">
+                        {user.id === currentUser?.uid
+                          ? '👤 You'
+                          : '👥 Participant'}
+                      </span>
+                    </div>
+                  ))
+              ) : (
+                <div className="no-participants">
+                  <p>No participants yet</p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Flagged Posts Section */}

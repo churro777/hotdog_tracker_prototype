@@ -44,6 +44,7 @@ interface UseDataServiceReturn {
   deletePost: (id: string) => Promise<boolean>
   getDeletedPosts: () => Promise<ContestPost[]>
   restorePost: (id: string) => Promise<boolean>
+  syncContestScores: () => Promise<{ updated: number; errors: string[] }>
   updateUser: (id: string, updates: Partial<User>) => Promise<User | null>
   addUser: (userData: Omit<User, 'id'>) => Promise<User | null>
 
@@ -112,32 +113,37 @@ export function useDataService(): UseDataServiceReturn {
           setPostsError(null)
         }
 
-        const { collection, onSnapshot, orderBy, query, limit, where } =
-          await import('firebase/firestore')
+        const { collection, onSnapshot, orderBy, query, limit } = await import(
+          'firebase/firestore'
+        )
         const { db } = await import('@config/firebase')
 
         const postsRef = collection(db, 'contest-posts')
         const q = query(
           postsRef,
-          where('isDeleted', '!=', true),
           orderBy('timestamp', 'desc'),
-          limit(10)
+          limit(20) // Get more to account for filtering
         )
 
         postsUnsubscribe = onSnapshot(
           q,
           snapshot => {
-            const loadedPosts = snapshot.docs.map(doc => {
-              const data = doc.data() as Record<string, unknown>
-              const timestamp = data['timestamp'] as
-                | { toDate(): Date }
-                | undefined
-              return {
-                id: doc.id,
-                ...data,
-                timestamp: timestamp?.toDate() ?? new Date(),
-              }
-            }) as ContestPost[]
+            const loadedPosts = snapshot.docs
+              .map(doc => {
+                const data = doc.data() as Record<string, unknown>
+                const timestamp = data['timestamp'] as
+                  | { toDate(): Date }
+                  | undefined
+                return {
+                  id: doc.id,
+                  ...data,
+                  timestamp: timestamp?.toDate() ?? new Date(),
+                }
+              })
+              .filter(
+                post => !(post as unknown as { isDeleted?: boolean }).isDeleted
+              )
+              .slice(0, 10) as ContestPost[] // Limit to 10 after filtering
 
             if (!isCancelledRef.current) {
               setPosts(loadedPosts)
@@ -285,30 +291,32 @@ export function useDataService(): UseDataServiceReturn {
     setIsLoadingMore(true)
 
     try {
-      const { collection, getDocs, orderBy, query, limit, startAfter, where } =
+      const { collection, getDocs, orderBy, query, limit, startAfter } =
         await import('firebase/firestore')
       const { db } = await import('@config/firebase')
 
       const postsRef = collection(db, 'contest-posts')
       const q = query(
         postsRef,
-        where('isDeleted', '!=', true),
         orderBy('timestamp', 'desc'),
         startAfter(lastPostDoc),
-        limit(10)
+        limit(20) // Get more to account for filtering
       )
 
       const snapshot = await getDocs(q)
 
-      const newPosts = snapshot.docs.map(doc => {
-        const data = doc.data() as Record<string, unknown>
-        const timestamp = data['timestamp'] as { toDate(): Date } | undefined
-        return {
-          id: doc.id,
-          ...data,
-          timestamp: timestamp?.toDate() ?? new Date(),
-        }
-      }) as ContestPost[]
+      const newPosts = snapshot.docs
+        .map(doc => {
+          const data = doc.data() as Record<string, unknown>
+          const timestamp = data['timestamp'] as { toDate(): Date } | undefined
+          return {
+            id: doc.id,
+            ...data,
+            timestamp: timestamp?.toDate() ?? new Date(),
+          }
+        })
+        .filter(post => !(post as unknown as { isDeleted?: boolean }).isDeleted)
+        .slice(0, 10) as ContestPost[] // Limit to 10 after filtering
 
       if (!isCancelledRef.current) {
         setPosts(prevPosts => [...prevPosts, ...newPosts])
@@ -441,6 +449,27 @@ export function useDataService(): UseDataServiceReturn {
         action: 'restore-post',
       })
       return false
+    }
+  }, [])
+
+  /**
+   * Sync contest scores by recalculating from posts
+   */
+  const syncContestScores = useCallback(async (): Promise<{
+    updated: number
+    errors: string[]
+  }> => {
+    try {
+      return await dataService.syncContestScores()
+    } catch (error) {
+      const errorMessage = 'Failed to sync contest scores'
+      logError({
+        message: errorMessage,
+        error: error as Error,
+        context: 'data-service',
+        action: 'sync-contest-scores',
+      })
+      return { updated: 0, errors: [errorMessage] }
     }
   }, [])
 
@@ -641,6 +670,7 @@ export function useDataService(): UseDataServiceReturn {
     getFlaggedPosts,
     getDeletedPosts,
     restorePost,
+    syncContestScores,
 
     // Direct service access
     dataService,

@@ -23,6 +23,7 @@ export interface DataService {
   deletePost(id: string, deletedBy?: string): Promise<void>
   getDeletedPosts(): Promise<ContestPost[]>
   restorePost(id: string): Promise<void>
+  syncContestScores(): Promise<{ updated: number; errors: string[] }>
 
   // Users (simplified architecture - includes contest data)
   getUsers(): Promise<User[]>
@@ -206,34 +207,33 @@ class FirebaseDataService implements DataService {
 
       const postsRef = collection(db, this.postsCollection)
 
-      // Base query filters out deleted posts
+      // Base query - filter deleted posts client-side to avoid composite index
       let q
       if (contestId) {
         q = query(
           postsRef,
           where('contestId', '==', contestId),
-          where('isDeleted', '!=', true),
           orderBy('timestamp', 'desc')
         )
       } else {
-        q = query(
-          postsRef,
-          where('isDeleted', '!=', true),
-          orderBy('timestamp', 'desc')
-        )
+        q = query(postsRef, orderBy('timestamp', 'desc'))
       }
 
       const snapshot = await getDocs(q)
 
-      return snapshot.docs.map(doc => {
-        const data = doc.data() as Record<string, unknown>
-        const timestamp = data['timestamp'] as { toDate(): Date } | undefined
-        return {
-          id: doc.id,
-          ...data,
-          timestamp: timestamp?.toDate() ?? new Date(),
-        }
-      }) as ContestPost[]
+      return snapshot.docs
+        .map(doc => {
+          const data = doc.data() as Record<string, unknown>
+          const timestamp = data['timestamp'] as { toDate(): Date } | undefined
+          return {
+            id: doc.id,
+            ...data,
+            timestamp: timestamp?.toDate() ?? new Date(),
+          }
+        })
+        .filter(
+          post => !(post as unknown as { isDeleted?: boolean }).isDeleted
+        ) as ContestPost[]
     } catch (error) {
       const { logFirebaseError } = await import('@utils/errorLogger')
       logFirebaseError('Failed to fetch posts', error as Error, 'contest-posts')
@@ -432,6 +432,62 @@ class FirebaseDataService implements DataService {
     } catch (error) {
       console.error('Error restoring post from Firebase:', error)
       throw error
+    }
+  }
+
+  async syncContestScores(): Promise<{ updated: number; errors: string[] }> {
+    try {
+      const { collection, getDocs, writeBatch, doc } = await import(
+        'firebase/firestore'
+      )
+      const { db } = await import('@config/firebase')
+
+      const errors: string[] = []
+      let updated = 0
+
+      // Get all users
+      const usersSnapshot = await getDocs(collection(db, 'users'))
+
+      // Get all posts and filter non-deleted client-side
+      const postsSnapshot = await getDocs(collection(db, this.postsCollection))
+      const validPosts = postsSnapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter((post: unknown) => !(post as { isDeleted?: boolean }).isDeleted)
+
+      // Calculate actual scores for each user
+      const userScores = new Map<string, number>()
+
+      for (const post of validPosts) {
+        const userId = (post as unknown as { userId: string }).userId
+        const count = (post as unknown as { count: number }).count
+        userScores.set(userId, (userScores.get(userId) ?? 0) + count)
+      }
+
+      // Prepare batch updates
+      const batch = writeBatch(db)
+
+      for (const userDoc of usersSnapshot.docs) {
+        const userData = userDoc.data()
+        const userId = userDoc.id
+        const currentTotal = userData['totalCount'] as number
+        const actualTotal = userScores.get(userId) ?? 0
+
+        if (currentTotal !== actualTotal) {
+          const userRef = doc(db, 'users', userId)
+          batch.update(userRef, { totalCount: actualTotal })
+          updated++
+        }
+      }
+
+      // Execute batch update
+      if (updated > 0) {
+        await batch.commit()
+      }
+
+      return { updated, errors }
+    } catch (error) {
+      console.error('Error syncing contest scores:', error)
+      return { updated: 0, errors: [(error as Error).message] }
     }
   }
 
