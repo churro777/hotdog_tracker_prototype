@@ -11,6 +11,12 @@ service cloud.firestore {
     function isPostOwner() {
       return request.auth.uid == resource.data.userId;
     }
+
+    function isAdmin() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
     // Users collection - authenticated users can read/write their own data
     // Everyone can read to see leaderboard
     match /users/{userId} {
@@ -41,9 +47,10 @@ service cloud.firestore {
         (onlyUpdatingReactions() && request.auth.uid != resource.data.userId)
       );
       
-      // Only post owners can delete their posts
-      allow delete: if request.auth != null 
-        && request.auth.uid == resource.data.userId;
+      // Post owners and admins can delete posts
+      allow delete: if request.auth != null && (
+        request.auth.uid == resource.data.userId || isAdmin()
+      );
     }
     
     // Contest info/metadata - read-only for all users
