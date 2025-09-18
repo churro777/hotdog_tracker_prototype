@@ -28,8 +28,8 @@ interface FeedTabProps {
   isLoadingMore: boolean
   /** Function to load more posts */
   onLoadMore: () => Promise<void>
-  /** Function to toggle upvote on a post */
-  onToggleUpvote: (postId: string) => void
+  /** Function to toggle emoji reaction on a post */
+  onToggleReaction: (postId: string, emoji: string) => void
   /** Function to toggle flag on a post */
   onToggleFlag: (postId: string) => void
   /** Whether the current user is authenticated */
@@ -51,7 +51,7 @@ function FeedTab({
   hasMorePosts,
   isLoadingMore,
   onLoadMore,
-  onToggleUpvote,
+  onToggleReaction,
   onToggleFlag,
   isAuthenticated,
 }: FeedTabProps) {
@@ -240,7 +240,7 @@ function FeedTab({
                     post={post}
                     currentUserId={currentUserId}
                     isAuthenticated={isAuthenticated}
-                    onToggleUpvote={onToggleUpvote}
+                    onToggleReaction={onToggleReaction}
                     onToggleFlag={onToggleFlag}
                   />
                 </>

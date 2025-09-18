@@ -1,0 +1,231 @@
+/* EmotePicker component styles */
+.emote-picker-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.emote-picker {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  padding: 16px;
+  min-width: 280px;
+  max-width: 320px;
+  animation: emote-picker-appear 0.2s ease-out;
+  color: var(--text-primary);
+}
+
+@keyframes emote-picker-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.emote-picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.emote-picker-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.emote-picker-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.emote-picker-close:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.emote-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.emote-picker-emoji {
+  width: 48px;
+  height: 48px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.emote-picker-emoji:hover:not(.disabled) {
+  background: var(--bg-hover);
+  border-color: var(--border-hover);
+  transform: scale(1.1);
+}
+
+.emote-picker-emoji:active:not(.disabled) {
+  transform: scale(0.95);
+}
+
+.emote-picker-emoji.selected {
+  border-color: var(--primary-color);
+  background: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.emote-picker-emoji.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.emote-picker-current {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+.current-reaction-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-right: 8px;
+}
+
+.current-reaction {
+  font-size: 18px;
+  margin-right: auto;
+  margin-left: 4px;
+}
+
+.remove-reaction-btn {
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.remove-reaction-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .emote-picker {
+    margin: 16px;
+    min-width: auto;
+    max-width: calc(100vw - 32px);
+  }
+
+  .emote-picker-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+
+  .emote-picker-emoji {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+  }
+}
+
+/* Dark mode adjustments */
+.dark-mode .emote-picker-overlay {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.dark-mode .emote-picker {
+  background: #2a2a2a;
+  border-color: #444;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  color: white;
+}
+
+.dark-mode .emote-picker-header {
+  border-bottom-color: #555;
+}
+
+.dark-mode .emote-picker-title {
+  color: white;
+}
+
+.dark-mode .emote-picker-close {
+  color: #ccc;
+}
+
+.dark-mode .emote-picker-close:hover {
+  background: #444;
+  color: white;
+}
+
+.dark-mode .emote-picker-emoji {
+  background: #3a3a3a;
+  border-color: #555;
+}
+
+.dark-mode .emote-picker-emoji:hover:not(.disabled) {
+  background: #4a4a4a;
+  border-color: #666;
+}
+
+.dark-mode .emote-picker-current {
+  background: #3a3a3a;
+  border-color: #555;
+}
+
+.dark-mode .current-reaction-label {
+  color: #ccc;
+}
+
+.dark-mode .remove-reaction-btn {
+  color: #ccc;
+}
+
+.dark-mode .remove-reaction-btn:hover {
+  background: #444;
+  color: white;
+}

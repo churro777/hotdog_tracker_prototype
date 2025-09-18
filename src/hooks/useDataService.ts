@@ -45,8 +45,14 @@ interface UseDataServiceReturn {
   addUser: (userData: Omit<User, 'id'>) => Promise<User | null>
 
   // Post reactions
-  togglePostUpvote: (postId: string, userId: string) => Promise<boolean>
+  togglePostReaction: (
+    postId: string,
+    userId: string,
+    emoji: string
+  ) => Promise<boolean>
   togglePostFlag: (postId: string, userId: string) => Promise<boolean>
+  /** @deprecated Use togglePostReaction instead */
+  togglePostUpvote: (postId: string, userId: string) => Promise<boolean>
 
   // Admin operations
   clearPostFlags: (postId: string) => Promise<boolean>
@@ -432,26 +438,38 @@ export function useDataService(): UseDataServiceReturn {
   )
 
   /**
-   * Toggle upvote on a post
+   * Toggle emoji reaction on a post
    */
-  const togglePostUpvote = useCallback(
-    async (postId: string, userId: string): Promise<boolean> => {
+  const togglePostReaction = useCallback(
+    async (postId: string, userId: string, emoji: string): Promise<boolean> => {
       try {
-        await dataService.togglePostUpvote(postId, userId)
+        await dataService.togglePostReaction(postId, userId, emoji)
         // Real-time listener will handle UI update
         return true
       } catch (error) {
-        const errorMessage = `Failed to toggle upvote on post ${postId}`
+        const errorMessage = `Failed to toggle reaction on post ${postId}`
         logError({
           message: errorMessage,
           error: error as Error,
           context: 'data-service',
-          action: 'toggle-upvote',
+          action: 'toggle-reaction',
         })
         return false
       }
     },
     []
+  )
+
+  /**
+   * @deprecated Use togglePostReaction instead
+   * Toggle upvote on a post
+   */
+  const togglePostUpvote = useCallback(
+    async (postId: string, userId: string): Promise<boolean> => {
+      // Forward to new reaction system with thumbs up emoji
+      return togglePostReaction(postId, userId, '👍')
+    },
+    [togglePostReaction]
   )
 
   /**
@@ -562,8 +580,9 @@ export function useDataService(): UseDataServiceReturn {
     addUser,
 
     // Post reactions
-    togglePostUpvote,
+    togglePostReaction,
     togglePostFlag,
+    togglePostUpvote,
 
     // Admin operations
     clearPostFlags,

@@ -4,6 +4,26 @@
 export type Tab = 'leaderboard' | 'feed' | 'log' | 'journal'
 
 /**
+ * Predefined emoji reactions available for posts
+ */
+export const REACTION_EMOJIS = {
+  THUMBS_UP: '👍',
+  HEART: '❤️',
+  HEART_EYES: '😍',
+  PARTY: '🎉',
+  FIRE: '🔥',
+  HUNDRED: '💯',
+  LAUGH: '😂',
+  THINKING: '🤔',
+} as const
+
+/**
+ * Type for valid reaction emoji values
+ */
+export type ReactionEmoji =
+  (typeof REACTION_EMOJIS)[keyof typeof REACTION_EMOJIS]
+
+/**
  * Represents a user in the system (simplified architecture - includes contest data)
  * @interface User
  */
@@ -86,10 +106,12 @@ export interface ContestPost {
   timestamp: Date
   /** Optional description or comment for the post */
   description?: string
-  /** Array of user IDs who upvoted this post */
-  upvotes?: string[]
+  /** Object mapping emoji reactions to arrays of user IDs who selected them */
+  reactions?: Record<string, string[]>
   /** Array of user IDs who flagged this post as suspicious */
   fishyFlags?: string[]
+  /** @deprecated Legacy upvotes field - use reactions instead */
+  upvotes?: string[]
   /** Optional location data */
   location?: {
     lat: number

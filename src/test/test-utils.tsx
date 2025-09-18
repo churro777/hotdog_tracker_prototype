@@ -89,7 +89,7 @@ export const mockFunctions = {
   onClose: vi.fn(),
   onClearData: vi.fn(),
   onLoadMore: vi.fn(),
-  onToggleUpvote: vi.fn(),
+  onToggleReaction: vi.fn(),
   onToggleFlag: vi.fn(),
 }
 
@@ -118,7 +118,7 @@ export const createMockProps = {
     hasMorePosts: false,
     isLoadingMore: false,
     onLoadMore: mockFunctions.onLoadMore,
-    onToggleUpvote: mockFunctions.onToggleUpvote,
+    onToggleReaction: mockFunctions.onToggleReaction,
     onToggleFlag: mockFunctions.onToggleFlag,
     isAuthenticated: true,
   },

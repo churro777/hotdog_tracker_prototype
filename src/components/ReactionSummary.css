@@ -1,0 +1,139 @@
+/* ReactionSummary component styles */
+.reaction-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.reaction-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.reaction-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.reaction-item:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-hover);
+}
+
+.reaction-item.user-reacted {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 1px rgba(74, 144, 226, 0.3);
+}
+
+.reaction-emoji {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.reaction-count {
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 12px;
+  text-align: center;
+}
+
+.reaction-more {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: help;
+}
+
+.reaction-dots {
+  font-weight: bold;
+  line-height: 1;
+}
+
+.reaction-total {
+  font-weight: 600;
+}
+
+.user-reaction-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 2px 0;
+}
+
+.user-reaction-text {
+  font-style: italic;
+}
+
+.user-reaction-emoji {
+  font-size: 14px;
+}
+
+/* Empty state - component returns null, so no styles needed */
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .reaction-summary {
+    gap: 6px;
+  }
+
+  .reaction-items {
+    gap: 4px;
+  }
+
+  .reaction-item {
+    padding: 3px 6px;
+    font-size: 13px;
+  }
+
+  .reaction-emoji {
+    font-size: 14px;
+  }
+
+  .reaction-count {
+    font-size: 11px;
+  }
+
+  .user-reaction-indicator {
+    font-size: 11px;
+  }
+
+  .user-reaction-emoji {
+    font-size: 13px;
+  }
+}
+
+/* Dark mode adjustments */
+.dark-mode .reaction-item {
+  background: var(--bg-secondary-dark);
+  border-color: var(--border-color-dark);
+}
+
+.dark-mode .reaction-item:hover {
+  background: var(--bg-hover-dark);
+  border-color: var(--border-hover-dark);
+}
+
+.dark-mode .reaction-more {
+  background: var(--bg-secondary-dark);
+  border-color: var(--border-color-dark);
+}

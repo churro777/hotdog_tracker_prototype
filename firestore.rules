@@ -3,7 +3,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     // Helper functions for reaction validation
     function onlyUpdatingReactions() {
-      let allowedFields = ['upvotes', 'fishyFlags'];
+      let allowedFields = ['reactions', 'fishyFlags', 'upvotes'];
       let changedFields = request.resource.data.diff(resource.data).changedKeys();
       return changedFields.hasOnly(allowedFields);
     }

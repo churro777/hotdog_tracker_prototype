@@ -56,12 +56,12 @@ function AppContent() {
   } = useContestDataV2(currentUserId, activeContestId)
 
   // Get reaction methods from data service
-  const { togglePostUpvote, togglePostFlag } = useDataService()
+  const { togglePostReaction, togglePostFlag } = useDataService()
 
   // Reaction handlers
-  const handleToggleUpvote = (postId: string) => {
+  const handleToggleReaction = (postId: string, emoji: string) => {
     if (currentUserId) {
-      void togglePostUpvote(postId, currentUserId)
+      void togglePostReaction(postId, currentUserId, emoji)
     }
   }
 
@@ -141,7 +141,7 @@ function AppContent() {
             hasMorePosts={hasMorePosts}
             isLoadingMore={isLoadingMore}
             onLoadMore={loadMorePosts}
-            onToggleUpvote={handleToggleUpvote}
+            onToggleReaction={handleToggleReaction}
             onToggleFlag={handleToggleFlag}
             isAuthenticated={!!currentUser}
           />

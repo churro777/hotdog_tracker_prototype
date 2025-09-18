@@ -1,21 +1,19 @@
 /* PostReactions component styles */
 .post-reactions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   padding: 8px 0;
   margin-top: 8px;
   border-top: 1px solid var(--border-color);
 }
 
-.reactions-left {
+.reactions-main {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.reactions-right {
+.reaction-controls {
   display: flex;
+  justify-content: space-between;
   align-items: center;
 }
 
@@ -44,24 +42,36 @@
   transform: translateY(0);
 }
 
-.reaction-btn.active {
-  background: var(--primary-color);
-  color: white;
-  border-color: var(--primary-color);
-}
-
 .reaction-btn.disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.upvote-btn.active {
-  background: #4caf50;
-  border-color: #4caf50;
+.react-btn {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+.react-btn.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.react-emoji,
+.user-emoji {
+  font-size: 16px;
+  margin-right: 4px;
+}
+
+.react-text {
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .flag-btn.active {
   background: #f44336;
+  color: white;
   border-color: #f44336;
 }
 
@@ -72,20 +82,14 @@
   text-align: center;
 }
 
-.hotdog-emoji {
-  font-size: 18px;
-  opacity: 0.8;
-  user-select: none;
-}
-
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .post-reactions {
     padding: 6px 0;
   }
 
-  .reactions-left {
-    gap: 8px;
+  .reactions-main {
+    gap: 6px;
   }
 
   .reaction-btn {
@@ -94,8 +98,13 @@
     min-height: 32px;
   }
 
-  .hotdog-emoji {
-    font-size: 16px;
+  .react-emoji,
+  .user-emoji {
+    font-size: 14px;
+  }
+
+  .react-text {
+    font-size: 12px;
   }
 }
 

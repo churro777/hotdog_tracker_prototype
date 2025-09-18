@@ -28,8 +28,14 @@ export interface DataService {
   addUser(user: Omit<User, 'id'>): Promise<User>
 
   // Post reactions
-  togglePostUpvote(postId: string, userId: string): Promise<void>
+  togglePostReaction(
+    postId: string,
+    userId: string,
+    emoji: string
+  ): Promise<void>
   togglePostFlag(postId: string, userId: string): Promise<void>
+  /** @deprecated Use togglePostReaction instead */
+  togglePostUpvote(postId: string, userId: string): Promise<void>
 
   // Admin post management
   clearPostFlags(postId: string): Promise<void>
@@ -423,7 +429,11 @@ class FirebaseDataService implements DataService {
     }
   }
 
-  async togglePostUpvote(postId: string, userId: string): Promise<void> {
+  async togglePostReaction(
+    postId: string,
+    userId: string,
+    emoji: string
+  ): Promise<void> {
     try {
       const { doc, updateDoc, arrayUnion, arrayRemove, getDoc } = await import(
         'firebase/firestore'
@@ -438,17 +448,67 @@ class FirebaseDataService implements DataService {
       }
 
       const postData = postSnap.data() as ContestPost
-      const currentUpvotes = postData.upvotes ?? []
-      const hasUpvoted = currentUpvotes.includes(userId)
+      const currentReactions = postData.reactions ?? {}
 
-      await updateDoc(postRef, {
-        upvotes: hasUpvoted ? arrayRemove(userId) : arrayUnion(userId),
-      })
+      // Handle legacy upvotes
+      const legacyUpvotes = postData.upvotes ?? []
+      if (legacyUpvotes.length > 0 && !currentReactions['👍']) {
+        currentReactions['👍'] = legacyUpvotes
+      }
+
+      // Find user's current reaction
+      let userCurrentReaction: string | null = null
+      for (const [reactionEmoji, userIds] of Object.entries(currentReactions)) {
+        if (userIds.includes(userId)) {
+          userCurrentReaction = reactionEmoji
+          break
+        }
+      }
+
+      const updates: Record<string, any> = {} // eslint-disable-line @typescript-eslint/no-explicit-any
+
+      // Remove user from their current reaction if they have one
+      if (userCurrentReaction) {
+        const currentUserIds = currentReactions[userCurrentReaction] ?? []
+        if (currentUserIds.length <= 1) {
+          // Remove the reaction entirely if this is the only user
+          updates[`reactions.${userCurrentReaction}`] = arrayRemove(
+            ...currentUserIds
+          )
+        } else {
+          // Remove user from the reaction
+          updates[`reactions.${userCurrentReaction}`] = arrayRemove(userId)
+        }
+      }
+
+      // Add user to new reaction if emoji is not empty and different from current
+      if (emoji && emoji !== userCurrentReaction) {
+        updates[`reactions.${emoji}`] = arrayUnion(userId)
+      }
+
+      // Clear legacy upvotes if we're transitioning to new system
+      if (legacyUpvotes.length > 0 && currentReactions['👍']) {
+        updates['upvotes'] = arrayRemove(...legacyUpvotes)
+      }
+
+      if (Object.keys(updates).length > 0) {
+        await updateDoc(postRef, updates)
+      }
     } catch (error) {
       const { logFirebaseError } = await import('@utils/errorLogger')
-      logFirebaseError('Failed to toggle post upvote', error as Error, 'posts')
+      logFirebaseError(
+        'Failed to toggle post reaction',
+        error as Error,
+        'posts'
+      )
       throw error
     }
+  }
+
+  /** @deprecated Use togglePostReaction instead */
+  async togglePostUpvote(postId: string, userId: string): Promise<void> {
+    // Forward to new reaction system with thumbs up emoji
+    return this.togglePostReaction(postId, userId, '👍')
   }
 
   async togglePostFlag(postId: string, userId: string): Promise<void> {
