@@ -36,11 +36,6 @@ function ReactionSummary({
     .filter(([, userIds]) => userIds.length > 0)
     .sort(([, aUserIds], [, bUserIds]) => bUserIds.length - aUserIds.length) // Sort by count descending
 
-  // Find user's reaction
-  const userReaction = currentUserId
-    ? reactionEntries.find(([, userIds]) => userIds.includes(currentUserId))
-    : null
-
   if (reactionEntries.length === 0) {
     return null // No reactions to display
   }
@@ -84,13 +79,6 @@ function ReactionSummary({
           </div>
         )}
       </div>
-
-      {userReaction && (
-        <div className="user-reaction-indicator">
-          <span className="user-reaction-text">You reacted with</span>
-          <span className="user-reaction-emoji">{userReaction[0]}</span>
-        </div>
-      )}
     </div>
   )
 }
@@ -107,7 +95,7 @@ function getReactionTooltip(
   const hasCurrentUser = currentUserId ? userIds.includes(currentUserId) : false
 
   if (count === 1 && hasCurrentUser) {
-    return `You reacted with ${emoji}`
+    return `You: ${emoji}`
   }
 
   if (count === 1) {

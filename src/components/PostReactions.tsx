@@ -96,7 +96,7 @@ function PostReactions({
                 : isOwnPost
                   ? "You can't react to your own post"
                   : userReaction
-                    ? `You reacted with ${userReaction} - click to change`
+                    ? `${userReaction} - click to change`
                     : 'React with an emoji'
             }
           >
