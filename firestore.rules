@@ -23,8 +23,10 @@ service cloud.firestore {
       // Anyone can read user data (for leaderboard display)
       allow read: if true;
       
-      // Only authenticated users can create/update their own user document
-      allow create, update: if request.auth != null && request.auth.uid == userId;
+      // Users can create/update their own user document, admins can update any user
+      allow create, update: if request.auth != null && (
+        request.auth.uid == userId || isAdmin()
+      );
       
       // Users cannot delete their account data
       allow delete: if false;
