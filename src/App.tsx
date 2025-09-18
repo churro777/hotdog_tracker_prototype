@@ -9,6 +9,7 @@ import DebugBanner from '@components/DebugBanner'
 import ErrorBoundary from '@components/ErrorBoundary'
 import AuthModal from '@components/modals/AuthModal'
 import SettingsModal from '@components/modals/SettingsModal'
+import ConstdogtutionTab from '@components/tabs/ConstdogtutionTab'
 import FeedTab from '@components/tabs/FeedTab'
 import JournalTab from '@components/tabs/JournalTab'
 import LeaderboardTab from '@components/tabs/LeaderboardTab'
@@ -162,6 +163,8 @@ function AppContent() {
             onEditPost={editPost}
           />
         )
+      case TAB_TYPES.CONSTDOGTUTION:
+        return <ConstdogtutionTab />
       default:
         return <LeaderboardTab users={users} currentUserId={currentUserId} />
     }
@@ -254,6 +257,12 @@ function AppContent() {
             onClick={() => setActiveTab(TAB_TYPES.JOURNAL)}
           >
             {UI_TEXT.TABS.JOURNAL}
+          </button>
+          <button
+            className={`tab-button ${activeTab === TAB_TYPES.CONSTDOGTUTION ? 'active' : ''}`}
+            onClick={() => setActiveTab(TAB_TYPES.CONSTDOGTUTION)}
+          >
+            {UI_TEXT.TABS.CONSTDOGTUTION}
           </button>
         </nav>
 

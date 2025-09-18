@@ -51,6 +51,8 @@ export const TAB_TYPES = {
   LOG: 'log',
   /** Journal tab for personal post history */
   JOURNAL: 'journal',
+  /** Const-dog-tution tab showing contest rules */
+  CONSTDOGTUTION: 'constdogtution',
 } as const
 
 /**
@@ -67,6 +69,7 @@ export const UI_TEXT = {
     FEED: '📰 Feed',
     LOG: '📝 Log',
     JOURNAL: '📔 Journal',
+    CONSTDOGTUTION: '📜 Const-dog-tution',
     SETTINGS: '⚙️',
   },
 

@@ -1,7 +1,7 @@
 /**
  * Represents the available tab types in the application
  */
-export type Tab = 'leaderboard' | 'feed' | 'log' | 'journal'
+export type Tab = 'leaderboard' | 'feed' | 'log' | 'journal' | 'constdogtution'
 
 /**
  * Predefined emoji reactions available for posts
