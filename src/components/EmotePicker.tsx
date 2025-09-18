@@ -11,21 +11,21 @@ interface EmotePickerProps {
   onClose: () => void
   /** Function called when an emoji is selected */
   onSelect: (emoji: ReactionEmoji) => void
-  /** Currently selected emoji (if any) */
-  selectedEmoji?: string | null
+  /** Currently selected emojis */
+  selectedEmojis?: string[]
   /** Whether the picker is disabled */
   disabled?: boolean
 }
 
 /**
  * EmotePicker component displays a grid of predefined emoji reactions.
- * Users can select one emoji to react to a post.
+ * Users can select multiple emojis to react to a post.
  */
 function EmotePicker({
   isOpen,
   onClose,
   onSelect,
-  selectedEmoji,
+  selectedEmojis = [],
   disabled = false,
 }: EmotePickerProps) {
   const pickerRef = useRef<HTMLDivElement>(null)
@@ -70,13 +70,9 @@ function EmotePicker({
   const handleEmojiClick = (emoji: ReactionEmoji) => {
     if (disabled) return
 
-    // If clicking the currently selected emoji, remove it (toggle off)
-    if (emoji === selectedEmoji) {
-      onSelect('' as ReactionEmoji) // Empty string means no reaction
-    } else {
-      onSelect(emoji)
-    }
-    onClose()
+    // Toggle the emoji in the selection
+    onSelect(emoji)
+    // Don't close the picker - let users select multiple emojis
   }
 
   if (!isOpen) return null
@@ -85,7 +81,7 @@ function EmotePicker({
     <div className="emote-picker-overlay">
       <div className="emote-picker" ref={pickerRef}>
         <div className="emote-picker-header">
-          <span className="emote-picker-title">React with an emoji</span>
+          <span className="emote-picker-title">React with emojis</span>
           <button
             className="emote-picker-close"
             onClick={onClose}
@@ -100,7 +96,7 @@ function EmotePicker({
             <button
               key={emoji}
               className={`emote-picker-emoji ${
-                emoji === selectedEmoji ? 'selected' : ''
+                selectedEmojis.includes(emoji) ? 'selected' : ''
               } ${disabled ? 'disabled' : ''}`}
               onClick={() => handleEmojiClick(emoji)}
               disabled={disabled}
@@ -112,19 +108,15 @@ function EmotePicker({
           ))}
         </div>
 
-        {selectedEmoji && (
-          <div className="emote-picker-current">
-            <span className="current-reaction-label">Your reaction:</span>
-            <span className="current-reaction">{selectedEmoji}</span>
-            <button
-              className="remove-reaction-btn"
-              onClick={() => handleEmojiClick(selectedEmoji as ReactionEmoji)}
-              aria-label="Remove your reaction"
-            >
-              Remove
-            </button>
-          </div>
-        )}
+        <div className="emote-picker-footer">
+          <button
+            className="done-btn"
+            onClick={onClose}
+            aria-label="Done selecting reactions"
+          >
+            Done
+          </button>
+        </div>
       </div>
     </div>
   )

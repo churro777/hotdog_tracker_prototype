@@ -615,34 +615,27 @@ class FirebaseDataService implements DataService {
         currentReactions['👍'] = legacyUpvotes
       }
 
-      // Find user's current reaction
-      let userCurrentReaction: string | null = null
-      for (const [reactionEmoji, userIds] of Object.entries(currentReactions)) {
-        if (userIds.includes(userId)) {
-          userCurrentReaction = reactionEmoji
-          break
-        }
-      }
+      // Check if user already has this specific reaction
+      const currentUserIds = currentReactions[emoji] ?? []
+      const userHasThisReaction = currentUserIds.includes(userId)
 
       const updates: Record<string, any> = {} // eslint-disable-line @typescript-eslint/no-explicit-any
 
-      // Remove user from their current reaction if they have one
-      if (userCurrentReaction) {
-        const currentUserIds = currentReactions[userCurrentReaction] ?? []
-        if (currentUserIds.length <= 1) {
-          // Remove the reaction entirely if this is the only user
-          updates[`reactions.${userCurrentReaction}`] = arrayRemove(
-            ...currentUserIds
-          )
+      // Toggle the specific emoji reaction
+      if (emoji) {
+        if (userHasThisReaction) {
+          // Remove user from this reaction
+          if (currentUserIds.length <= 1) {
+            // Remove the reaction entirely if this is the only user
+            updates[`reactions.${emoji}`] = arrayRemove(...currentUserIds)
+          } else {
+            // Remove user from the reaction
+            updates[`reactions.${emoji}`] = arrayRemove(userId)
+          }
         } else {
-          // Remove user from the reaction
-          updates[`reactions.${userCurrentReaction}`] = arrayRemove(userId)
+          // Add user to this reaction
+          updates[`reactions.${emoji}`] = arrayUnion(userId)
         }
-      }
-
-      // Add user to new reaction if emoji is not empty and different from current
-      if (emoji && emoji !== userCurrentReaction) {
-        updates[`reactions.${emoji}`] = arrayUnion(userId)
       }
 
       // Clear legacy upvotes if we're transitioning to new system

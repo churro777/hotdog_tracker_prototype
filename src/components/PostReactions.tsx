@@ -44,12 +44,12 @@ function PostReactions({
     reactions['👍'] = legacyUpvotes
   }
 
-  // Find user's current reaction
-  const userReaction = currentUserId
-    ? Object.entries(reactions).find(([, userIds]) =>
-        userIds.includes(currentUserId)
-      )?.[0]
-    : null
+  // Find user's current reactions
+  const userReactions = currentUserId
+    ? Object.entries(reactions)
+        .filter(([, userIds]) => userIds.includes(currentUserId))
+        .map(([emoji]) => emoji)
+    : []
 
   const hasUserFlagged = currentUserId
     ? fishyFlags.includes(currentUserId)
@@ -86,7 +86,7 @@ function PostReactions({
           {/* React button */}
           <button
             onClick={handleReactionClick}
-            className={`reaction-btn react-btn ${userReaction ? 'active' : ''} ${
+            className={`reaction-btn react-btn ${userReactions.length > 0 ? 'active' : ''} ${
               !isAuthenticated || isOwnPost ? 'disabled' : ''
             }`}
             disabled={!isAuthenticated || isOwnPost || isUpdating}
@@ -95,14 +95,25 @@ function PostReactions({
                 ? 'Sign in to react'
                 : isOwnPost
                   ? "You can't react to your own post"
-                  : userReaction
-                    ? `${userReaction} - click to change`
-                    : 'React with an emoji'
+                  : userReactions.length > 0
+                    ? `Your reactions: ${userReactions.join('')} - click to change`
+                    : 'React with emojis'
             }
           >
-            {userReaction ? (
+            {userReactions.length > 0 ? (
               <>
-                <span className="user-emoji">{userReaction}</span>
+                <div className="user-emojis">
+                  {userReactions.slice(0, 3).map(emoji => (
+                    <span key={emoji} className="user-emoji">
+                      {emoji}
+                    </span>
+                  ))}
+                  {userReactions.length > 3 && (
+                    <span className="more-count">
+                      +{userReactions.length - 3}
+                    </span>
+                  )}
+                </div>
                 <span className="react-text">Change</span>
               </>
             ) : (
@@ -143,7 +154,7 @@ function PostReactions({
         isOpen={showPicker}
         onClose={() => setShowPicker(false)}
         onSelect={handleEmojiSelect}
-        selectedEmoji={userReaction ?? null}
+        selectedEmojis={userReactions}
         disabled={isUpdating}
       />
     </div>

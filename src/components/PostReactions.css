@@ -58,10 +58,23 @@
   border-color: var(--primary-color);
 }
 
+.user-emojis {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
 .react-emoji,
 .user-emoji {
   font-size: 16px;
   margin-right: 4px;
+}
+
+.more-count {
+  font-size: 12px;
+  color: white;
+  opacity: 0.8;
+  margin-left: 2px;
 }
 
 .react-text {

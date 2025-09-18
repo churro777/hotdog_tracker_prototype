@@ -123,21 +123,29 @@
   background: var(--bg-secondary);
   border-radius: 8px;
   border-top: 1px solid var(--border-color);
+  margin-bottom: 8px;
 }
 
 .current-reaction-label {
   font-size: 12px;
   color: var(--text-secondary);
   margin-right: 8px;
+  white-space: nowrap;
+}
+
+.current-reactions {
+  display: flex;
+  gap: 4px;
+  margin-right: auto;
+  margin-left: 4px;
+  flex-wrap: wrap;
 }
 
 .current-reaction {
   font-size: 18px;
-  margin-right: auto;
-  margin-left: 4px;
 }
 
-.remove-reaction-btn {
+.clear-reactions-btn {
   font-size: 12px;
   color: var(--text-secondary);
   background: none;
@@ -146,11 +154,40 @@
   padding: 4px 8px;
   border-radius: 4px;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.remove-reaction-btn:hover {
+.clear-reactions-btn:hover {
   color: var(--text-primary);
   background: var(--bg-hover);
+}
+
+.emote-picker-footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+.done-btn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.done-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.done-btn:active {
+  transform: translateY(0);
 }
 
 /* Mobile responsiveness */
@@ -225,7 +262,23 @@
   color: #ccc;
 }
 
-.dark-mode .remove-reaction-btn:hover {
+.dark-mode .clear-reactions-btn {
+  color: #ccc;
+}
+
+.dark-mode .clear-reactions-btn:hover {
   background: #444;
   color: white;
+}
+
+.dark-mode .emote-picker-footer {
+  border-top-color: #555;
+}
+
+.dark-mode .done-btn {
+  background: var(--primary-color);
+}
+
+.dark-mode .done-btn:hover {
+  background: var(--primary-hover);
 }
