@@ -932,15 +932,17 @@ body.dark-mode .contest-status.inactive {
     gap: 0.5rem;
     flex-direction: column;
     width: 100%;
+    align-items: center;
   }
 
-  .sign-in-btn,
-  .join-contest-btn {
+  .join-contest-banner .sign-in-btn,
+  .join-contest-banner .join-contest-btn {
     padding: 0.6rem 1rem;
     font-size: 0.85rem;
     width: 100%;
     max-width: none;
     height: 44px;
+    margin: 0 !important;
   }
 }
 
@@ -1109,8 +1111,8 @@ body.dark-mode .contest-status.inactive {
   flex-wrap: wrap;
 }
 
-.sign-in-btn,
-.join-contest-btn {
+.join-contest-banner .sign-in-btn,
+.join-contest-banner .join-contest-btn {
   border-radius: 8px;
   padding: 1rem 2rem;
   font-size: 1.1rem;
@@ -1126,28 +1128,29 @@ body.dark-mode .contest-status.inactive {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 0 !important;
 }
 
-.sign-in-btn {
+.join-contest-banner .sign-in-btn {
   background: rgba(255, 255, 255, 0.9);
   color: #ff6b35;
   border: 2px solid rgba(255, 255, 255, 0.9);
 }
 
-.sign-in-btn:hover {
+.join-contest-banner .sign-in-btn:hover {
   background: white;
   color: #ff6b35;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.join-contest-btn {
+.join-contest-banner .join-contest-btn {
   background: rgba(255, 255, 255, 0.2);
   color: white;
   border: 2px solid white;
 }
 
-.join-contest-btn:hover {
+.join-contest-banner .join-contest-btn:hover {
   background: white;
   color: #ff6b35;
   transform: translateY(-2px);
@@ -1180,10 +1183,11 @@ body.dark-mode .contest-status.inactive {
     flex-direction: row;
     width: 100%;
     justify-content: center;
+    align-items: center;
   }
 
-  .sign-in-btn,
-  .join-contest-btn {
+  .join-contest-banner .sign-in-btn,
+  .join-contest-banner .join-contest-btn {
     padding: 0.75rem 1rem;
     font-size: 0.9rem;
     flex: 1;
@@ -1192,6 +1196,7 @@ body.dark-mode .contest-status.inactive {
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 0 !important;
   }
 
   .guest-content {
@@ -1207,11 +1212,12 @@ body.dark-mode .contest-status.inactive {
     align-items: center;
   }
 
-  .sign-in-btn,
-  .join-contest-btn {
+  .join-contest-banner .sign-in-btn,
+  .join-contest-banner .join-contest-btn {
     flex: 1;
     max-width: 180px;
     height: 60px;
+    margin: 0 !important;
   }
 }
 
