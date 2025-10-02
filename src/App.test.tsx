@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { render, screen } from '@test/test-utils'
 
@@ -132,7 +132,7 @@ vi.mock('@hooks/useTheme', () => ({
 describe('App Component - Basic Integration', () => {
   it('should render app title', () => {
     render(<App />)
-    expect(screen.getAllByText('🌭 Hot Dog League')).toHaveLength(2) // Mobile and desktop headers
+    expect(screen.getAllByText('Hot Dog League')).toHaveLength(2) // Mobile and desktop headers
   })
 
   it('should render navigation tabs', () => {
