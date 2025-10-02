@@ -200,7 +200,7 @@ function AppContent() {
       return (
         <div className="guest-content">
           <div className="join-contest-banner">
-            <h2>🌭 Hot Dog Eating Contest Leaderboard</h2>
+            <h2>🌭 Hot Dog League Leaderboard</h2>
             <p>See who's leading the competition!</p>
             <div className="auth-buttons">
               <button
