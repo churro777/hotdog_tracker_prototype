@@ -12,12 +12,20 @@ import { logError, logValidationError } from '@utils/errorLogger'
 import useDataService from './useDataService'
 
 /**
+ * User type with contest-specific count calculated from posts
+ */
+export interface UserWithContestCount extends User {
+  /** Total count for the specific contest (calculated from posts) */
+  contestCount: number
+}
+
+/**
  * Return type for the modern contest data hook
  */
 interface UseContestDataV2Return {
   // Filtered data for current contest
   contestPosts: ContestPost[]
-  users: User[]
+  users: UserWithContestCount[]
 
   // All data (for global operations)
   allPosts: ContestPost[]
@@ -83,7 +91,22 @@ function useContestDataV2(
     ? allPosts.filter(post => post.contestId === contestId)
     : allPosts
 
-  const users = allUsers
+  // Calculate per-contest counts for each user based on their posts in this contest
+  const users: UserWithContestCount[] = allUsers.map(user => {
+    // Sum up all posts for this user in the current contest
+    const userContestPosts = contestPosts.filter(
+      post => post.userId === user.id
+    )
+    const contestCount = userContestPosts.reduce(
+      (sum, post) => sum + (post.count ?? 0),
+      0
+    )
+
+    return {
+      ...user,
+      contestCount,
+    }
+  })
 
   /**
    * Add a new contest post with user total count update

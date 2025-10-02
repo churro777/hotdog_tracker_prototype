@@ -1,11 +1,11 @@
 import { useMemo } from 'react'
 
-import type { User } from '@types'
+import type { UserWithContestCount } from './useContestDataV2'
 
 export interface LeaderInfo {
   /** The leading user, or null if no users */
-  leader: User | null
-  /** The leader's total count */
+  leader: UserWithContestCount | null
+  /** The leader's contest count */
   leadingCount: number
   /** Whether there's a tie for first place */
   isTied: boolean
@@ -15,9 +15,9 @@ export interface LeaderInfo {
 
 /**
  * Hook to determine the current leader in a contest
- * Finds the user with the highest totalCount
+ * Finds the user with the highest contestCount
  */
-export const useContestLeader = (users: User[]): LeaderInfo => {
+export const useContestLeader = (users: UserWithContestCount[]): LeaderInfo => {
   return useMemo(() => {
     if (!users || users.length === 0) {
       return {
@@ -28,8 +28,10 @@ export const useContestLeader = (users: User[]): LeaderInfo => {
       }
     }
 
-    // Sort users by totalCount descending
-    const sortedUsers = [...users].sort((a, b) => b.totalCount - a.totalCount)
+    // Sort users by contestCount descending
+    const sortedUsers = [...users].sort(
+      (a, b) => b.contestCount - a.contestCount
+    )
 
     const leader = sortedUsers[0] ?? null
     if (!leader) {
@@ -41,11 +43,11 @@ export const useContestLeader = (users: User[]): LeaderInfo => {
       }
     }
 
-    const leadingCount = leader.totalCount
+    const leadingCount = leader.contestCount
 
     // Check for ties at the top
     const usersWithLeadingCount = sortedUsers.filter(
-      user => user.totalCount === leadingCount
+      user => user.contestCount === leadingCount
     )
 
     const isTied = usersWithLeadingCount.length > 1

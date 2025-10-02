@@ -1,18 +1,19 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 
-import type { User } from '@types'
+import type { UserWithContestCount } from '@hooks/useContestDataV2'
 
 import LeaderboardTab from './LeaderboardTab'
 
 describe('LeaderboardTab - Tie Handling', () => {
   it('should handle all users tied at zero correctly (rank 4)', () => {
-    const tiedUsers: User[] = [
+    const tiedUsers: UserWithContestCount[] = [
       {
         id: '1',
         email: 'user1@test.com',
         displayName: 'User One',
         totalCount: 0,
+        contestCount: 0,
         createdAt: new Date(),
         lastActive: new Date(),
       },
@@ -21,6 +22,7 @@ describe('LeaderboardTab - Tie Handling', () => {
         email: 'user2@test.com',
         displayName: 'User Two',
         totalCount: 0,
+        contestCount: 0,
         createdAt: new Date(),
         lastActive: new Date(),
       },
@@ -29,6 +31,7 @@ describe('LeaderboardTab - Tie Handling', () => {
         email: 'user3@test.com',
         displayName: 'User Three',
         totalCount: 0,
+        contestCount: 0,
         createdAt: new Date(),
         lastActive: new Date(),
       },
@@ -37,6 +40,7 @@ describe('LeaderboardTab - Tie Handling', () => {
         email: 'user4@test.com',
         displayName: 'User Four',
         totalCount: 0,
+        contestCount: 0,
         createdAt: new Date(),
         lastActive: new Date(),
       },
@@ -56,12 +60,13 @@ describe('LeaderboardTab - Tie Handling', () => {
   })
 
   it('should handle complex tie scenarios correctly', () => {
-    const complexUsers: User[] = [
+    const complexUsers: UserWithContestCount[] = [
       {
         id: '1',
         email: 'user1@test.com',
         displayName: 'Leader',
         totalCount: 15,
+        contestCount: 15,
         createdAt: new Date(),
         lastActive: new Date(),
       },
@@ -70,6 +75,7 @@ describe('LeaderboardTab - Tie Handling', () => {
         email: 'user2@test.com',
         displayName: 'Tied Second A',
         totalCount: 10,
+        contestCount: 10,
         createdAt: new Date(),
         lastActive: new Date(),
       },
@@ -78,6 +84,7 @@ describe('LeaderboardTab - Tie Handling', () => {
         email: 'user3@test.com',
         displayName: 'Tied Second B',
         totalCount: 10,
+        contestCount: 10,
         createdAt: new Date(),
         lastActive: new Date(),
       },
@@ -86,6 +93,7 @@ describe('LeaderboardTab - Tie Handling', () => {
         email: 'user4@test.com',
         displayName: 'Tied Second C',
         totalCount: 10,
+        contestCount: 10,
         createdAt: new Date(),
         lastActive: new Date(),
       },
@@ -94,6 +102,7 @@ describe('LeaderboardTab - Tie Handling', () => {
         email: 'user5@test.com',
         displayName: 'Fifth Place',
         totalCount: 8,
+        contestCount: 8,
         createdAt: new Date(),
         lastActive: new Date(),
       },
@@ -115,12 +124,13 @@ describe('LeaderboardTab - Tie Handling', () => {
   })
 
   it('should handle two-way tie for highest score (becomes rank 2)', () => {
-    const tieForFirst: User[] = [
+    const tieForFirst: UserWithContestCount[] = [
       {
         id: '1',
         email: 'user1@test.com',
         displayName: 'Co-Leader A',
         totalCount: 20,
+        contestCount: 20,
         createdAt: new Date(),
         lastActive: new Date(),
       },
@@ -129,6 +139,7 @@ describe('LeaderboardTab - Tie Handling', () => {
         email: 'user2@test.com',
         displayName: 'Co-Leader B',
         totalCount: 20,
+        contestCount: 20,
         createdAt: new Date(),
         lastActive: new Date(),
       },
@@ -137,6 +148,7 @@ describe('LeaderboardTab - Tie Handling', () => {
         email: 'user3@test.com',
         displayName: 'Third Place',
         totalCount: 15,
+        contestCount: 15,
         createdAt: new Date(),
         lastActive: new Date(),
       },
@@ -154,12 +166,13 @@ describe('LeaderboardTab - Tie Handling', () => {
   })
 
   it('should award rank 1 only when one person has the highest score', () => {
-    const clearWinner: User[] = [
+    const clearWinner: UserWithContestCount[] = [
       {
         id: '1',
         email: 'user1@test.com',
         displayName: 'Clear Winner',
         totalCount: 25,
+        contestCount: 25,
         createdAt: new Date(),
         lastActive: new Date(),
       },
@@ -168,6 +181,7 @@ describe('LeaderboardTab - Tie Handling', () => {
         email: 'user2@test.com',
         displayName: 'Second Place',
         totalCount: 20,
+        contestCount: 20,
         createdAt: new Date(),
         lastActive: new Date(),
       },
@@ -176,6 +190,7 @@ describe('LeaderboardTab - Tie Handling', () => {
         email: 'user3@test.com',
         displayName: 'Third Place',
         totalCount: 15,
+        contestCount: 15,
         createdAt: new Date(),
         lastActive: new Date(),
       },

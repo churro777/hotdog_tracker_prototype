@@ -2,18 +2,18 @@ import { memo } from 'react'
 
 import './LeaderboardTab.css'
 import { UI_TEXT, CSS_CLASSES, ICONS } from '@constants'
-import type { User } from '@types'
+import type { UserWithContestCount } from '@hooks/useContestDataV2'
 
 interface LeaderboardTabProps {
-  users: User[]
+  users: UserWithContestCount[]
   currentUserId?: string | undefined
 }
 
 function LeaderboardTab({ users, currentUserId }: LeaderboardTabProps) {
-  const sortedUsers = [...users].sort((a, b) => b.totalCount - a.totalCount)
+  const sortedUsers = [...users].sort((a, b) => b.contestCount - a.contestCount)
 
   // Calculate ranks with proper tie handling
-  const usersWithRanks: (User & { rank: number })[] = []
+  const usersWithRanks: (UserWithContestCount & { rank: number })[] = []
 
   for (let i = 0; i < sortedUsers.length; i++) {
     const user = sortedUsers[i]
@@ -22,22 +22,31 @@ function LeaderboardTab({ users, currentUserId }: LeaderboardTabProps) {
     if (i === 0) {
       // First user: check if tied with others
       const tiedCount = sortedUsers.filter(
-        u => u?.totalCount === user.totalCount
+        u => u?.contestCount === user.contestCount
       ).length
       if (tiedCount === 1) {
         // Only one person with this score - gets rank 1
-        usersWithRanks.push({ ...user, rank: 1 } as User & { rank: number })
+        usersWithRanks.push({
+          ...user,
+          rank: 1,
+        } as UserWithContestCount & { rank: number })
       } else {
         // Multiple people tied - they get rank 2 (no ties for 1st place)
-        usersWithRanks.push({ ...user, rank: 2 } as User & { rank: number })
+        usersWithRanks.push({
+          ...user,
+          rank: 2,
+        } as UserWithContestCount & { rank: number })
       }
     } else {
       // Check if same score as previous user
-      if (sortedUsers[i - 1]?.totalCount === user.totalCount) {
+      if (sortedUsers[i - 1]?.contestCount === user.contestCount) {
         // Same score as previous user - same rank
         const previousUser = usersWithRanks[i - 1]
         if (previousUser) {
-          usersWithRanks.push({ ...user, rank: previousUser.rank } as User & {
+          usersWithRanks.push({
+            ...user,
+            rank: previousUser.rank,
+          } as UserWithContestCount & {
             rank: number
           })
         }
@@ -47,12 +56,12 @@ function LeaderboardTab({ users, currentUserId }: LeaderboardTabProps) {
         const lastOccurrenceIndex =
           sortedUsers
             .map((u, idx) => ({ user: u, index: idx }))
-            .filter(({ user: u }) => u && u.totalCount === user.totalCount)
+            .filter(({ user: u }) => u && u.contestCount === user.contestCount)
             .pop()?.index ?? i
         usersWithRanks.push({
           ...user,
           rank: lastOccurrenceIndex + 1,
-        } as User & { rank: number })
+        } as UserWithContestCount & { rank: number })
       }
     }
   }
@@ -105,7 +114,7 @@ function LeaderboardTab({ users, currentUserId }: LeaderboardTabProps) {
                 </div>
               </div>
               <div className="hot-dog-count">
-                {ICONS.HOT_DOG} {user.totalCount}
+                {ICONS.HOT_DOG} {user.contestCount}
               </div>
             </div>
           )

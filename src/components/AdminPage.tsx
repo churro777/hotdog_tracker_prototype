@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 
 import { Link } from 'react-router-dom'
 
 import { useAuth } from '@hooks/useAuth'
 import useContestCountdown from '@hooks/useContestCountdown'
+import type { UserWithContestCount } from '@hooks/useContestDataV2'
 import useContestLeader from '@hooks/useContestLeader'
 import useContests from '@hooks/useContests'
 import { useDataService } from '@hooks/useDataService'
@@ -30,6 +31,7 @@ const AdminPage = () => {
   const { currentUser } = useAuth()
   const {
     dataService,
+    posts,
     users,
     getFlaggedPosts,
     clearPostFlags,
@@ -40,7 +42,32 @@ const AdminPage = () => {
   const { isDarkMode, toggleTheme } = useTheme()
   const { activeContest } = useContests()
   const countdown = useContestCountdown(activeContest)
-  const { leader, isTied, tiedCount } = useContestLeader(users || [])
+
+  // Calculate contest-specific user counts
+  const usersWithContestCount: UserWithContestCount[] = useMemo(() => {
+    if (!activeContest || !users) return []
+
+    const contestPosts = posts.filter(
+      post => post.contestId === activeContest.id
+    )
+
+    return users.map(user => {
+      const userContestPosts = contestPosts.filter(
+        post => post.userId === user.id
+      )
+      const contestCount = userContestPosts.reduce(
+        (sum, post) => sum + (post.count ?? 0),
+        0
+      )
+
+      return {
+        ...user,
+        contestCount,
+      }
+    })
+  }, [users, posts, activeContest])
+
+  const { leader, isTied, tiedCount } = useContestLeader(usersWithContestCount)
 
   const [contests, setContests] = useState<Contest[]>([])
   const [loading, setLoading] = useState(true)
