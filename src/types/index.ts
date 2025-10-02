@@ -58,6 +58,12 @@ export interface User {
   }
   /** Admin privileges for contest management */
   isAdmin?: boolean
+  /** Soft delete flag - if true, user is hidden from contests and leaderboards */
+  isHidden?: boolean
+  /** Timestamp when the user was hidden */
+  hiddenAt?: Date
+  /** ID of the admin user who hid this user */
+  hiddenBy?: string
 }
 
 /**

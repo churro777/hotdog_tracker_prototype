@@ -29,6 +29,9 @@ export interface DataService {
   getUsers(): Promise<User[]>
   updateUser(id: string, updates: Partial<User>): Promise<User>
   addUser(user: Omit<User, 'id'>): Promise<User>
+  hideUser(userId: string, hiddenBy: string): Promise<void>
+  unhideUser(userId: string): Promise<void>
+  getHiddenUsers(): Promise<User[]>
 
   // Post reactions
   togglePostReaction(
@@ -502,18 +505,24 @@ class FirebaseDataService implements DataService {
       const q = query(usersRef, orderBy('totalCount', 'desc'))
       const snapshot = await getDocs(q)
 
-      return snapshot.docs.map(doc => {
-        const data = doc.data() as Record<string, unknown>
-        const createdAt = data['createdAt'] as { toDate(): Date } | undefined
-        const lastActive = data['lastActive'] as { toDate(): Date } | undefined
+      return snapshot.docs
+        .map(doc => {
+          const data = doc.data() as Record<string, unknown>
+          const createdAt = data['createdAt'] as { toDate(): Date } | undefined
+          const lastActive = data['lastActive'] as
+            | { toDate(): Date }
+            | undefined
 
-        return {
-          id: doc.id,
-          ...data,
-          createdAt: createdAt?.toDate() ?? new Date(),
-          lastActive: lastActive?.toDate() ?? new Date(),
-        }
-      }) as User[]
+          return {
+            id: doc.id,
+            ...data,
+            createdAt: createdAt?.toDate() ?? new Date(),
+            lastActive: lastActive?.toDate() ?? new Date(),
+          }
+        })
+        .filter(
+          user => !(user as unknown as { isHidden?: boolean }).isHidden
+        ) as User[]
     } catch (error) {
       const { logFirebaseError } = await import('@utils/errorLogger')
       logFirebaseError('Failed to fetch users', error as Error, 'users')
@@ -584,6 +593,76 @@ class FirebaseDataService implements DataService {
       }
     } catch (error) {
       console.error('Error adding user to Firebase:', error)
+      throw error
+    }
+  }
+
+  async hideUser(userId: string, hiddenBy: string): Promise<void> {
+    try {
+      const { doc, updateDoc, Timestamp } = await import('firebase/firestore')
+      const { db } = await import('@config/firebase')
+
+      const userRef = doc(db, this.usersCollection, userId)
+      await updateDoc(userRef, {
+        isHidden: true,
+        hiddenAt: Timestamp.now(),
+        hiddenBy,
+      })
+    } catch (error) {
+      console.error('Error hiding user in Firebase:', error)
+      throw error
+    }
+  }
+
+  async unhideUser(userId: string): Promise<void> {
+    try {
+      const { doc, updateDoc, deleteField } = await import('firebase/firestore')
+      const { db } = await import('@config/firebase')
+
+      const userRef = doc(db, this.usersCollection, userId)
+      await updateDoc(userRef, {
+        isHidden: deleteField(),
+        hiddenAt: deleteField(),
+        hiddenBy: deleteField(),
+      })
+    } catch (error) {
+      console.error('Error unhiding user in Firebase:', error)
+      throw error
+    }
+  }
+
+  async getHiddenUsers(): Promise<User[]> {
+    try {
+      const { collection, getDocs, orderBy, query, where } = await import(
+        'firebase/firestore'
+      )
+      const { db } = await import('@config/firebase')
+
+      const usersRef = collection(db, this.usersCollection)
+      const q = query(
+        usersRef,
+        where('isHidden', '==', true),
+        orderBy('hiddenAt', 'desc')
+      )
+      const snapshot = await getDocs(q)
+
+      return snapshot.docs.map(doc => {
+        const data = doc.data() as Record<string, unknown>
+        const createdAt = data['createdAt'] as { toDate(): Date } | undefined
+        const lastActive = data['lastActive'] as { toDate(): Date } | undefined
+        const hiddenAt = data['hiddenAt'] as { toDate(): Date } | undefined
+
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: createdAt?.toDate() ?? new Date(),
+          lastActive: lastActive?.toDate() ?? new Date(),
+          hiddenAt: hiddenAt?.toDate(),
+        }
+      }) as User[]
+    } catch (error) {
+      const { logFirebaseError } = await import('@utils/errorLogger')
+      logFirebaseError('Failed to fetch hidden users', error as Error, 'users')
       throw error
     }
   }

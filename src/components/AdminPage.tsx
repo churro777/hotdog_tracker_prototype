@@ -10,7 +10,7 @@ import useContests from '@hooks/useContests'
 import { useDataService } from '@hooks/useDataService'
 import useIsAdmin from '@hooks/useIsAdmin'
 import useTheme from '@hooks/useTheme'
-import type { Contest } from '@types'
+import type { Contest, User } from '@types'
 
 import FlaggedPostsTab from './admin/FlaggedPostsTab'
 import DebugBanner from './DebugBanner'
@@ -37,6 +37,9 @@ const AdminPage = () => {
     clearPostFlags,
     deletePost,
     syncContestScores,
+    hideUser,
+    unhideUser,
+    getHiddenUsers,
   } = useDataService()
   const { isAdmin, loading: adminLoading, error: adminError } = useIsAdmin()
   const { isDarkMode, toggleTheme } = useTheme()
@@ -79,6 +82,8 @@ const AdminPage = () => {
     updated: number
     errors: string[]
   } | null>(null)
+  const [showHiddenUsers, setShowHiddenUsers] = useState(false)
+  const [hiddenUsers, setHiddenUsers] = useState<User[]>([])
 
   const [formData, setFormData] = useState<ContestFormData>({
     name: '',
@@ -258,6 +263,45 @@ const AdminPage = () => {
       setSyncResult({ updated: 0, errors: ['Failed to sync scores'] })
     } finally {
       setSyncLoading(false)
+    }
+  }
+
+  const handleHideUser = async (userId: string, userName: string) => {
+    if (
+      !confirm(
+        `Hide user "${userName}" from all contests? They can be unhidden later.`
+      )
+    ) {
+      return
+    }
+
+    const success = await hideUser(userId)
+    if (success) {
+      // Refresh hidden users list if showing
+      if (showHiddenUsers) {
+        const hidden = await getHiddenUsers()
+        setHiddenUsers(hidden)
+      }
+    }
+  }
+
+  const handleUnhideUser = async (userId: string) => {
+    const success = await unhideUser(userId)
+    if (success) {
+      // Refresh hidden users list
+      const hidden = await getHiddenUsers()
+      setHiddenUsers(hidden)
+    }
+  }
+
+  const handleToggleHiddenUsers = async () => {
+    const newShowHidden = !showHiddenUsers
+    setShowHiddenUsers(newShowHidden)
+
+    if (newShowHidden) {
+      // Fetch hidden users when showing
+      const hidden = await getHiddenUsers()
+      setHiddenUsers(hidden)
     }
   }
 
@@ -757,13 +801,23 @@ const AdminPage = () => {
           <div className="participants-section">
             <div className="participants-header">
               <h3>📊 Contest Participants</h3>
-              <button
-                onClick={() => void handleSyncScores()}
-                disabled={syncLoading}
-                className="sync-button"
-              >
-                {syncLoading ? '🔄 Syncing...' : '🔄 Sync Scores'}
-              </button>
+              <div className="participants-actions">
+                <button
+                  onClick={() => void handleToggleHiddenUsers()}
+                  className="toggle-hidden-button"
+                >
+                  {showHiddenUsers
+                    ? '👁️ Hide Hidden Users'
+                    : '👁️‍🗨️ Show Hidden Users'}
+                </button>
+                <button
+                  onClick={() => void handleSyncScores()}
+                  disabled={syncLoading}
+                  className="sync-button"
+                >
+                  {syncLoading ? '🔄 Syncing...' : '🔄 Sync Scores'}
+                </button>
+              </div>
             </div>
 
             {/* Sync Results */}
@@ -788,6 +842,7 @@ const AdminPage = () => {
                 <span>User</span>
                 <span>Total Score</span>
                 <span>Status</span>
+                <span>Actions</span>
               </div>
 
               {users && users.length > 0 ? (
@@ -803,6 +858,19 @@ const AdminPage = () => {
                           ? '👤 You'
                           : '👥 Participant'}
                       </span>
+                      <span className="actions">
+                        {user.id !== currentUser?.uid && (
+                          <button
+                            onClick={() =>
+                              void handleHideUser(user.id, user.displayName)
+                            }
+                            className="hide-user-button"
+                            title="Hide user from contests"
+                          >
+                            🚫 Hide
+                          </button>
+                        )}
+                      </span>
                     </div>
                   ))
               ) : (
@@ -811,6 +879,45 @@ const AdminPage = () => {
                 </div>
               )}
             </div>
+
+            {/* Hidden Users Section */}
+            {showHiddenUsers && (
+              <div className="hidden-users-section">
+                <h4>🔒 Hidden Users ({hiddenUsers.length})</h4>
+                {hiddenUsers.length > 0 ? (
+                  <div className="participants-table">
+                    <div className="table-header">
+                      <span>User</span>
+                      <span>Total Score</span>
+                      <span>Hidden At</span>
+                      <span>Actions</span>
+                    </div>
+                    {hiddenUsers.map(user => (
+                      <div key={user.id} className="table-row hidden-user-row">
+                        <span className="user-name">{user.displayName}</span>
+                        <span className="score">{user.totalCount} 🌭</span>
+                        <span className="hidden-date">
+                          {user.hiddenAt
+                            ? new Date(user.hiddenAt).toLocaleDateString()
+                            : 'N/A'}
+                        </span>
+                        <span className="actions">
+                          <button
+                            onClick={() => void handleUnhideUser(user.id)}
+                            className="unhide-user-button"
+                            title="Restore user to contests"
+                          >
+                            ✅ Unhide
+                          </button>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="no-hidden-users">No hidden users</p>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

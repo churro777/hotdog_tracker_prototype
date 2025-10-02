@@ -47,6 +47,9 @@ interface UseDataServiceReturn {
   syncContestScores: () => Promise<{ updated: number; errors: string[] }>
   updateUser: (id: string, updates: Partial<User>) => Promise<User | null>
   addUser: (userData: Omit<User, 'id'>) => Promise<User | null>
+  hideUser: (userId: string) => Promise<boolean>
+  unhideUser: (userId: string) => Promise<boolean>
+  getHiddenUsers: () => Promise<User[]>
 
   // Post reactions
   togglePostReaction: (
@@ -519,6 +522,77 @@ export function useDataService(): UseDataServiceReturn {
   )
 
   /**
+   * Hide a user (soft delete)
+   */
+  const hideUser = useCallback(
+    async (userId: string): Promise<boolean> => {
+      try {
+        if (!currentUser?.uid) {
+          logError({
+            message: 'Cannot hide user: admin not authenticated',
+            error: new Error('No current user'),
+            context: 'data-service',
+            action: 'hide-user',
+          })
+          return false
+        }
+
+        await dataService.hideUser(userId, currentUser.uid)
+        // Real-time listener will handle UI update
+        return true
+      } catch (error) {
+        const errorMessage = `Failed to hide user ${userId}`
+        logError({
+          message: errorMessage,
+          error: error as Error,
+          context: 'data-service',
+          action: 'hide-user',
+        })
+        return false
+      }
+    },
+    [currentUser]
+  )
+
+  /**
+   * Unhide a user (restore)
+   */
+  const unhideUser = useCallback(async (userId: string): Promise<boolean> => {
+    try {
+      await dataService.unhideUser(userId)
+      // Real-time listener will handle UI update
+      return true
+    } catch (error) {
+      const errorMessage = `Failed to unhide user ${userId}`
+      logError({
+        message: errorMessage,
+        error: error as Error,
+        context: 'data-service',
+        action: 'unhide-user',
+      })
+      return false
+    }
+  }, [])
+
+  /**
+   * Get all hidden users
+   */
+  const getHiddenUsers = useCallback(async (): Promise<User[]> => {
+    try {
+      return await dataService.getHiddenUsers()
+    } catch (error) {
+      const errorMessage = 'Failed to fetch hidden users'
+      logError({
+        message: errorMessage,
+        error: error as Error,
+        context: 'data-service',
+        action: 'get-hidden-users',
+      })
+      return []
+    }
+  }, [])
+
+  /**
    * Toggle emoji reaction on a post
    */
   const togglePostReaction = useCallback(
@@ -659,6 +733,9 @@ export function useDataService(): UseDataServiceReturn {
     deletePost,
     updateUser,
     addUser,
+    hideUser,
+    unhideUser,
+    getHiddenUsers,
 
     // Post reactions
     togglePostReaction,
