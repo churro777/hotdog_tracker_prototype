@@ -23,7 +23,7 @@ function ConstdogtutionTab() {
       <div className="constdogtution-header">
         <h1>📜 The Const-dog-tution</h1>
         <p className="constdogtution-subtitle">
-          The Official Rules & Regulations of the Hot Dog Eating Contest
+          The Official Rules & Regulations of the Hot Dog League
         </p>
       </div>
 

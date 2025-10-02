@@ -197,6 +197,9 @@ function AppContent() {
 
     // Guest experience: only show leaderboard with join button
     if (!currentUser) {
+      // Show only top 10 users for guests
+      const top10Users = users.slice(0, 10)
+
       return (
         <div className="guest-content">
           <div className="join-contest-banner">
@@ -246,7 +249,8 @@ function AppContent() {
                 </div>
               </div>
             )}
-            <LeaderboardTab users={users} currentUserId={currentUserId} />
+            <LeaderboardTab users={top10Users} currentUserId={currentUserId} />
+            <ConstdogtutionTab />
           </main>
         </div>
       )
