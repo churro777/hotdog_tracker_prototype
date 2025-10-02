@@ -4,7 +4,7 @@ import { vi, beforeEach } from 'vitest'
 // Mock environment variables for tests
 Object.defineProperty(import.meta, 'env', {
   value: {
-    VITE_APP_NAME: 'Hot Dog Tracker',
+    VITE_APP_NAME: 'Hot Dog League',
     VITE_APP_VERSION: '0.0.0',
     VITE_APP_ENVIRONMENT: 'test',
     VITE_DEV_MODE: 'false',
