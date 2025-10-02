@@ -345,7 +345,7 @@ function AppContent() {
                       {isTied ? `${tiedCount}-way tie:` : 'Leader:'}
                     </span>
                     <span className="leader-name">
-                      {leader.displayName} ({leader.totalCount})
+                      {leader.displayName} ({leader.contestCount})
                     </span>
                   </div>
                 )}
@@ -387,7 +387,7 @@ function AppContent() {
                       {isTied ? `${tiedCount}-way tie:` : 'Leader:'}
                     </span>
                     <span className="leader-name">
-                      {leader.displayName} ({leader.totalCount})
+                      {leader.displayName} ({leader.contestCount})
                     </span>
                   </div>
                 )}
