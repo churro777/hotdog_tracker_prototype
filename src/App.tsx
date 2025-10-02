@@ -200,7 +200,7 @@ function AppContent() {
       return (
         <div className="guest-content">
           <div className="join-contest-banner">
-            <h2>🌭 Hot Dog League Leaderboard</h2>
+            <h2>🌭 Hot Dog League</h2>
             <p>See who's leading the competition!</p>
             <div className="auth-buttons">
               <button
@@ -223,7 +223,29 @@ function AppContent() {
               </button>
             </div>
           </div>
-          <main className="tab-content">
+          <main className="tab-content guest-leaderboard">
+            <h2 className="guest-leaderboard-title">
+              {UI_TEXT.TABS.LEADERBOARD}
+            </h2>
+            {activeContest && (
+              <div className="guest-countdown-section">
+                <div className="guest-countdown-info">
+                  <span className="countdown-label">
+                    {countdown.statusMessage}
+                  </span>
+                  {!countdown.isCompleted && (
+                    <span className="countdown-time">
+                      {countdown.formattedTime}
+                    </span>
+                  )}
+                  {countdown.isContestOver && leader && (
+                    <span className="contest-winner">
+                      Contest Winner: {leader.displayName}!
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
             <LeaderboardTab users={users} currentUserId={currentUserId} />
           </main>
         </div>
@@ -413,7 +435,7 @@ function AppContent() {
     <div className={`app ${!currentUser ? 'guest-mode' : ''}`}>
       <DebugBanner />
 
-      {!isLoading && (
+      {!isLoading && currentUser && (
         <header className="app-header">{getHeaderContent()}</header>
       )}
 

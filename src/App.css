@@ -1060,17 +1060,6 @@ body.dark-mode .contest-status.inactive {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding-bottom: 120px; /* Space for sticky header at bottom */
-}
-
-/* Make header sticky at bottom for guest users */
-.app.guest-mode .app-header {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  top: auto;
-  z-index: 200;
 }
 
 .join-contest-banner {
@@ -1162,6 +1151,55 @@ body.dark-mode .contest-status.inactive {
   flex: 1;
 }
 
+/* Guest leaderboard title */
+.guest-leaderboard-title {
+  text-align: center;
+  margin: 1.5rem 0 1rem 0;
+  font-size: 1.75rem;
+  color: var(--text-primary);
+}
+
+/* Hide LeaderboardTab's internal title for guest mode */
+.guest-leaderboard .tab-panel h2 {
+  display: none;
+}
+
+/* Guest countdown section */
+.guest-countdown-section {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 0;
+}
+
+.guest-countdown-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.guest-countdown-info .countdown-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.guest-countdown-info .countdown-time {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: var(--accent-color);
+  font-family: 'Courier New', monospace;
+}
+
+.guest-countdown-info .contest-winner {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--success-color);
+  animation: pulse 2s ease-in-out infinite;
+}
+
 /* Mobile adjustments for guest banner */
 @media (max-width: 768px) {
   .join-contest-banner {
@@ -1197,10 +1235,6 @@ body.dark-mode .contest-status.inactive {
     align-items: center;
     justify-content: center;
     margin: 0 !important;
-  }
-
-  .guest-content {
-    padding-bottom: 100px; /* Smaller space for mobile header */
   }
 }
 
