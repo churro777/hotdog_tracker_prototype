@@ -206,22 +206,26 @@ export function useDataService(): UseDataServiceReturn {
         usersUnsubscribe = onSnapshot(
           q,
           snapshot => {
-            const loadedUsers = snapshot.docs.map(doc => {
-              const data = doc.data() as Record<string, unknown>
-              const createdAt = data['createdAt'] as
-                | { toDate(): Date }
-                | undefined
-              const lastActive = data['lastActive'] as
-                | { toDate(): Date }
-                | undefined
+            const loadedUsers = snapshot.docs
+              .map(doc => {
+                const data = doc.data() as Record<string, unknown>
+                const createdAt = data['createdAt'] as
+                  | { toDate(): Date }
+                  | undefined
+                const lastActive = data['lastActive'] as
+                  | { toDate(): Date }
+                  | undefined
 
-              return {
-                id: doc.id,
-                ...data,
-                createdAt: createdAt?.toDate() ?? new Date(),
-                lastActive: lastActive?.toDate() ?? new Date(),
-              }
-            }) as User[]
+                return {
+                  id: doc.id,
+                  ...data,
+                  createdAt: createdAt?.toDate() ?? new Date(),
+                  lastActive: lastActive?.toDate() ?? new Date(),
+                }
+              })
+              .filter(
+                user => !(user as unknown as { isHidden?: boolean }).isHidden
+              ) as User[]
 
             if (!isCancelledRef.current) {
               setUsers(loadedUsers)
