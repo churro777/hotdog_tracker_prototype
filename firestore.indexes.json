@@ -1,0 +1,19 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isHidden",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "hiddenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
