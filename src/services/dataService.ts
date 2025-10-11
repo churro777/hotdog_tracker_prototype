@@ -4,7 +4,7 @@
  * between localStorage (current) and Firebase (future) implementations
  */
 
-import type { ContestPost, User, Contest } from '@types'
+import type { ContestPost, User, Contest, PostComment } from '@types'
 
 /**
  * Generic data service interface
@@ -46,6 +46,18 @@ export interface DataService {
   // Admin post management
   clearPostFlags(postId: string): Promise<void>
   getFlaggedPosts(threshold?: number): Promise<ContestPost[]>
+
+  // Post comments
+  getPostComments(postId: string, limit?: number): Promise<PostComment[]>
+  addPostComment(
+    postId: string,
+    commentData: Omit<PostComment, 'id' | 'postId'>
+  ): Promise<PostComment>
+  deletePostComment(
+    postId: string,
+    commentId: string,
+    deletedBy?: string
+  ): Promise<void>
 
   // Batch operations
   batchUpdate(operations: BatchOperation[]): Promise<void>
@@ -819,6 +831,130 @@ class FirebaseDataService implements DataService {
     } catch (error) {
       const { logFirebaseError } = await import('@utils/errorLogger')
       logFirebaseError('Failed to fetch flagged posts', error as Error, 'posts')
+      throw error
+    }
+  }
+
+  async getPostComments(
+    postId: string,
+    limit?: number
+  ): Promise<PostComment[]> {
+    try {
+      const {
+        collection,
+        getDocs,
+        orderBy,
+        query,
+        doc,
+        limit: limitFn,
+      } = await import('firebase/firestore')
+      const { db } = await import('@config/firebase')
+
+      const postRef = doc(db, this.postsCollection, postId)
+      const commentsRef = collection(postRef, 'comments')
+
+      // Query comments ordered by timestamp descending (newest first)
+      let q = query(commentsRef, orderBy('timestamp', 'desc'))
+
+      // Apply limit if specified
+      if (limit) {
+        q = query(q, limitFn(limit))
+      }
+
+      const snapshot = await getDocs(q)
+
+      return snapshot.docs.map(doc => {
+        const data = doc.data() as Record<string, unknown>
+        const timestamp = data['timestamp'] as { toDate(): Date } | undefined
+        return {
+          id: doc.id,
+          postId,
+          ...data,
+          timestamp: timestamp?.toDate() ?? new Date(),
+        } as PostComment
+      })
+    } catch (error) {
+      const { logFirebaseError } = await import('@utils/errorLogger')
+      logFirebaseError(
+        'Failed to fetch post comments',
+        error as Error,
+        'comments'
+      )
+      throw error
+    }
+  }
+
+  async addPostComment(
+    postId: string,
+    commentData: Omit<PostComment, 'id' | 'postId'>
+  ): Promise<PostComment> {
+    try {
+      const { collection, addDoc, doc, Timestamp } = await import(
+        'firebase/firestore'
+      )
+      const { db } = await import('@config/firebase')
+
+      // Validate comment text length
+      if (commentData.text.length > 256) {
+        throw new Error('Comment text exceeds 256 character limit')
+      }
+
+      const postRef = doc(db, this.postsCollection, postId)
+      const commentsRef = collection(postRef, 'comments')
+
+      const dataWithTimestamp = {
+        ...commentData,
+        timestamp: Timestamp.fromDate(commentData.timestamp),
+      }
+
+      const docRef = await addDoc(commentsRef, dataWithTimestamp)
+
+      console.log('✅ Firebase addPostComment successful:', {
+        postId,
+        commentId: docRef.id,
+        userId: commentData.userId,
+      })
+
+      return {
+        id: docRef.id,
+        postId,
+        ...commentData,
+      }
+    } catch (error) {
+      console.error('❌ Error adding comment to Firebase:', {
+        error,
+        postId,
+        userId: commentData.userId,
+      })
+      throw error
+    }
+  }
+
+  async deletePostComment(
+    postId: string,
+    commentId: string,
+    deletedBy?: string
+  ): Promise<void> {
+    try {
+      const { doc, deleteDoc } = await import('firebase/firestore')
+      const { db } = await import('@config/firebase')
+
+      const postRef = doc(db, this.postsCollection, postId)
+      const commentRef = doc(postRef, 'comments', commentId)
+
+      await deleteDoc(commentRef)
+
+      console.log('✅ Firebase deletePostComment successful:', {
+        postId,
+        commentId,
+        deletedBy,
+      })
+    } catch (error) {
+      console.error('❌ Error deleting comment from Firebase:', {
+        error,
+        postId,
+        commentId,
+      })
       throw error
     }
   }

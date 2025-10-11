@@ -1,8 +1,10 @@
 import { memo, useEffect, useRef, useCallback } from 'react'
 
+import PostComments from '@components/PostComments'
 import PostReactions from '@components/PostReactions'
 import './FeedTab.css'
 import { FORM_CONFIG, BUTTON_TEXT, ICONS } from '@constants'
+import useIsAdmin from '@hooks/useIsAdmin'
 import usePostEdit from '@hooks/usePostEdit'
 import type { ContestPost } from '@types'
 
@@ -69,6 +71,9 @@ function FeedTab({
     saveEdit,
     cancelEdit,
   } = usePostEdit(onEditPost)
+
+  // Check if current user is admin
+  const { isAdmin } = useIsAdmin()
 
   // Ref for the posts container to detect scroll
   const postsContainerRef = useRef<HTMLDivElement>(null)
@@ -242,6 +247,13 @@ function FeedTab({
                     isAuthenticated={isAuthenticated}
                     onToggleReaction={onToggleReaction}
                     onToggleFlag={onToggleFlag}
+                  />
+
+                  <PostComments
+                    post={post}
+                    currentUserId={currentUserId}
+                    isAuthenticated={isAuthenticated}
+                    isAdmin={isAdmin}
                   />
                 </>
               )}

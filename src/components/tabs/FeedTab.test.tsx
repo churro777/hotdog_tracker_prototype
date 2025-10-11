@@ -10,11 +10,24 @@ vi.mock('../../hooks/usePostEdit', () => ({
     editingPostId: null,
     editCount: '',
     editDescription: '',
+    editImage: '',
+    isSaving: false,
     setEditCount: vi.fn(),
     setEditDescription: vi.fn(),
+    handleImageUpload: vi.fn(),
+    clearImage: vi.fn(),
     startEditing: vi.fn(),
     saveEdit: vi.fn(),
     cancelEdit: vi.fn(),
+  }),
+}))
+
+// Mock the useIsAdmin hook
+vi.mock('../../hooks/useIsAdmin', () => ({
+  default: () => ({
+    isAdmin: false,
+    loading: false,
+    error: null,
   }),
 }))
 

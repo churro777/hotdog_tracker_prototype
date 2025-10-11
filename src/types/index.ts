@@ -133,6 +133,25 @@ export interface ContestPost {
 }
 
 /**
+ * Represents a comment on a contest post
+ * @interface PostComment
+ */
+export interface PostComment {
+  /** Unique identifier for the comment */
+  id: string
+  /** ID of the post this comment belongs to */
+  postId: string
+  /** ID of the user who created the comment (Firebase Auth UID) */
+  userId: string
+  /** Display name of the user who created the comment */
+  userName: string
+  /** Comment text content (max 256 characters) */
+  text: string
+  /** Timestamp when the comment was created */
+  timestamp: Date
+}
+
+/**
  * @deprecated ContestUser is deprecated in simplified architecture
  * Use User interface instead - contest data is now part of the User
  * This interface remains for migration compatibility only

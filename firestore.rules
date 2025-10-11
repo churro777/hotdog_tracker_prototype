@@ -36,11 +36,11 @@ service cloud.firestore {
     match /contest-posts/{postId} {
       // Anyone can read posts (for guest leaderboard and feed display)
       allow read: if true;
-      
+
       // Only authenticated users can create posts
-      allow create: if request.auth != null 
+      allow create: if request.auth != null
         && request.auth.uid == request.resource.data.userId;
-      
+
       // Post owners can update their posts, or authenticated users can update reactions
       allow update: if request.auth != null && (
         // Post owner can update any field
@@ -48,11 +48,31 @@ service cloud.firestore {
         // Authenticated users can only update reactions (upvotes, fishyFlags) and not on their own posts
         (onlyUpdatingReactions() && request.auth.uid != resource.data.userId)
       );
-      
+
       // Post owners and admins can delete posts
       allow delete: if request.auth != null && (
         request.auth.uid == resource.data.userId || isAdmin()
       );
+
+      // Comments subcollection
+      match /comments/{commentId} {
+        // Anyone can read comments
+        allow read: if true;
+
+        // Only authenticated users can create comments
+        // Validate userId matches auth, text length <= 256 chars
+        allow create: if request.auth != null
+          && request.auth.uid == request.resource.data.userId
+          && request.resource.data.text.size() <= 256;
+
+        // Comment owners and admins can delete comments
+        allow delete: if request.auth != null && (
+          request.auth.uid == resource.data.userId || isAdmin()
+        );
+
+        // No updates allowed (comments can't be edited)
+        allow update: if false;
+      }
     }
     
     // Contest info/metadata - read-only for all users
