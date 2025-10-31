@@ -72,8 +72,9 @@ interface UseDataServiceReturn {
 /**
  * Custom hook for managing data service operations
  * Provides loading states, error handling, and optimistic updates
+ * @param contestId - Optional contest ID to filter posts
  */
-export function useDataService(): UseDataServiceReturn {
+export function useDataService(contestId?: string): UseDataServiceReturn {
   // Cancellation ref to prevent state updates after unmount
   const isCancelledRef = useRef(false)
 
@@ -116,17 +117,26 @@ export function useDataService(): UseDataServiceReturn {
           setPostsError(null)
         }
 
-        const { collection, onSnapshot, orderBy, query, limit } = await import(
-          'firebase/firestore'
-        )
+        const { collection, onSnapshot, orderBy, query, limit, where } =
+          await import('firebase/firestore')
         const { db } = await import('@config/firebase')
 
         const postsRef = collection(db, 'contest-posts')
-        const q = query(
-          postsRef,
-          orderBy('timestamp', 'desc'),
-          limit(20) // Get more to account for filtering
-        )
+
+        // Build query with optional contest filter
+        let q
+        if (contestId) {
+          // For a specific contest, load many posts (up to 1000) to get full contest data
+          q = query(
+            postsRef,
+            where('contestId', '==', contestId),
+            orderBy('timestamp', 'desc'),
+            limit(1000)
+          )
+        } else {
+          // For all contests, load a reasonable amount
+          q = query(postsRef, orderBy('timestamp', 'desc'), limit(100))
+        }
 
         postsUnsubscribe = onSnapshot(
           q,
@@ -145,16 +155,16 @@ export function useDataService(): UseDataServiceReturn {
               })
               .filter(
                 post => !(post as unknown as { isDeleted?: boolean }).isDeleted
-              )
-              .slice(0, 10) as ContestPost[] // Limit to 10 after filtering
+              ) as ContestPost[]
 
             if (!isCancelledRef.current) {
               setPosts(loadedPosts)
               setIsPostsLoading(false)
               setPostsError(null)
 
-              // Update pagination state
-              const hasMore = snapshot.docs.length === 10
+              // Update pagination state - check if we got a full batch
+              const batchSize = contestId ? 1000 : 100
+              const hasMore = snapshot.docs.length >= batchSize
               setHasMorePosts(hasMore)
               setLastPostDoc(snapshot.docs[snapshot.docs.length - 1] ?? null)
             }
@@ -276,7 +286,7 @@ export function useDataService(): UseDataServiceReturn {
         usersUnsubscribe()
       }
     }
-  }, [])
+  }, [contestId])
 
   /**
    * Refresh all data (now just re-establishes listeners)
@@ -290,64 +300,94 @@ export function useDataService(): UseDataServiceReturn {
   /**
    * Load more posts for pagination
    */
-  const loadMorePosts = useCallback(async () => {
-    if (!hasMorePosts || isLoadingMore || !lastPostDoc) {
-      return
-    }
+  const loadMorePosts = useCallback(
+    async (filterContestId?: string) => {
+      if (!hasMorePosts || isLoadingMore || !lastPostDoc) {
+        return
+      }
 
-    setIsLoadingMore(true)
+      setIsLoadingMore(true)
 
-    try {
-      const { collection, getDocs, orderBy, query, limit, startAfter } =
-        await import('firebase/firestore')
-      const { db } = await import('@config/firebase')
+      try {
+        const {
+          collection,
+          getDocs,
+          orderBy,
+          query,
+          limit,
+          startAfter,
+          where,
+        } = await import('firebase/firestore')
+        const { db } = await import('@config/firebase')
 
-      const postsRef = collection(db, 'contest-posts')
-      const q = query(
-        postsRef,
-        orderBy('timestamp', 'desc'),
-        startAfter(lastPostDoc),
-        limit(20) // Get more to account for filtering
-      )
+        const postsRef = collection(db, 'contest-posts')
 
-      const snapshot = await getDocs(q)
+        // Use the filter contestId if provided, otherwise use the hook's contestId
+        const activeContestId = filterContestId ?? contestId
 
-      const newPosts = snapshot.docs
-        .map(doc => {
-          const data = doc.data() as Record<string, unknown>
-          const timestamp = data['timestamp'] as { toDate(): Date } | undefined
-          return {
-            id: doc.id,
-            ...data,
-            timestamp: timestamp?.toDate() ?? new Date(),
-          }
+        // Build query with optional contest filter
+        let q
+        if (activeContestId) {
+          q = query(
+            postsRef,
+            where('contestId', '==', activeContestId),
+            orderBy('timestamp', 'desc'),
+            startAfter(lastPostDoc),
+            limit(100)
+          )
+        } else {
+          q = query(
+            postsRef,
+            orderBy('timestamp', 'desc'),
+            startAfter(lastPostDoc),
+            limit(50)
+          )
+        }
+
+        const snapshot = await getDocs(q)
+
+        const newPosts = snapshot.docs
+          .map(doc => {
+            const data = doc.data() as Record<string, unknown>
+            const timestamp = data['timestamp'] as
+              | { toDate(): Date }
+              | undefined
+            return {
+              id: doc.id,
+              ...data,
+              timestamp: timestamp?.toDate() ?? new Date(),
+            }
+          })
+          .filter(
+            post => !(post as unknown as { isDeleted?: boolean }).isDeleted
+          ) as ContestPost[]
+
+        if (!isCancelledRef.current) {
+          setPosts(prevPosts => [...prevPosts, ...newPosts])
+          const batchSize = activeContestId ? 100 : 50
+          const hasMore = snapshot.docs.length >= batchSize
+          setHasMorePosts(hasMore)
+          setLastPostDoc(snapshot.docs[snapshot.docs.length - 1] ?? null)
+        }
+      } catch (error) {
+        const errorMessage = 'Failed to load more posts'
+        if (!isCancelledRef.current) {
+          setPostsError(errorMessage)
+        }
+        logError({
+          message: errorMessage,
+          error: error as Error,
+          context: 'data-service',
+          action: 'load-more-posts',
         })
-        .filter(post => !(post as unknown as { isDeleted?: boolean }).isDeleted)
-        .slice(0, 10) as ContestPost[] // Limit to 10 after filtering
-
-      if (!isCancelledRef.current) {
-        setPosts(prevPosts => [...prevPosts, ...newPosts])
-        const hasMore = snapshot.docs.length === 10
-        setHasMorePosts(hasMore)
-        setLastPostDoc(snapshot.docs[snapshot.docs.length - 1] ?? null)
+      } finally {
+        if (!isCancelledRef.current) {
+          setIsLoadingMore(false)
+        }
       }
-    } catch (error) {
-      const errorMessage = 'Failed to load more posts'
-      if (!isCancelledRef.current) {
-        setPostsError(errorMessage)
-      }
-      logError({
-        message: errorMessage,
-        error: error as Error,
-        context: 'data-service',
-        action: 'load-more-posts',
-      })
-    } finally {
-      if (!isCancelledRef.current) {
-        setIsLoadingMore(false)
-      }
-    }
-  }, [hasMorePosts, isLoadingMore, lastPostDoc])
+    },
+    [hasMorePosts, isLoadingMore, lastPostDoc, contestId]
+  )
 
   /**
    * Add a new post

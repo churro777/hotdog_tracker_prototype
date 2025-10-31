@@ -82,14 +82,12 @@ function useContestDataV2(
     updatePost: serviceUpdatePost,
     updateUser: serviceUpdateUser,
     refreshData,
-    loadMorePosts,
-  } = useDataService()
+    loadMorePosts: serviceLoadMorePosts,
+  } = useDataService(contestId)
 
-  // Filter posts by contest if contestId is provided
-  // Now that migration is complete, all posts should have proper contestId values
-  const contestPosts = contestId
-    ? allPosts.filter(post => post.contestId === contestId)
-    : allPosts
+  // Posts are already filtered by contestId in the useDataService query
+  // No need for client-side filtering anymore - the query does it at the database level
+  const contestPosts = allPosts
 
   // Calculate per-contest counts for each user based on their posts in this contest
   const users: UserWithContestCount[] = allUsers.map(user => {
@@ -256,6 +254,13 @@ function useContestDataV2(
     },
     [contestPosts, users, serviceUpdatePost, serviceUpdateUser]
   )
+
+  /**
+   * Load more posts - wrapper around service method that passes contestId
+   */
+  const loadMorePosts = useCallback(async () => {
+    await serviceLoadMorePosts(contestId)
+  }, [serviceLoadMorePosts, contestId])
 
   /**
    * Get statistics for the current user
