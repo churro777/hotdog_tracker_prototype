@@ -150,7 +150,9 @@ describe('App Component - Basic Integration', () => {
           (text?.includes('📔') ?? false)
       )
 
-    expect(tabTexts).toHaveLength(4)
+    // Note: Log tab (📝) is hidden when there's no active contest or contest is not active
+    // With no active contest mocked, we expect 3 tabs: Leaderboard, Feed, Journal
+    expect(tabTexts).toHaveLength(3)
   })
 
   it('should render settings button', () => {

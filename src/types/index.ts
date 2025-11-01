@@ -81,6 +81,8 @@ export interface Contest {
   startDate: Date
   /** Contest end date and time */
   endDate: Date
+  /** End of review period date and time - when users can no longer view/review but cannot post */
+  endOfReviewDate?: Date
   /** Contest status */
   status: 'upcoming' | 'active' | 'completed'
   /** Whether this is the default contest to display */

@@ -23,6 +23,11 @@ import useContestLeader from '@hooks/useContestLeader'
 import useContests from '@hooks/useContests'
 import { useDataService } from '@hooks/useDataService'
 import type { Tab } from '@types'
+import {
+  shouldShowWinner,
+  shouldShowCountdown,
+  canPostToContest,
+} from '@utils/contestUtils'
 
 /**
  * Main App component that manages the hot dog contest tracking application.
@@ -101,6 +106,17 @@ function AppContent() {
 
     document.title = title
   }, [])
+
+  // Redirect from Log tab if contest is no longer accepting posts
+  useEffect(() => {
+    if (
+      activeTab === TAB_TYPES.LOG &&
+      activeContest &&
+      !canPostToContest(activeContest)
+    ) {
+      setActiveTab(TAB_TYPES.FEED)
+    }
+  }, [activeTab, activeContest])
 
   // Theme is now handled by useTheme hook
 
@@ -233,17 +249,21 @@ function AppContent() {
             {activeContest && (
               <div className="guest-countdown-section">
                 <div className="guest-countdown-info">
-                  <span className="countdown-label">
-                    {countdown.statusMessage}
-                  </span>
-                  {!countdown.isCompleted && (
-                    <span className="countdown-time">
-                      {countdown.formattedTime}
-                    </span>
+                  {shouldShowCountdown(activeContest) && (
+                    <>
+                      <span className="countdown-label">
+                        {countdown.statusMessage}
+                      </span>
+                      {!countdown.isCompleted && (
+                        <span className="countdown-time">
+                          {countdown.formattedTime}
+                        </span>
+                      )}
+                    </>
                   )}
-                  {countdown.isContestOver && leader && (
+                  {shouldShowWinner(activeContest) && leader && (
                     <span className="contest-winner">
-                      Contest Winner: {leader.displayName}!
+                      👑 WINNER: {leader.displayName}! 👑
                     </span>
                   )}
                 </div>
@@ -272,12 +292,14 @@ function AppContent() {
           >
             {UI_TEXT.TABS.FEED}
           </button>
-          <button
-            className={`tab-button ${activeTab === TAB_TYPES.LOG ? 'active' : ''}`}
-            onClick={() => setActiveTab(TAB_TYPES.LOG)}
-          >
-            {UI_TEXT.TABS.LOG}
-          </button>
+          {activeContest && canPostToContest(activeContest) && (
+            <button
+              className={`tab-button ${activeTab === TAB_TYPES.LOG ? 'active' : ''}`}
+              onClick={() => setActiveTab(TAB_TYPES.LOG)}
+            >
+              {UI_TEXT.TABS.LOG}
+            </button>
+          )}
           <button
             className={`tab-button ${activeTab === TAB_TYPES.JOURNAL ? 'active' : ''}`}
             onClick={() => setActiveTab(TAB_TYPES.JOURNAL)}
@@ -342,7 +364,11 @@ function AppContent() {
                 {leader && (
                   <div className="leader-info">
                     <span className="leader-label">
-                      {isTied ? `${tiedCount}-way tie:` : 'Leader:'}
+                      {shouldShowWinner(activeContest)
+                        ? '👑 WINNER:'
+                        : isTied
+                          ? `${tiedCount}-way tie:`
+                          : 'Leader:'}
                     </span>
                     <span className="leader-name">
                       {leader.displayName} ({leader.contestCount})
@@ -350,23 +376,20 @@ function AppContent() {
                   </div>
                 )}
               </div>
-              <div className="countdown-section">
-                <div className="countdown-info">
-                  <span className="countdown-label">
-                    {countdown.statusMessage}
-                  </span>
-                  {!countdown.isCompleted && (
-                    <span className="countdown-time">
-                      {countdown.formattedTime}
+              {shouldShowCountdown(activeContest) && (
+                <div className="countdown-section">
+                  <div className="countdown-info">
+                    <span className="countdown-label">
+                      {countdown.statusMessage}
                     </span>
-                  )}
-                  {countdown.isContestOver && leader && (
-                    <span className="contest-winner">
-                      Contest Winner: {leader.displayName}!
-                    </span>
-                  )}
+                    {!countdown.isCompleted && (
+                      <span className="countdown-time">
+                        {countdown.formattedTime}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
         </div>
@@ -384,28 +407,29 @@ function AppContent() {
                 {leader && (
                   <div className="leader-info">
                     <span className="leader-label">
-                      {isTied ? `${tiedCount}-way tie:` : 'Leader:'}
+                      {shouldShowWinner(activeContest)
+                        ? '👑 WINNER:'
+                        : isTied
+                          ? `${tiedCount}-way tie:`
+                          : 'Leader:'}
                     </span>
                     <span className="leader-name">
                       {leader.displayName} ({leader.contestCount})
                     </span>
                   </div>
                 )}
-                <div className="countdown-info">
-                  <span className="countdown-label">
-                    {countdown.statusMessage}
-                  </span>
-                  {!countdown.isCompleted && (
-                    <span className="countdown-time">
-                      {countdown.formattedTime}
+                {shouldShowCountdown(activeContest) && (
+                  <div className="countdown-info">
+                    <span className="countdown-label">
+                      {countdown.statusMessage}
                     </span>
-                  )}
-                  {countdown.isContestOver && leader && (
-                    <span className="contest-winner">
-                      Contest Winner: {leader.displayName}!
-                    </span>
-                  )}
-                </div>
+                    {!countdown.isCompleted && (
+                      <span className="countdown-time">
+                        {countdown.formattedTime}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>

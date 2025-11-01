@@ -23,6 +23,8 @@ interface ContestFormData {
   startTime: string
   endDate: string
   endTime: string
+  endOfReviewDate: string
+  endOfReviewTime: string
   status: 'upcoming' | 'active' | 'completed'
   isDefault: boolean
 }
@@ -92,6 +94,8 @@ const AdminPage = () => {
     startTime: '09:00',
     endDate: '',
     endTime: '17:00',
+    endOfReviewDate: '',
+    endOfReviewTime: '18:00',
     status: 'upcoming',
     isDefault: false,
   })
@@ -132,11 +136,18 @@ const AdminPage = () => {
     if (!currentUser) return
 
     try {
-      const contestData = {
+      const contestData: Omit<Contest, 'id'> = {
         name: formData.name,
         description: formData.description,
         startDate: combineDateAndTime(formData.startDate, formData.startTime),
         endDate: combineDateAndTime(formData.endDate, formData.endTime),
+        ...(formData.endOfReviewDate &&
+          formData.endOfReviewTime && {
+            endOfReviewDate: combineDateAndTime(
+              formData.endOfReviewDate,
+              formData.endOfReviewTime
+            ),
+          }),
         status: formData.status,
         isDefault: formData.isDefault,
         createdAt: new Date(),
@@ -157,11 +168,18 @@ const AdminPage = () => {
     if (!editingContest) return
 
     try {
-      const updates = {
+      const updates: Partial<Contest> = {
         name: formData.name,
         description: formData.description,
         startDate: combineDateAndTime(formData.startDate, formData.startTime),
         endDate: combineDateAndTime(formData.endDate, formData.endTime),
+        ...(formData.endOfReviewDate &&
+          formData.endOfReviewTime && {
+            endOfReviewDate: combineDateAndTime(
+              formData.endOfReviewDate,
+              formData.endOfReviewTime
+            ),
+          }),
         status: formData.status,
         isDefault: formData.isDefault,
       }
@@ -197,6 +215,12 @@ const AdminPage = () => {
       startTime: formatTimeForInput(contest.startDate),
       endDate: formatDateForInput(contest.endDate),
       endTime: formatTimeForInput(contest.endDate),
+      endOfReviewDate: contest.endOfReviewDate
+        ? formatDateForInput(contest.endOfReviewDate)
+        : '',
+      endOfReviewTime: contest.endOfReviewDate
+        ? formatTimeForInput(contest.endOfReviewDate)
+        : '18:00',
       status: contest.status,
       isDefault: contest.isDefault ?? false,
     })
@@ -211,6 +235,8 @@ const AdminPage = () => {
       startTime: '09:00',
       endDate: '',
       endTime: '17:00',
+      endOfReviewDate: '',
+      endOfReviewTime: '18:00',
       status: 'upcoming',
       isDefault: false,
     })
@@ -233,11 +259,15 @@ const AdminPage = () => {
     const endDateTime = new Date(
       startDateTime.getTime() + hours * 60 * 60 * 1000
     )
+    // Set review period end to 1 hour after contest end
+    const reviewEndDateTime = new Date(endDateTime.getTime() + 60 * 60 * 1000)
 
     setFormData({
       ...formData,
       endDate: formatDateForInput(endDateTime),
       endTime: formatTimeForInput(endDateTime),
+      endOfReviewDate: formatDateForInput(reviewEndDateTime),
+      endOfReviewTime: formatTimeForInput(reviewEndDateTime),
     })
   }
 
@@ -459,6 +489,13 @@ const AdminPage = () => {
                   {activeContest.endDate.toLocaleDateString()}{' '}
                   {activeContest.endDate.toLocaleTimeString()}
                 </div>
+                {activeContest.endOfReviewDate && (
+                  <div className="date-item">
+                    <strong>Review Ends:</strong>{' '}
+                    {activeContest.endOfReviewDate.toLocaleDateString()}{' '}
+                    {activeContest.endOfReviewDate.toLocaleTimeString()}
+                  </div>
+                )}
               </div>
 
               {leader && (
@@ -621,6 +658,39 @@ const AdminPage = () => {
 
             <div className="form-row">
               <div className="form-group">
+                <label>End of Review Date</label>
+                <input
+                  type="date"
+                  value={formData.endOfReviewDate}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      endOfReviewDate: e.target.value,
+                    })
+                  }
+                />
+                <small className="field-help">
+                  Optional: Users can view but not post during review period
+                </small>
+              </div>
+
+              <div className="form-group">
+                <label>End of Review Time</label>
+                <input
+                  type="time"
+                  value={formData.endOfReviewTime}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      endOfReviewTime: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
                 <label>Status</label>
                 <select
                   value={formData.status}
@@ -748,6 +818,13 @@ const AdminPage = () => {
                             {contest.endDate.toLocaleDateString()}{' '}
                             {contest.endDate.toLocaleTimeString()}
                           </div>
+                          {contest.endOfReviewDate && (
+                            <div>
+                              <strong>Review Ends:</strong>{' '}
+                              {contest.endOfReviewDate.toLocaleDateString()}{' '}
+                              {contest.endOfReviewDate.toLocaleTimeString()}
+                            </div>
+                          )}
                         </div>
 
                         <div className="contest-actions">
