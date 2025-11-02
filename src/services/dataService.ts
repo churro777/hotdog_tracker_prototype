@@ -853,8 +853,8 @@ class FirebaseDataService implements DataService {
       const postRef = doc(db, this.postsCollection, postId)
       const commentsRef = collection(postRef, 'comments')
 
-      // Query comments ordered by timestamp descending (newest first)
-      let q = query(commentsRef, orderBy('timestamp', 'desc'))
+      // Query comments ordered by timestamp ascending (oldest first)
+      let q = query(commentsRef, orderBy('timestamp', 'asc'))
 
       // Apply limit if specified
       if (limit) {

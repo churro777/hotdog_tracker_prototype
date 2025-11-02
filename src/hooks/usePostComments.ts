@@ -75,7 +75,7 @@ export function usePostComments(postId: string): UsePostCommentsReturn {
 
         const postRef = doc(db, 'contest-posts', postId)
         const commentsRef = collection(postRef, 'comments')
-        const q = query(commentsRef, orderBy('timestamp', 'desc'))
+        const q = query(commentsRef, orderBy('timestamp', 'asc'))
 
         unsubscribe = onSnapshot(
           q,
