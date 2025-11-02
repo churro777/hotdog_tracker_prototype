@@ -116,12 +116,18 @@ class FirebaseDataService implements DataService {
         const startDate = data['startDate'] as { toDate(): Date } | undefined
         const endDate = data['endDate'] as { toDate(): Date } | undefined
         const createdAt = data['createdAt'] as { toDate(): Date } | undefined
+        const endOfReviewDate = data['endOfReviewDate'] as
+          | { toDate(): Date }
+          | undefined
         return {
           id: doc.id,
           ...data,
           startDate: startDate?.toDate() ?? new Date(),
           endDate: endDate?.toDate() ?? new Date(),
           createdAt: createdAt?.toDate() ?? new Date(),
+          ...(endOfReviewDate && {
+            endOfReviewDate: endOfReviewDate.toDate(),
+          }),
         }
       }) as Contest[]
     } catch (error) {
@@ -144,6 +150,9 @@ class FirebaseDataService implements DataService {
         startDate: Timestamp.fromDate(contestData.startDate),
         endDate: Timestamp.fromDate(contestData.endDate),
         createdAt: Timestamp.fromDate(contestData.createdAt),
+        ...(contestData.endOfReviewDate && {
+          endOfReviewDate: Timestamp.fromDate(contestData.endOfReviewDate),
+        }),
       }
 
       const docRef = await addDoc(contestsRef, dataWithTimestamps)
@@ -177,6 +186,9 @@ class FirebaseDataService implements DataService {
         ...(updates.createdAt && {
           createdAt: Timestamp.fromDate(updates.createdAt),
         }),
+        ...(updates.endOfReviewDate && {
+          endOfReviewDate: Timestamp.fromDate(updates.endOfReviewDate),
+        }),
       }
 
       await updateDoc(contestRef, updatesWithTimestamps)
@@ -186,6 +198,9 @@ class FirebaseDataService implements DataService {
       const startDate = data['startDate'] as { toDate(): Date } | undefined
       const endDate = data['endDate'] as { toDate(): Date } | undefined
       const createdAt = data['createdAt'] as { toDate(): Date } | undefined
+      const endOfReviewDate = data['endOfReviewDate'] as
+        | { toDate(): Date }
+        | undefined
 
       return {
         id,
@@ -193,6 +208,9 @@ class FirebaseDataService implements DataService {
         startDate: startDate?.toDate() ?? new Date(),
         endDate: endDate?.toDate() ?? new Date(),
         createdAt: createdAt?.toDate() ?? new Date(),
+        ...(endOfReviewDate && {
+          endOfReviewDate: endOfReviewDate.toDate(),
+        }),
       } as Contest
     } catch (error) {
       console.error('Error updating contest in Firebase:', error)
