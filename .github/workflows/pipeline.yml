@@ -317,7 +317,7 @@ jobs:
           firebase deploy --only hosting,firestore:rules,firestore:indexes --project hotdog-tracker-def59 --non-interactive
 
       - name: Comment deployment status
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             github.rest.repos.createCommitStatus({
@@ -346,7 +346,7 @@ jobs:
 
     steps:
       - name: Post pipeline summary
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const results = {
